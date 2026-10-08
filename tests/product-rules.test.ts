@@ -194,13 +194,49 @@ test('passwords are salted and verified safely', async () => {
   assert.equal(await verifyPassword('ten-plus-characters', a), true);
   assert.equal(await verifyPassword('wrong', a), false);
 });
-test('unsafe project URLs are rejected', () => {
-  const out = submissionSchema.safeParse({
+test('unsafe URLs and invalid conditional details are rejected on otherwise valid submissions', () => {
+  const blankFields = [
+    'website',
+    'github',
+    'demo',
+    'tech',
+    'problem',
+    'solution',
+    'language',
+    'license',
+    'difficulty',
+    'areas',
+    'setup',
+    'stage',
+    'traction',
+    'launchDate',
+    'whatsNew',
+    'media',
+    'team',
+    'role',
+    'roleDescription',
+    'skills',
+    'commitment',
+    'compensation',
+    'location',
+    'applicationUrl',
+  ];
+  const valid = {
+    ...Object.fromEntries(blankFields.map((key) => [key, ''])),
     title: 'Test project',
     tagline: 'A sufficiently long pitch',
-    description: 'A'.repeat(60),
+    description: 'A complete story of a student build and the problem it solves.'.repeat(2),
     category: 'Projects',
-    website: 'javascript:alert(1)',
-  });
-  assert.equal(out.success, false);
+    openSource: false,
+    startup: false,
+    launched: false,
+    recruiting: false,
+  };
+  assert.equal(submissionSchema.safeParse(valid).success, true);
+  const unsafe = submissionSchema.safeParse({ ...valid, website: 'javascript:alert(1)' });
+  assert.equal(unsafe.success, false);
+  if (!unsafe.success) assert.ok(unsafe.error.issues.some((i) => i.path[0] === 'website'));
+  assert.equal(submissionSchema.safeParse({ ...valid, openSource: true }).success, false);
+  assert.equal(submissionSchema.safeParse({ ...valid, recruiting: true }).success, false);
+  assert.equal(submissionSchema.safeParse({ ...valid, launchDate: '2026-99-99' }).success, false);
 });
