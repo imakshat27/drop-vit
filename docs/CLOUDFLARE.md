@@ -22,12 +22,12 @@ Authenticate with `npx wrangler login`. Keep the three credentials above in Clou
 
 After building, `npm run deploy:cloudflare` publishes the Worker. For an initial deploy, Wrangler also accepts `--secrets-file` with an ignored JSON file containing only those three keys. Delete the temporary file afterward. Keep `.dev.vars` for local preview only.
 
-While DNS activation is pending, deploy with `--var APP_URL:https://drop-vit.agarwalakshat2710.workers.dev` so verification links use the working origin. Once Cloudflare marks the zone active, add this entry to `wrangler.jsonc` and redeploy without that override:
+While DNS activation is pending, deploy with `--var APP_URL:https://drop-vit.agarwalakshat2710.workers.dev` so verification links use the working origin. Before attaching the custom domain, remove the conflicting apex A/CNAME records in Cloudflare DNS. Preserve email records. Add this entry to `wrangler.jsonc`, set `APP_URL=https://droppp.tech`, and redeploy:
 
 ```json
 "routes": [{ "pattern": "droppp.tech", "custom_domain": true }]
 ```
 
-The configured `APP_URL=https://droppp.tech` then becomes the canonical verification origin. Cloudflare provisions the custom domain's DNS record and certificate. Domain activation requires the registrar to delegate to the exact nameservers assigned by Cloudflare.
+The updated `APP_URL=https://droppp.tech` then becomes the canonical verification origin. Cloudflare provisions the custom domain's DNS record and certificate. Domain activation requires the registrar to delegate to the exact nameservers assigned by Cloudflare.
 
 Check public pages, account signup/signin, and verification delivery after deployment. `npm run services:check` verifies database schema and SMTP authentication from Node without sending mail. The local app keeps `APP_URL=http://localhost:3000` in `.env.local`.
