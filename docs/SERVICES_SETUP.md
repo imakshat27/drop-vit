@@ -15,7 +15,7 @@ Reference: https://neon.com/docs/get-started/connect-neon
 ## 2. Brevo
 
 1. Sign in at https://www.brevo.com and select the Free plan.
-2. Add `drop.aksht.site` as a sending domain. Add the exact authentication records displayed by Brevo to your DNS provider; preserve existing records for other mail services. Wait until Brevo confirms verification. Follow the domain authentication records displayed by Brevo, including its verification code, DKIM, and DMARC guidance.
+2. Add `aksht.site` as a sending domain. Add the exact authentication records displayed by Brevo to your DNS provider; preserve existing records for other mail services. Wait until Brevo confirms verification. Follow the domain authentication records displayed by Brevo, including its verification code, DKIM, and DMARC guidance.
 3. Under SMTP & API → SMTP, copy the displayed SMTP login into `SMTP_USER`. Generate an SMTP key and save it as `SMTP_PASSWORD` (not an API key or account password).
 4. Set these values in `.env.local` (keep the actual API key out of Git):
 
@@ -24,7 +24,7 @@ SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
 SMTP_USER=<your displayed Brevo SMTP login>
 SMTP_PASSWORD=<your Brevo SMTP key>
-SMTP_FROM="Drop <hello@drop.aksht.site>"
+SMTP_FROM="Drop <hello@aksht.site>"
 ```
 
 Port 587 uses required STARTTLS; ports 465/2465 use implicit TLS. Certificate verification stays enabled. Free currently permits 300 email sends/day, with no rollover; a campus-wide signup burst may need a paid plan. Check the provider's current limits before launch.
