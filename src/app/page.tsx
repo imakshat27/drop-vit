@@ -1,5 +1,7 @@
 import { LiveRefresh } from '@/components/live-refresh';
 import Link from 'next/link';
+import { MotionControl } from '@/components/motion';
+import { Portal, CurveType } from '@/components/portal';
 import { ArrowUpRight, ArrowRight, Trophy, ArrowUp } from 'lucide-react';
 import { ProjectArt } from '@/components/art';
 import { ProjectCard, RankingRow, SectionTitle, RoleMeta } from '@/components/cards';
@@ -34,15 +36,17 @@ export default async function Home() {
             <span className="eyebrow">
               <span className="live-dot" /> A CAMPUS FULL OF POSSIBILITIES
             </span>
-            <span className="eyebrow">BUILT HERE. DROPPED WEEKLY.</span>
+            <MotionControl />
           </div>
           <div className="hero-layout">
             <div className="hero-message">
-              <span className="poster-kicker">SMALL CAMPUS. BIG BUILD ENERGY.</span>
+              <span className="poster-kicker">THE NEXT BIG THING IS ALREADY HERE ↗</span>
               <h1>
-                What VIT
-                <br />
-                is <em>building.</em>
+                <span>What VIT</span>
+                <span>
+                  is <em className="sr-only">building.</em>
+                </span>
+                <CurveType />
               </h1>
               <div className="hero-copy">
                 <p>
@@ -54,31 +58,41 @@ export default async function Home() {
                 </Link>
               </div>
             </div>
-            <div className="build-collage" aria-label="A peek inside the exhibition">
-              <span className="collage-sticker" aria-hidden>
-                IDEAS OUT.
-                <br />
-                BUILDS IN.
-              </span>
-              <span className="collage-star" aria-hidden>
-                ✳
-              </span>
-              {projects.slice(0, 3).map((project, i) => (
-                <Link
-                  key={project.id}
-                  href={`/projects/${project.slug}`}
-                  className={`collage-build collage-build-${i}`}
-                  aria-label={`Explore ${project.title}`}
-                >
-                  <div className="collage-label">
-                    <span>BUILD / 0{i + 1}</span>
-                    <ArrowUpRight size={17} aria-hidden />
-                  </div>
-                  <ProjectArt symbol={project.symbol} color={project.color} title={project.title} />
-                  <b>{project.title}</b>
-                </Link>
-              ))}
-              <span className="collage-caption">100% BUILT BETWEEN LECTURES.</span>
+            <div className="orbit-scene" aria-label="A peek inside the exhibition">
+              <div className="scene-parallax">
+                <Portal />
+                <div className="build-collage">
+                  <span className="collage-sticker" aria-hidden>
+                    ENTER THE
+                    <br />
+                    BUILDVERSE
+                  </span>
+                  <span className="collage-star" aria-hidden>
+                    ✳
+                  </span>
+                  {projects.slice(0, 3).map((project, i) => (
+                    <Link
+                      key={project.id}
+                      href={`/projects/${project.slug}`}
+                      className={`collage-build collage-build-${i}`}
+                      aria-label={`Explore ${project.title}`}
+                    >
+                      <div className="collage-label">
+                        <span>BUILD / 0{i + 1}</span>
+                        <ArrowUpRight size={17} aria-hidden />
+                      </div>
+                      <ProjectArt
+                        symbol={project.symbol}
+                        color={project.color}
+                        title={project.title}
+                      />
+                      <b>{project.title}</b>
+                    </Link>
+                  ))}
+                  <span className="collage-caption">SIDE PROJECTS. OTHERWORLDLY ENERGY.</span>
+                </div>
+              </div>
+              <span className="scene-coordinate">27° N / INFINITE POSSIBILITIES</span>
             </div>
           </div>
           <div className="hero-bottom">
@@ -91,16 +105,22 @@ export default async function Home() {
             <span>Made by students. Worth your attention.</span>
           </div>
         </section>
-        <div className="drop-strip" aria-label="Built here. Dropped weekly.">
-          <span>BUILT HERE</span>
-          <span aria-hidden>✳</span>
-          <span>DROPPED WEEKLY</span>
-          <span aria-hidden>✳</span>
-          <span>VIT, INDIA</span>
-          <span aria-hidden>↗</span>
+        <div className="ribbon-crossing">
+          <div className="ribbon-back" aria-hidden>
+            IDEAS ESCAPE THE CLASSROOM ↗ IDEAS ESCAPE THE CLASSROOM
+          </div>
+          <div className="drop-strip" role="img" aria-label="Built here. Dropped weekly.">
+            <div className="ribbon-track" aria-hidden>
+              {[0, 1].map((i) => (
+                <span key={i}>
+                  BUILT HERE <b>✳</b> DROPPED WEEKLY <b>✳</b> VIT, INDIA <b>↗</b>{' '}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
         {champion && (
-          <section className="champion-section" aria-label="Last week's champion">
+          <section className="champion-section" data-reveal aria-label="Last week's champion">
             <div className="champion">
               <div className="champion-copy">
                 <div className="champion-top">
@@ -140,7 +160,7 @@ export default async function Home() {
             </div>
           </section>
         )}
-        <section className="section">
+        <section className="section" data-reveal>
           <SectionTitle
             eyebrow="THE WEEKLY EXHIBITION"
             title="New week. New possibilities."
@@ -183,7 +203,7 @@ export default async function Home() {
             </aside>
           </div>
         </section>
-        <section className="section">
+        <section className="section" data-reveal>
           <SectionTitle eyebrow="FOLLOW YOUR CURIOSITY" title="A little bit of everything." />
           <div className="category-grid">
             {categories.map((c, i) => (
@@ -202,7 +222,7 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section className="section">
+        <section className="section" data-reveal>
           <SectionTitle
             eyebrow="FROM THE WORKSHOP"
             title="Made with a little obsession."
@@ -218,7 +238,7 @@ export default async function Home() {
               ))}
           </div>
         </section>
-        <section className="section">
+        <section className="section" data-reveal>
           <SectionTitle
             eyebrow="GOOD TEAMS START SOMEWHERE"
             title="There’s a seat for you."
@@ -243,7 +263,7 @@ export default async function Home() {
             ))}
           </div>
         </section>
-        <section className="section">
+        <section className="section" data-reveal>
           <div className="honors-teaser">
             <div>
               <span className="eyebrow">A LITTLE WELL-DESERVED RECOGNITION</span>
