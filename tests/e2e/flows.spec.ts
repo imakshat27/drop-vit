@@ -229,10 +229,10 @@ test('landscape mobile and tablet support comfortable navigation', async ({ page
 test('orbital scene can pause and reduced motion stays static', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Warp space', exact: true }).click();
+  await page.getByRole('button', { name: 'Chaos mode', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-warp', 'on');
   await expect(page.getByRole('link', { name: 'Explore Canvas Club', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Restore orbit', exact: true }).click();
+  await page.getByRole('button', { name: 'Calm the chaos', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-warp', 'off');
   const orbit = page.locator('.portal-orbit');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
@@ -249,4 +249,25 @@ test('orbital scene can pause and reduced motion stays static', async ({ page })
   await expect(page.getByRole('button', { name: 'Reduced motion' })).toBeDisabled();
   await expect(orbit).toHaveCSS('animation-name', 'none');
   await expect(page.locator('.ribbon-track')).toHaveCSS('animation-name', 'none');
+});
+
+test('kinetic reactions clean up on pause and project navigation stays direct', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  await expect(page.locator('.portal-sculpture')).toHaveCSS('filter', 'none');
+  await expect(page.locator('.portal-core')).toHaveCSS('animation-play-state', 'running');
+  await page.mouse.move(220, 210);
+  await page.mouse.move(260, 240);
+  await expect(page.locator('.reaction-layer')).toHaveClass(/cursor-active/);
+  await page.mouse.click(250, 180);
+  await expect(page.locator('.click-spark').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
+  await expect(page.locator('.click-spark')).toHaveCount(0);
+  await expect(page.locator('.cursor-stamp')).toHaveCount(0);
+  await expect(page.locator('.portal-core')).toHaveCSS('animation-play-state', 'paused');
+  await expect(page.locator('.kinetic-glyph').first()).toHaveCSS('animation-play-state', 'paused');
+  await page.getByRole('link', { name: 'Explore Canvas Club', exact: true }).click();
+  await expect(page).toHaveURL(/\/projects\/canvas$/);
 });
