@@ -6,6 +6,9 @@
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
+    "build:cloudflare": "node scripts/patch-opennext.mjs && opennextjs-cloudflare build && node scripts/cloudflare-runtime-env.mjs",
+    "preview:cloudflare": "opennextjs-cloudflare preview",
+    "deploy:cloudflare": "opennextjs-cloudflare deploy",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
@@ -26,12 +29,14 @@
     "next": "latest",
     "nodemailer": "latest",
     "pg": "latest",
+    "pg-cloudflare": "^1.4.1",
     "react": "latest",
     "react-dom": "latest",
     "zod": "latest"
   },
   "devDependencies": {
     "@axe-core/playwright": "latest",
+    "@opennextjs/cloudflare": "^1.20.9",
     "@playwright/test": "latest",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
@@ -44,7 +49,8 @@
     "prettier": "^3.9.9",
     "tailwindcss": "latest",
     "tsx": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "wrangler": "^4.148.0"
   },
   "overrides": {
     "braces": "^3.0.3",

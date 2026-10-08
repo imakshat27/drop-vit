@@ -33,7 +33,7 @@ References: https://help.brevo.com/hc/en-us/articles/7924908994450-Send-transact
 
 ## 3. Verify and start
 
-Keep `APP_URL=http://localhost:3000` while testing locally. Set it to `https://drop.aksht.site` in the deployed environment so verification links point to the right app. Do not prefix database or SMTP secrets with `NEXT_PUBLIC_`.
+Keep `APP_URL=http://localhost:3000` while testing locally. Set it to `https://droppp.tech` in the deployed environment so verification links point to the right app. Do not prefix database or SMTP secrets with `NEXT_PUBLIC_`.
 
 ```sh
 npm run services:check

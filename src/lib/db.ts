@@ -4,10 +4,16 @@ import { PGlite } from '@electric-sql/pglite';
 import { drizzle as pgliteDrizzle } from 'drizzle-orm/pglite';
 import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { cache } from 'react';
 import * as schema from './schema';
 function createDatabase() {
   if (process.env.DATABASE_URL) {
-    const client = new Pool({ connectionString: process.env.DATABASE_URL });
+    const client = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      connectionTimeoutMillis: 15000,
+      max: 5,
+      ...(process.env.DROP_RUNTIME === 'cloudflare' ? { maxUses: 1 } : {}),
+    });
     return {
       db: pgDrizzle(client, { schema, casing: 'snake_case' }),
       executeScript: (script: string) => client.query(script),
@@ -28,7 +34,9 @@ function createDatabase() {
   };
 }
 const globalDb = globalThis as unknown as { dropDatabase?: ReturnType<typeof createDatabase> };
+const requestDatabase = cache(createDatabase);
 export function database() {
+  if (process.env.DROP_RUNTIME === 'cloudflare') return requestDatabase();
   return (globalDb.dropDatabase ??= createDatabase());
 }
 export function db() {

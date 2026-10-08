@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "drop-vit",
+  "account_id": "ee86951ee9b792b8e8e816ef34b34591",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-08",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "drop-vit" }],
+  "vars": {
+    "DROP_RUNTIME": "cloudflare",
+    "APP_URL": "https://droppp.tech",
+    "SMTP_HOST": "smtp-relay.brevo.com",
+    "SMTP_PORT": "587",
+    "SMTP_FROM": "Drop <hello@aksht.site>",
+  },
+  "observability": { "enabled": true },
+}

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: { default: 'Drop — What VIT is building.', template: '%s · Drop' },
   description: 'Discover the projects, open source, and startups built between lectures at VIT.',
-  metadataBase: new URL(process.env.APP_URL || 'https://drop.aksht.site'),
+  metadataBase: new URL(process.env.APP_URL || 'https://droppp.tech'),
 };
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
