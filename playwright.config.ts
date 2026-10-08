@@ -19,6 +19,8 @@ export default defineConfig({
       LOCAL_DB_PATH: qaPath,
       ALLOW_LOCAL_DB: '1',
       DATABASE_URL: '',
+      DATABASE_MIGRATION_URL: '',
+      DATABASE_URL_UNPOOLED: '',
       APP_URL: 'http://localhost:3100',
       SMTP_HOST: '',
       SEED_DEMO_PASSWORD: 'Drop-test-only-2026!',

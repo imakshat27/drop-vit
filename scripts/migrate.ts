@@ -1,8 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { sql } from 'drizzle-orm';
 async function main() {
-  if (process.env.DATABASE_MIGRATION_URL)
-    process.env.DATABASE_URL = process.env.DATABASE_MIGRATION_URL;
+  const migrationUrl = process.env.DATABASE_MIGRATION_URL || process.env.DATABASE_URL_UNPOOLED;
+  if (migrationUrl) process.env.DATABASE_URL = migrationUrl;
   const { db, database } = await import('../src/lib/db');
   await db().execute(
     sql`CREATE TABLE IF NOT EXISTS migrations (name text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())`,
