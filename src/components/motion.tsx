@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { KineticEffects } from './kinetic-effects';
 import { Pause, Play, Orbit } from 'lucide-react';
 
 export function MotionControl() {
@@ -92,6 +93,7 @@ export function MotionControl() {
 
   return (
     <div className="motion-tools">
+      <KineticEffects paused={paused || reduced} />
       <button
         className="motion-control warp-control"
         type="button"
@@ -99,7 +101,7 @@ export function MotionControl() {
         aria-pressed={warped}
       >
         <Orbit size={15} aria-hidden />
-        {warped ? 'Restore orbit' : 'Warp space'}
+        {warped ? 'Calm the chaos' : 'Chaos mode'}
       </button>
       <button
         className="motion-control"

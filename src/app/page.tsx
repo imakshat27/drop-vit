@@ -32,6 +32,9 @@ export default async function Home() {
       <LiveRefresh />
       <div className="container">
         <section className="hero">
+          <div className="reaction-layer" aria-hidden="true">
+            <span className="kinetic-cursor">+</span>
+          </div>
           <div className="hero-top">
             <span className="eyebrow">
               <span className="live-dot" /> A CAMPUS FULL OF POSSIBILITIES
@@ -40,11 +43,13 @@ export default async function Home() {
           </div>
           <div className="hero-layout">
             <div className="hero-message">
-              <span className="poster-kicker">THE NEXT BIG THING IS ALREADY HERE ↗</span>
-              <h1>
-                <span>What VIT</span>
-                <span>
-                  is <em className="sr-only">building.</em>
+              <span className="poster-kicker">HOVER EVERYTHING. TAP ANYWHERE.</span>
+              <h1 aria-label="What VIT is building.">
+                <span aria-hidden="true" className="headline-line">
+                  What VIT
+                </span>
+                <span aria-hidden="true" className="headline-line">
+                  is
                 </span>
                 <CurveType />
               </h1>
@@ -63,9 +68,9 @@ export default async function Home() {
                 <Portal />
                 <div className="build-collage">
                   <span className="collage-sticker" aria-hidden>
-                    ENTER THE
+                    LESS TALK.
                     <br />
-                    BUILDVERSE
+                    MORE DROP.
                   </span>
                   <span className="collage-star" aria-hidden>
                     ✳

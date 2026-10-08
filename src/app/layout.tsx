@@ -6,6 +6,7 @@ import { currentUser } from '@/lib/auth';
 import './globals.css';
 import './maximalist.css';
 import './otherworld.css';
+import './kinetic.css';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: { default: 'Drop — What VIT is building.', template: '%s · Drop' },
