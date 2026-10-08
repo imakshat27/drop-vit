@@ -4,10 +4,10 @@ Applied UI UX Pro Max: bold/asymmetric composition, spacious density, restrained
 The generated developer-tool demo pattern was reviewed and adapted to a curated student exhibition: product discovery is the primary action, rather than a marketing video.
 
 ## Art direction
-Warm editorial exhibition. Paper #f8f7f2, ink #20221f, orange #fd542f, lilac #dcd3f7, lime #dcebab, peach #f4d1bf. Orange surfaces use dark ink for accessible small text. White on ink. Muted text #62665b. Borders #dedfd6. Error #a32b21.
+Warm editorial exhibition. Paper #f8f7f2, ink #20221f, orange #fd542f, lilac #dcd3f7, lime #dcebab, peach #f4d1bf. Orange surfaces use dark ink for accessible small text. White on ink. Muted text #62665b. Borders #dedfd6. Error #a32b21. Small orange text uses #b73518; labels on colored honors panels use #45493f. Contrast was checked using Axe at four responsive widths.
 
 ## Type and rhythm
-System grotesk sans (Arial fallback) with Georgia italic editorial accents. Body 17px / 1.6; metadata 14px / 1.5; headings 28–72px; display clamp(56px, 7vw, 104px). Mono metadata for editions and ranks. 8px base spacing, 24/32px gaps, 64/96px sections, max width 1280px. Radius 12px for media, 8px controls, pill tags. No floating dashboard chrome.
+System grotesk sans (Arial fallback) with Georgia italic editorial accents. Body 17px / 1.6; metadata 12–14px / 1.5; headings 28–72px; display clamp(56px, 7vw, 104px). Mono metadata for editions and ranks. 8px base spacing, 24/32px gaps, 64/96px sections, max width 1280px. Radius 12px for media, 8px controls, pill tags. No floating dashboard chrome.
 
 ## Composition and navigation
 Discover is home; Weekly Drop is the signature competition; Honors contains leaderboards and Hall of Fame; Recruit is unranked. Categories are browsable filters rather than six primary navigation items. Submit and builder profile are utility actions. Admin is role-gated.

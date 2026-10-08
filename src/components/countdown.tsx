@@ -1,3 +1,47 @@
 'use client';
-import { useEffect,useState } from 'react';
-export function Countdown({endsAt}:{endsAt:string}){const [left,setLeft]=useState<number|null>(null);useEffect(()=>{const tick=()=>setLeft(Math.max(0,new Date(endsAt).getTime()-Date.now()));tick();const timer=setInterval(tick,1000);return ()=>clearInterval(timer)},[endsAt]);if(left===null)return <span className="understated">Closes {new Date(endsAt).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})} IST</span>;if(left===0)return <span className="locked-label">Voting closed · results freezing</span>;const days=Math.floor(left/86400000),hours=Math.floor(left/3600000)%24,mins=Math.floor(left/60000)%60;return <div className="countdown" aria-label={`${days} days ${hours} hours ${mins} minutes until support closes`}>{[[days,'days'],[hours,'hours'],[mins,'mins']].map(([n,label],i)=><div className="countdown-unit" key={label}><b>{String(n).padStart(2,'0')}</b><span>{label}</span>{i===-1&&null}</div>)}</div>}
+import { useEffect, useState } from 'react';
+export function Countdown({ endsAt }: { endsAt: string }) {
+  const [left, setLeft] = useState<number | null>(null);
+  useEffect(() => {
+    const tick = () => setLeft(Math.max(0, new Date(endsAt).getTime() - Date.now()));
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [endsAt]);
+  if (left === null)
+    return (
+      <span className="understated">
+        Closes{' '}
+        {new Date(endsAt).toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          day: 'numeric',
+          month: 'short',
+          hour: 'numeric',
+          minute: '2-digit',
+        })}{' '}
+        IST
+      </span>
+    );
+  if (left === 0) return <span className="locked-label">Voting closed · results freezing</span>;
+  const days = Math.floor(left / 86400000),
+    hours = Math.floor(left / 3600000) % 24,
+    mins = Math.floor(left / 60000) % 60;
+  return (
+    <div
+      className="countdown"
+      aria-label={`${days} days ${hours} hours ${mins} minutes until support closes`}
+    >
+      {[
+        [days, 'days'],
+        [hours, 'hours'],
+        [mins, 'mins'],
+      ].map(([n, label], i) => (
+        <div className="countdown-unit" key={label}>
+          <b>{String(n).padStart(2, '0')}</b>
+          <span>{label}</span>
+          {i === -1 && null}
+        </div>
+      ))}
+    </div>
+  );
+}

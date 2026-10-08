@@ -1,0 +1,27 @@
+import { defineConfig } from '@playwright/test';
+const qaPath = `.data/e2e-${Date.now()}`;
+export default defineConfig({
+  testDir: 'tests/e2e',
+  fullyParallel: false,
+  workers: 1,
+  timeout: 45000,
+  metadata: { qaPath },
+  use: {
+    baseURL: 'http://localhost:3100',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+  },
+  webServer: {
+    command: 'npm run db:migrate && npm run db:seed && npm run start -- --port 3100',
+    url: 'http://localhost:3100',
+    reuseExistingServer: false,
+    env: {
+      LOCAL_DB_PATH: qaPath,
+      ALLOW_LOCAL_DB: '1',
+      DATABASE_URL: '',
+      APP_URL: 'http://localhost:3100',
+      SMTP_HOST: '',
+      SEED_DEMO_PASSWORD: 'Drop-test-only-2026!',
+    },
+  },
+});

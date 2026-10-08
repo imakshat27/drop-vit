@@ -1,1 +1,15 @@
-export default function Loading(){return <div className="container" aria-busy="true" aria-label="Loading the exhibition"><div className="loading-skeleton heading"/><div className="project-grid">{[1,2,3].map(i=><div className="loading-skeleton" key={i}/>)}</div><span className="sr-only" role="status">Loading Drop…</span></div>}
+export default function Loading() {
+  return (
+    <div className="container" aria-busy="true" aria-label="Loading the exhibition">
+      <div className="loading-skeleton heading" />
+      <div className="project-grid">
+        {[1, 2, 3].map((i) => (
+          <div className="loading-skeleton" key={i} />
+        ))}
+      </div>
+      <span className="sr-only" role="status">
+        Loading Drop…
+      </span>
+    </div>
+  );
+}

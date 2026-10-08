@@ -1,9 +1,88 @@
 import { z } from 'zod';
 import { categories } from './constants';
-export const webUrl=z.string().trim().max(1000).refine(v=>!v||(/^https?:\/\//i.test(v)&&URL.canParse(v)),'Use a complete http:// or https:// URL.');
-export const submissionSchema=z.object({title:z.string().trim().min(3,'Give your build a name of at least 3 characters.').max(80,'Keep the name under 80 characters.'),tagline:z.string().trim().min(10,'Add a one-line pitch of at least 10 characters.').max(140,'Keep your pitch under 140 characters.'),description:z.string().trim().min(50,'Tell us a little more — at least 50 characters.').max(10000,'Keep the story under 10,000 characters.'),category:z.enum(categories),website:webUrl,github:webUrl,demo:webUrl,tech:z.string().max(300),openSource:z.boolean(),startup:z.boolean(),launched:z.boolean(),problem:z.string().max(2000),solution:z.string().max(2000),language:z.string().max(80),license:z.string().max(80),difficulty:z.string().max(80),areas:z.string().max(500),setup:z.string().max(3000),stage:z.string().max(80),traction:z.string().max(500),launchDate:z.string().refine(v=>!v||/^\d{4}-\d{2}-\d{2}$/.test(v),'Use a valid launch date.'),whatsNew:z.string().max(2000),media:webUrl,team:z.string().max(500),recruiting:z.boolean(),role:z.string().max(120),roleDescription:z.string().max(2000),skills:z.string().max(300),commitment:z.string().max(120),compensation:z.string().max(120),location:z.string().max(160),applicationUrl:z.string().trim().max(1000).refine(v=>!v||(/^https?:\/\//i.test(v)&&URL.canParse(v))||(/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)),'Use an https URL or mailto email.')} ).superRefine((v,ctx)=>{
- if((v.openSource||v.category==='Open Source')&&!v.github)ctx.addIssue({code:'custom',path:['github'],message:'Open-source projects need a repository link.'});
- if(v.recruiting){for(const key of ['role','roleDescription','commitment','compensation','applicationUrl'] as const)if(!v[key])ctx.addIssue({code:'custom',path:[key],message:'Add this recruitment detail.'});}
-});
-export type SubmissionInput=z.infer<typeof submissionSchema>;
-export type ActionState={error?:string;errors?:Record<string,string>;success?:string};
+export const webUrl = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine(
+    (v) => !v || (/^https?:\/\//i.test(v) && URL.canParse(v)),
+    'Use a complete http:// or https:// URL.',
+  );
+export const submissionSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(3, 'Give your build a name of at least 3 characters.')
+      .max(80, 'Keep the name under 80 characters.'),
+    tagline: z
+      .string()
+      .trim()
+      .min(10, 'Add a one-line pitch of at least 10 characters.')
+      .max(140, 'Keep your pitch under 140 characters.'),
+    description: z
+      .string()
+      .trim()
+      .min(50, 'Tell us a little more — at least 50 characters.')
+      .max(10000, 'Keep the story under 10,000 characters.'),
+    category: z.enum(categories),
+    website: webUrl,
+    github: webUrl,
+    demo: webUrl,
+    tech: z.string().max(300),
+    openSource: z.boolean(),
+    startup: z.boolean(),
+    launched: z.boolean(),
+    problem: z.string().max(2000),
+    solution: z.string().max(2000),
+    language: z.string().max(80),
+    license: z.string().max(80),
+    difficulty: z.string().max(80),
+    areas: z.string().max(500),
+    setup: z.string().max(3000),
+    stage: z.string().max(80),
+    traction: z.string().max(500),
+    launchDate: z.iso.date('Use a valid launch date.').or(z.literal('')),
+    whatsNew: z.string().max(2000),
+    media: webUrl,
+    team: z.string().max(500),
+    recruiting: z.boolean(),
+    role: z.string().max(120),
+    roleDescription: z.string().max(2000),
+    skills: z.string().max(300),
+    commitment: z.string().max(120),
+    compensation: z.string().max(120),
+    location: z.string().max(160),
+    applicationUrl: z
+      .string()
+      .trim()
+      .max(1000)
+      .refine(
+        (v) =>
+          !v ||
+          (/^https?:\/\//i.test(v) && URL.canParse(v)) ||
+          /^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+        'Use an https URL or mailto email.',
+      ),
+  })
+  .superRefine((v, ctx) => {
+    if ((v.openSource || v.category === 'Open Source') && !v.github)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['github'],
+        message: 'Open-source projects need a repository link.',
+      });
+    if (v.recruiting) {
+      for (const key of [
+        'role',
+        'roleDescription',
+        'commitment',
+        'compensation',
+        'applicationUrl',
+      ] as const)
+        if (!v[key])
+          ctx.addIssue({ code: 'custom', path: [key], message: 'Add this recruitment detail.' });
+    }
+  });
+export type SubmissionInput = z.infer<typeof submissionSchema>;
+export type ActionState = { error?: string; errors?: Record<string, string>; success?: string };

@@ -1,10 +1,143 @@
 import Link from 'next/link';
-import { eq,desc } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { projects } from '@/lib/schema';
-import { logoutAction,resendVerificationAction,updateProfileAction } from '../actions';
+import { logoutAction, resendVerificationAction, updateProfileAction } from '../actions';
 import { ActionForm } from '@/components/action-form';
-import { Tag,Empty } from '@/components/cards';
-export const metadata={title:'Your workshop'};
-export default async function Me({searchParams}:{searchParams:Promise<{welcome?:string;verification?:string;edit?:string}>}){const u=await requireUser();const q=await searchParams;const work=await db().select().from(projects).where(eq(projects.ownerId,u.id)).orderBy(desc(projects.createdAt));return <main id="main" className="container"><div className="page-head split"><div><span className="eyebrow">YOUR LITTLE CORNER OF DROP</span><h1>Hey, {u.name.split(' ')[0]}<em>.</em></h1><p>Your builds, their next steps, and the things worth celebrating.</p></div><Link href="/submit" className="button">Submit a new build ↗</Link></div>{q.verification==='complete'&&<div className="message">Email verified. You’re ready to back the builds you believe in.</div>}{q.welcome&&<div className="message">You’re in. Start with a little about yourself, then show us what you’re building.</div>}{!u.verified&&<div className="message"><b>Email verification is still pending.</b><p>You can submit projects now. Verify your email to support other builds.</p>{q.verification==='sent'?<p>Check your inbox. The link expires in 24 hours.</p>:q.verification==='unavailable'?<p>Email delivery is not configured yet. Contact your curator to enable verification.</p>:<form action={resendVerificationAction}><button className="text-link">Send verification email →</button></form>}</div>}<div className="tabs"><Link href={`/builders/${u.id}`}>View public profile ↗</Link><Link href="/me?edit=1">Edit profile</Link>{u.role==='admin'&&<Link href="/admin">Curator workspace</Link>}<form action={logoutAction}><button>Sign out</button></form></div>{q.edit&&<div className="form-wrap"><ActionForm action={updateProfileAction} button="Save builder profile"><div className="field"><label htmlFor="name">Name</label><input id="name" name="name" defaultValue={u.name} required minLength={2} maxLength={80}/></div><div className="field"><label htmlFor="bio">A little about you</label><textarea id="bio" name="bio" defaultValue={u.bio} maxLength={500}/></div><div className="field"><label htmlFor="skills">Your skills</label><input id="skills" name="skills" defaultValue={u.skills.join(', ')} maxLength={300}/><small>Separate skills with commas.</small></div></ActionForm></div>}<section className="admin-section"><h2>From your workshop.</h2>{work.length?work.map(p=><article className="admin-card" key={p.id}><div className="card-meta"><Tag color={p.status==='approved'?'lime':''}>{p.status==='pending'?'Pending review':p.status==='changes'?'Changes requested':p.status==='approved'?'Approved':'Not approved'}</Tag><span className="micro">{p.category}</span></div><h3 style={{marginTop:16}}><Link href={`/projects/${p.slug}`}>{p.title} ↗</Link></h3><p>{p.tagline}</p>{p.feedback&&<div className="message"><b>Curator note</b><p>{p.feedback}</p></div>}{p.status!=='approved'&&<Link href={`/submit?edit=${p.id}`} className="text-link">{p.status==='changes'?'Make changes & resubmit':'Edit submission'} →</Link>}</article>):<Empty title="Every builder starts somewhere." description="The thing you’ve been tinkering with could be someone else’s next inspiration." href="/submit" label="Share your first build"/>}</section></main>}
+import { Tag, Empty } from '@/components/cards';
+export const metadata = { title: 'Your workshop' };
+export default async function Me({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string; verification?: string; edit?: string }>;
+}) {
+  const u = await requireUser();
+  const q = await searchParams;
+  const work = await db()
+    .select()
+    .from(projects)
+    .where(eq(projects.ownerId, u.id))
+    .orderBy(desc(projects.createdAt));
+  return (
+    <main id="main" className="container">
+      <div className="page-head split">
+        <div>
+          <span className="eyebrow">YOUR LITTLE CORNER OF DROP</span>
+          <h1>
+            Hey, {u.name.split(' ')[0]}
+            <em>.</em>
+          </h1>
+          <p>Your builds, their next steps, and the things worth celebrating.</p>
+        </div>
+        <Link href="/submit" className="button">
+          Submit a new build ↗
+        </Link>
+      </div>
+      {q.verification === 'complete' && (
+        <div className="message">
+          Email verified. You’re ready to back the builds you believe in.
+        </div>
+      )}
+      {q.welcome && (
+        <div className="message">
+          You’re in. Start with a little about yourself, then show us what you’re building.
+        </div>
+      )}
+      {!u.verified && (
+        <div className="message">
+          <b>Email verification is still pending.</b>
+          <p>You can submit projects now. Verify your email to support other builds.</p>
+          {q.verification === 'sent' ? (
+            <p>Check your inbox. The link expires in 24 hours.</p>
+          ) : q.verification === 'unavailable' ? (
+            <p>
+              Email delivery is not configured yet. Contact your curator to enable verification.
+            </p>
+          ) : (
+            <form action={resendVerificationAction}>
+              <button className="text-link">Send verification email →</button>
+            </form>
+          )}
+        </div>
+      )}
+      <div className="tabs">
+        <Link href={`/builders/${u.id}`}>View public profile ↗</Link>
+        <Link href="/me?edit=1">Edit profile</Link>
+        {u.role === 'admin' && <Link href="/admin">Curator workspace</Link>}
+        <form action={logoutAction}>
+          <button>Sign out</button>
+        </form>
+      </div>
+      {q.edit && (
+        <div className="form-wrap">
+          <ActionForm action={updateProfileAction} button="Save builder profile">
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <input
+                id="name"
+                name="name"
+                defaultValue={u.name}
+                required
+                minLength={2}
+                maxLength={80}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="bio">A little about you</label>
+              <textarea id="bio" name="bio" defaultValue={u.bio} maxLength={500} />
+            </div>
+            <div className="field">
+              <label htmlFor="skills">Your skills</label>
+              <input id="skills" name="skills" defaultValue={u.skills.join(', ')} maxLength={300} />
+              <small>Separate skills with commas.</small>
+            </div>
+          </ActionForm>
+        </div>
+      )}
+      <section className="admin-section">
+        <h2>From your workshop.</h2>
+        {work.length ? (
+          work.map((p) => (
+            <article className="admin-card" key={p.id}>
+              <div className="card-meta">
+                <Tag color={p.status === 'approved' ? 'lime' : ''}>
+                  {p.status === 'pending'
+                    ? 'Pending review'
+                    : p.status === 'changes'
+                      ? 'Changes requested'
+                      : p.status === 'approved'
+                        ? 'Approved'
+                        : 'Not approved'}
+                </Tag>
+                <span className="micro">{p.category}</span>
+              </div>
+              <h3 style={{ marginTop: 16 }}>
+                <Link href={`/projects/${p.slug}`}>{p.title} ↗</Link>
+              </h3>
+              <p>{p.tagline}</p>
+              {p.feedback && (
+                <div className="message">
+                  <b>Curator note</b>
+                  <p>{p.feedback}</p>
+                </div>
+              )}
+              {p.status !== 'approved' && (
+                <Link href={`/submit?edit=${p.id}`} className="text-link">
+                  {p.status === 'changes' ? 'Make changes & resubmit' : 'Edit submission'} →
+                </Link>
+              )}
+            </article>
+          ))
+        ) : (
+          <Empty
+            title="Every builder starts somewhere."
+            description="The thing you’ve been tinkering with could be someone else’s next inspiration."
+            href="/submit"
+            label="Share your first build"
+          />
+        )}
+      </section>
+    </main>
+  );
+}
