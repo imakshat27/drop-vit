@@ -1,6 +1,6 @@
 # Cloudflare deployment
 
-Drop runs on Cloudflare Workers through OpenNext, with Neon PostgreSQL and Brevo SMTP. The intended custom domain is `droppp.tech`; the sender remains `hello@aksht.site`.
+Drop runs on Cloudflare Workers through OpenNext, with Neon PostgreSQL and Brevo SMTP. The intended custom domain is `droppp.tech`; the sender is `hello@droppp.tech`.
 
 ## Build and preview
 

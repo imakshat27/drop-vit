@@ -71,7 +71,7 @@ async function sendVerification(userId: string, email: string) {
   const url = new URL('/verify', process.env.APP_URL || 'http://localhost:3000');
   url.searchParams.set('token', token);
   await transport.sendMail({
-    from: process.env.SMTP_FROM || 'Drop <hello@aksht.site>',
+    from: process.env.SMTP_FROM || 'Drop <hello@droppp.tech>',
     to: email,
     subject: 'Verify your Drop email',
     text: `Welcome to Drop. Verify your email to support projects: ${url.toString()}\nThis link expires in 24 hours.`,

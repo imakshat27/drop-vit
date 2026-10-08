@@ -14,7 +14,7 @@
     "APP_URL": "https://drop-vit.agarwalakshat2710.workers.dev",
     "SMTP_HOST": "smtp-relay.brevo.com",
     "SMTP_PORT": "587",
-    "SMTP_FROM": "Drop <hello@aksht.site>",
+    "SMTP_FROM": "Drop <hello@droppp.tech>",
   },
   "observability": { "enabled": true },
 }
