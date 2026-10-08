@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { and, eq, gt, asc, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import nodemailer from 'nodemailer';
+import { createEmailTransport } from '@/lib/email';
 import { consumeVerification } from '@/lib/verification';
 import { db } from '@/lib/db';
 import {
@@ -67,14 +67,7 @@ async function sendVerification(userId: string, email: string) {
   await db()
     .insert(verificationTokens)
     .values({ tokenHash: hashToken(token), userId, expiresAt: new Date(Date.now() + 86400000) });
-  const transport = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_PORT === '465',
-    auth: process.env.SMTP_USER
-      ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD }
-      : undefined,
-  });
+  const transport = createEmailTransport();
   const url = new URL('/verify', process.env.APP_URL || 'http://localhost:3000');
   url.searchParams.set('token', token);
   await transport.sendMail({

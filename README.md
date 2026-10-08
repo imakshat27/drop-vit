@@ -51,6 +51,8 @@ Password hashes use salted scrypt. Sessions are random opaque tokens stored only
 
 Set `DATABASE_URL` to a real PostgreSQL connection string and `APP_URL` to your deployed origin (working domain: `https://drop.aksht.site`). Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` for verification delivery.
 
+The recommended starter setup is Neon PostgreSQL and Resend SMTP. See [the connection walkthrough](docs/SERVICES_SETUP.md). After setting credentials, run `npm run services:check` to check the remote database schema and SMTP authentication without sending mail. An optional `DATABASE_MIGRATION_URL` lets schema migrations use a direct connection while the app uses a pooled URL.
+
 ```sh
 npm ci
 npm run db:migrate

@@ -11,6 +11,7 @@
     "test": "tsx --test tests/*.test.ts",
     "db:migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
+    "services:check": "tsx --env-file-if-exists=.env.local scripts/check-services.ts",
     "test:e2e": "playwright test",
     "admin:create": "tsx --env-file-if-exists=.env.local scripts/create-admin.ts",
     "format": "prettier --write src scripts tests *.ts *.mjs *.json",
