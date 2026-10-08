@@ -26,7 +26,7 @@ export default async function Home() {
   ]);
   const team = champion ? await projectTeam(champion.project.id) : [];
   return (
-    <main id="main">
+    <main id="main" className="maximalist-home">
       <LiveRefresh />
       <div className="container">
         <section className="hero">
@@ -37,25 +37,48 @@ export default async function Home() {
             <span className="eyebrow">BUILT HERE. DROPPED WEEKLY.</span>
           </div>
           <div className="hero-layout">
-            <h1>
-              What VIT
-              <br />
-              is <em>building.</em>
-            </h1>
-            <div className="hero-copy">
-              <span className="hero-spark" aria-hidden>
+            <div className="hero-message">
+              <span className="poster-kicker">SMALL CAMPUS. BIG BUILD ENERGY.</span>
+              <h1>
+                What VIT
+                <br />
+                is <em>building.</em>
+              </h1>
+              <div className="hero-copy">
+                <p>
+                  The side projects. The big bets. The “what if we actually built this?” Discover
+                  what happens after class.
+                </p>
+                <Link href="/weekly" className="button">
+                  Explore this week’s Drop <ArrowUpRight size={20} aria-hidden />
+                </Link>
+              </div>
+            </div>
+            <div className="build-collage" aria-label="A peek inside the exhibition">
+              <span className="collage-sticker" aria-hidden>
+                IDEAS OUT.
+                <br />
+                BUILDS IN.
+              </span>
+              <span className="collage-star" aria-hidden>
                 ✳
               </span>
-              <p>
-                The side projects. The big bets.
-                <br />
-                The “what if we actually built this?”
-                <br />
-                Discover what happens after class.
-              </p>
-              <Link href="/weekly" className="button">
-                Explore this week’s Drop <ArrowUpRight size={18} aria-hidden />
-              </Link>
+              {projects.slice(0, 3).map((project, i) => (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.slug}`}
+                  className={`collage-build collage-build-${i}`}
+                  aria-label={`Explore ${project.title}`}
+                >
+                  <div className="collage-label">
+                    <span>BUILD / 0{i + 1}</span>
+                    <ArrowUpRight size={17} aria-hidden />
+                  </div>
+                  <ProjectArt symbol={project.symbol} color={project.color} title={project.title} />
+                  <b>{project.title}</b>
+                </Link>
+              ))}
+              <span className="collage-caption">100% BUILT BETWEEN LECTURES.</span>
             </div>
           </div>
           <div className="hero-bottom">
@@ -68,6 +91,14 @@ export default async function Home() {
             <span>Made by students. Worth your attention.</span>
           </div>
         </section>
+        <div className="drop-strip" aria-label="Built here. Dropped weekly.">
+          <span>BUILT HERE</span>
+          <span aria-hidden>✳</span>
+          <span>DROPPED WEEKLY</span>
+          <span aria-hidden>✳</span>
+          <span>VIT, INDIA</span>
+          <span aria-hidden>↗</span>
+        </div>
         {champion && (
           <section className="champion-section" aria-label="Last week's champion">
             <div className="champion">
