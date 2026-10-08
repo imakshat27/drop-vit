@@ -1372,3 +1372,15 @@ html[data-warp='on'] .collage-build-2 {
     max-width: 150px;
   }
 }
+/* Decorative orbital geometry never captures clicks or obscures scene controls. */
+.portal-sculpture,
+.collage-sticker,
+.collage-star,
+.collage-caption,
+.scene-coordinate {
+  pointer-events: none;
+}
+.motion-tools {
+  position: relative;
+  z-index: 6;
+}
