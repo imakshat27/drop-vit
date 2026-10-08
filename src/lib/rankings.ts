@@ -1,7 +1,7 @@
 import { and, eq, gte, lt, sql, asc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from './db';
-import { awards, entries, periods, projects, results, supports, type Period, type Project } from './schema';
+import { awards, entries, periods, projects, results, type Period, type Project } from './schema';
 import { categories, weekBounds } from './constants';
 export type RankedProject={project:Project;count:number;score:number;rank:number};
 export function normalizedWeeklyScore(shares:number[]){return shares.length?shares.reduce((a,b)=>a+b,0)/shares.length:0;}

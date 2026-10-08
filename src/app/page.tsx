@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowUpRight,ArrowRight,Trophy,ArrowUp,Code2 } from 'lucide-react';
+import { ArrowUpRight,ArrowRight,Trophy,ArrowUp } from 'lucide-react';
 import { ProjectArt } from '@/components/art';
 import { ProjectCard,RankingRow,SectionTitle,RoleMeta } from '@/components/cards';
 import { approvedProjects,currentWeek,lastChampion,openRoles,supportedIds,projectTeam } from '@/lib/data';
