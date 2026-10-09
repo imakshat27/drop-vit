@@ -100,3 +100,24 @@ test('mobile navigation and authenticated workspaces stay usable', async ({ page
     }
   }
 });
+
+test('winner stamp keeps the period separate and the action clear', async ({ page }) => {
+  for (const width of [320, 430, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('.champion-period')).not.toBeEmpty();
+    await expect(page.locator('.winner-seal')).toHaveText('WEEKLY01WINNER');
+    const layout = await page.locator('.champion-action').evaluate((el) => {
+      const seal = el.querySelector('.winner-seal')!;
+      const link = el.querySelector('a')!;
+      const s = seal.getBoundingClientRect();
+      const a = link.getBoundingClientRect();
+      return { scroll: seal.scrollWidth, width: seal.clientWidth, gap: s.left - a.right };
+    });
+    expect(layout.scroll).toBeLessThanOrEqual(layout.width);
+    expect(layout.gap).toBeGreaterThan(0);
+    await page
+      .locator('.champion-section')
+      .screenshot({ path: `.data/mobile-audit/champion-${width}.png` });
+  }
+});

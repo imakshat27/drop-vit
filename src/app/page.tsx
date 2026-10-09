@@ -298,20 +298,23 @@ async function Champion({ data }: { data: HomeData }) {
               </div>
               <h2>{champion.project.title}</h2>
               <p>{champion.project.tagline}</p>
+              <div className="champion-period">{champion.period.label}</div>
               <div className="champion-stats">
                 <span>
                   <ArrowUp size={14} aria-hidden />
                   {champion.count} supports
                 </span>
-                <span>By {team.map((t) => t.name.split(' ')[0]).join(' & ')}</span>
+                <span>By {team.map((t) => t.name).join(' & ')}</span>
               </div>
-              <Link href={`/projects/${champion.project.slug}`} className="text-link">
-                Meet the winning build <ArrowUpRight size={18} aria-hidden />
-              </Link>
-              <div className="winner-seal" aria-hidden>
-                <span>{champion.period.label.toUpperCase()}</span>
-                <b>01</b>
-                <span>WINNER</span>
+              <div className="champion-action">
+                <Link href={`/projects/${champion.project.slug}`} className="text-link">
+                  Meet the winning build <ArrowUpRight size={18} aria-hidden />
+                </Link>
+                <div className="winner-seal" aria-hidden>
+                  <span>WEEKLY</span>
+                  <b>01</b>
+                  <span>WINNER</span>
+                </div>
               </div>
             </div>
             <Link

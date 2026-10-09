@@ -1112,3 +1112,48 @@ body > .page-loading {
     padding-bottom: 12px;
   }
 }
+
+/* Period labels can be long; keep them in the copy, outside the rank stamp. */
+.champion-period {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  margin-top: 16px;
+}
+.champion-stats span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.champion-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 28px;
+}
+.champion-action .text-link {
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  flex: 1;
+}
+.champion-action .winner-seal {
+  position: relative;
+  inset: auto;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  font-size: 9px;
+}
+.champion-action .winner-seal b {
+  font-size: 28px;
+}
+@media (max-width: 640px) {
+  .champion-stats {
+    max-width: none;
+  }
+  .champion-action {
+    gap: 20px;
+  }
+}
