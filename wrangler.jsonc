@@ -3,7 +3,7 @@
   "name": "drop-vit",
   "workers_dev": true,
   "account_id": "ee86951ee9b792b8e8e816ef34b34591",
-  "main": ".open-next/worker.js",
+  "main": "cloudflare/worker.mjs",
   "compatibility_date": "2026-10-08",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "routes": [{ "pattern": "droppp.tech", "custom_domain": true }],

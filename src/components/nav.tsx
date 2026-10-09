@@ -112,7 +112,7 @@ export function Nav({
             </Link>
           ))}
           {user?.role === 'admin' && (
-            <Link href="/admin" onClick={() => setOpen(false)}>
+            <Link href="/admin" prefetch={false} onClick={() => setOpen(false)}>
               Curate
             </Link>
           )}
@@ -122,12 +122,18 @@ export function Nav({
             <Link
               className="account-link"
               href={user ? '/me' : '/signin'}
+              prefetch={false}
               onClick={() => setOpen(false)}
             >
               {user ? user.name.split(' ')[0] : 'Sign in'}
             </Link>
           )}
-          <Link className="button small" href="/submit" onClick={() => setOpen(false)}>
+          <Link
+            className="button small"
+            href="/submit"
+            prefetch={false}
+            onClick={() => setOpen(false)}
+          >
             Submit a build <ArrowUpRight size={16} aria-hidden />
           </Link>
         </nav>

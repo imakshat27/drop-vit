@@ -7,7 +7,9 @@ export function LiveRefresh() {
     const refresh = () => {
       if (document.visibilityState === 'visible') router.refresh();
     };
-    const timer = setInterval(refresh, 30000);
+    // Voting actions refresh immediately. Background ranking updates need not
+    // re-render the entire page twice a minute for every open browser tab.
+    const timer = setInterval(refresh, 120000);
     document.addEventListener('visibilitychange', refresh);
     return () => {
       clearInterval(timer);

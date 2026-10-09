@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <br />
               for the things we make.
             </p>
-            <Link href="/submit" className="text-link">
+            <Link href="/submit" prefetch={false} className="text-link">
               Your idea belongs here <ArrowUpRight size={20} aria-hidden />
             </Link>
           </div>

@@ -18,6 +18,16 @@ PostgreSQL uses request-scoped `pg` pools in Workers, backed by the free `drop-n
 
 For local Worker preview, also put `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in ignored `.dev.vars`, using your test database connection string. The preview/deploy scripts load this before OpenNext creates its local binding proxy. This local string is not the deployed origin configuration. Hyperdrive's free plan allows 100,000 database statements per day and rejects excess usage; no paid subscription was enabled.
 
+## Free-tier CPU optimisation
+
+`cloudflare/worker.mjs` checks Cloudflare's Cache API before importing the OpenNext handler. Successful anonymous GET responses on public discovery, exhibition, recruitment, project, and builder pages are cached for 60 seconds. HTML and RSC/router variants have separate keys. Build IDs isolate deployments, and keys rotate at Monday 00:00 IST so a new weekly edition cannot receive the previous week's cached response.
+
+Any cookie, Authorization header, server action, private route, verification route, OAuth route, unknown query parameter, or explicit no-cache request bypasses this cache. Responses setting cookies, redirecting, or returning errors are never stored. The origin render receives a constrained set of headers to prevent cache poisoning. Browsers receive `private, no-store`; this is an edge-only cache, not a browser cache. `x-drop-cache: HIT/MISS` is available for diagnosis on eligible responses. Next's `_rsc` navigation hash must remain on the actual render request even though the edge key uses the router-header digest instead.
+
+Account checks and voting transactions remain live. Public displays may lag by up to 60 seconds; open-tab rankings refresh every two minutes, with immediate action feedback. Private navbar links do not prefetch expensive account/submission pages.
+
+Live cache hits measured 0–2 ms CPU, versus tens to hundreds of milliseconds for full uncached renders. Cache misses and authenticated requests still run Next.js and can exceed the free plan's 10 ms CPU budget; this reduces the failure risk but does not guarantee every request fits. The Cache API is local to each Cloudflare data center, so a new location needs its own warm entry. No paid plan was enabled.
+
 ## Publish
 
 Authenticate with `npx wrangler login`. Keep the three credentials above in Cloudflare Worker secrets. Non-secret runtime settings are in `wrangler.jsonc`. Never upload the full local dotenv file: the direct migration URL and demo password are unnecessary in the Worker.
