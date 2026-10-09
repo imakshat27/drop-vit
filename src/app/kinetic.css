@@ -983,3 +983,12 @@ body > .page-loading {
   color: var(--muted);
   text-align: center;
 }
+
+/* One solid mark and clear space at both header and footer sizes. */
+.wordmark .brand-spark {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  margin-left: 0.18em;
+  overflow: visible;
+}

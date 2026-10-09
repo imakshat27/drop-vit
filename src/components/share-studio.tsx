@@ -9,7 +9,7 @@ import {
   type ShareCard,
   type ShareFormat,
 } from '@/lib/share-cards';
-import { renderSharePoster } from '@/lib/share-poster';
+import { renderSharePoster, type ShareEdition } from '@/lib/share-poster';
 
 export default function ShareStudio({
   cards,
@@ -22,16 +22,17 @@ export default function ShareStudio({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
+  const [edition, setEdition] = useState<ShareEdition>('remix');
   const [format, setFormat] = useState<ShareFormat>('portrait');
   const [image, setImage] = useState<{ blob: Blob; url: string; key: string }>();
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const card = cards[index];
-  const key = `${index}:${format}`;
+  const key = `${index}:${format}:${edition}`;
   const ready = image?.key === key;
   const caption = shareCaption(card, owner);
   const file = ready
-    ? new File([image.blob], `drop-${card.kind}-${format}.png`, { type: 'image/png' })
+    ? new File([image.blob], `drop-${card.kind}-${edition}-${format}.png`, { type: 'image/png' })
     : undefined;
   const canShare =
     !!file && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
@@ -50,7 +51,7 @@ export default function ShareStudio({
   useEffect(() => {
     let cancelled = false;
     let url: string | undefined;
-    renderSharePoster(card, format)
+    renderSharePoster(card, format, edition)
       .then((blob) => {
         if (cancelled) return;
         url = URL.createObjectURL(blob);
@@ -64,7 +65,7 @@ export default function ShareStudio({
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [card, format, key]);
+  }, [card, format, edition, key]);
   async function copy(value: string, message: string) {
     try {
       await navigator.clipboard.writeText(value);
@@ -86,7 +87,7 @@ export default function ShareStudio({
     if (!ready) return;
     const link = document.createElement('a');
     link.href = image.url;
-    link.download = `drop-${card.kind}-${format}.png`;
+    link.download = `drop-${card.kind}-${edition}-${format}.png`;
     link.click();
     setStatus('Image downloaded. Copy the caption, then add both to your post.');
   }
@@ -140,6 +141,24 @@ export default function ShareStudio({
                 >
                   {shareLabels[option.kind]}
                   {option.kind === 'award' ? ` · ${option.distinction}` : ''}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>The edition</legend>
+            <div className="share-options">
+              {(['remix', 'original'] as const).map((value) => (
+                <button
+                  key={value}
+                  aria-pressed={edition === value}
+                  onClick={() => {
+                    setError('');
+                    setStatus('');
+                    setEdition(value);
+                  }}
+                >
+                  {value === 'remix' ? 'Remix' : 'Original'}
                 </button>
               ))}
             </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { BrandSpark } from '@/components/brand-spark';
 import { ArrowUpRight } from 'lucide-react';
 import { Nav } from '@/components/nav';
 import { RecoveryToast } from '@/components/recovery-toast';
@@ -35,8 +36,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <footer className="site-footer">
           <div className="container footer-top">
             <div>
-              <Link href="/" className="wordmark">
-                drop<span className="brand-spark">✳</span>
+              <Link href="/" className="wordmark" aria-label="Drop home">
+                drop
+                <BrandSpark />
               </Link>
               <p>Built here. Dropped weekly.</p>
             </div>

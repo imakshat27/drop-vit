@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { BrandSpark } from '@/components/brand-spark';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
@@ -71,7 +72,8 @@ export function Nav({
     >
       <div className="container nav">
         <Link href="/" className="wordmark" aria-label="Drop home">
-          drop<span className="brand-spark">✳</span>
+          drop
+          <BrandSpark />
         </Link>
         <span className="campus-label">VIT EDITION</span>
         <button

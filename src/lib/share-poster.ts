@@ -1,3 +1,4 @@
+import { renderRemixPoster } from './share-poster-remix';
 import { shareFormats, type ShareCard, type ShareFormat } from './share-cards';
 
 const ink = '#18151d',
@@ -6,7 +7,16 @@ const ink = '#18151d',
   lilac = '#c8afff',
   peach = '#ffcab9';
 // No remote images/fonts, DOM screenshots, uploads, or server work. Everything is local Canvas.
-export async function renderSharePoster(card: ShareCard, format: ShareFormat): Promise<Blob> {
+export type ShareEdition = 'remix' | 'original';
+export async function renderSharePoster(
+  card: ShareCard,
+  format: ShareFormat,
+  edition: ShareEdition = 'remix',
+): Promise<Blob> {
+  return edition === 'remix' ? renderRemixPoster(card, format) : renderOriginalPoster(card, format);
+}
+
+async function renderOriginalPoster(card: ShareCard, format: ShareFormat): Promise<Blob> {
   const { width, height } = shareFormats[format];
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -41,7 +51,7 @@ export async function renderSharePoster(card: ShareCard, format: ShareFormat): P
     for (let i = 0; i < 8; i++) {
       const a = (Math.PI * i) / 4;
       c!.beginPath();
-      c!.moveTo(Math.cos(a) * radius * 0.22, Math.sin(a) * radius * 0.22);
+      c!.moveTo(0, 0);
       c!.lineTo(Math.cos(a) * radius, Math.sin(a) * radius);
       c!.stroke();
     }
@@ -98,7 +108,8 @@ export async function renderSharePoster(card: ShareCard, format: ShareFormat): P
   const top = format === 'story' ? 180 : 82;
   const bottom = format === 'story' ? height - 210 : height - 95;
   text('drop', 86, top, 77);
-  spark(274, top + 39, 29, dark ? lime : ink);
+  c.font = '700 77px Arial, sans-serif';
+  spark(86 + c.measureText('drop').width + 18 + 29, top + 39, 29, dark ? lime : ink);
   text('THE THINGS WE MAKE.', 615, top + 24, 25, fg, '400');
   line(top + 115);
   text(

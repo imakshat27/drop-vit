@@ -82,3 +82,9 @@ Use local typography and vector-like shapes for dependable export. Avoid dependi
 ## Later
 
 Weekly editorial carousels, scheduled social publishing and semester recaps are separate features. A weekly or monthly winners carousel must read finalized results and earned awards. A recap needs a defined reporting period and real historical milestones. Neither belongs in this share-card MVP, and neither should add image rendering to regular Cloudflare page requests.
+
+## Remix edition
+
+The share studio defaults to Remix, a second print-inspired edition using the original peach, lilac, lime and ink colours. Build cards use stacked sheets; builder cards use maker IDs; curator picks use a selection ticket; earned awards use a solid asterisk and ribbon. The Original edition remains available in the same studio, with a corrected solid logo and measured clear space. Both editions support portrait, story and square exports on the user's device. Changing editions adds no API calls, image storage or server rendering.
+
+The header and footer now share a solid SVG brand asterisk with consistent spacing from the wordmark. Canvas posters also draw a solid centre and measure the word width before positioning the mark.
