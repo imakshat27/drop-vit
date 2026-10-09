@@ -14,6 +14,7 @@ export function KineticEffects({ paused }: { paused: boolean }) {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let lastTrail = 0;
     let frame = 0;
+    let scrollFrame = 0;
     let active: HTMLElement | null = null;
     const enabled = () =>
       !document.hidden && !reduced.matches && document.documentElement.dataset.motion === 'running';
@@ -104,21 +105,31 @@ export function KineticEffects({ paused }: { paused: boolean }) {
       }
     };
     const scroll = () => {
-      document.documentElement.style.setProperty(
-        '--scroll-rotation',
-        `${window.scrollY * 0.06}deg`,
-      );
+      if (scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        const distance = document.documentElement.scrollHeight - innerHeight;
+        const progress = distance > 0 ? Math.min(1, Math.max(0, scrollY / distance)) : 1;
+        document.documentElement.style.setProperty(
+          '--scroll-rotation',
+          `${-90 * (1 - progress)}deg`,
+        );
+      });
     };
+    scroll();
     document.addEventListener('pointermove', move, { passive: true });
     document.addEventListener('pointerout', out, { passive: true });
     hero?.addEventListener('click', click);
     window.addEventListener('scroll', scroll, { passive: true });
+    window.addEventListener('resize', scroll);
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(scrollFrame);
       document.removeEventListener('pointermove', move);
       document.removeEventListener('pointerout', out);
       hero?.removeEventListener('click', click);
       window.removeEventListener('scroll', scroll);
+      window.removeEventListener('resize', scroll);
       touched.forEach(reset);
       animations.forEach((animation) => animation.cancel());
       particles.forEach((particle) => particle.remove());

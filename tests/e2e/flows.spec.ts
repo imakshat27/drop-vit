@@ -151,6 +151,7 @@ for (const width of [375, 768, 1024, 1440])
       expect(overflow, `${route} should fit ${width}px`).toBe(false);
       const audit = await new AxeBuilder({ page })
         .include('main')
+        .include('.site-header')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(
@@ -173,6 +174,66 @@ test('mobile menu, reduced motion and empty search remain operable', async ({ pa
   await expect(page.getByRole('heading', { name: 'Nothing here. Yet.' })).toBeVisible();
   await page.getByRole('link', { name: 'Reset discovery' }).click();
   await expect(page.locator('.project-card').first()).toBeVisible();
+});
+test('floating navigation, viewport hero, readable menu and upright honors remain consistent', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto('/');
+  await expect(page.locator('.hero')).toBeVisible();
+  const hero = await page.locator('.hero').boundingBox();
+  expect(hero!.y).toBe(0);
+  expect(hero!.height).toBeGreaterThanOrEqual(1100);
+  await page.screenshot({ path: '.data/ui-polish-desktop.png' });
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  expect(
+    await page.getByRole('link', { name: 'Skip to content' }).evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      return el.contains(
+        document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2),
+      );
+    }),
+  ).toBe(true);
+  const dot = await page
+    .locator('.nav-links .live-dot')
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
+  const navBackground = await page
+    .locator('.nav')
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(dot).not.toBe(navBackground);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect
+    .poll(() => page.locator('.site-header').evaluate((el) => el.getBoundingClientRect().top))
+    .toBe(0);
+  await expect
+    .poll(() => page.locator('.award-display').evaluate((el) => getComputedStyle(el).transform))
+    .toBe('matrix(1, 0, 0, 1, 0, 0)');
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          getComputedStyle(document.documentElement).backgroundColor ===
+          getComputedStyle(document.querySelector('.site-footer')!).backgroundColor,
+      ),
+    )
+    .toBe(true);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  await expect(page.getByRole('link', { name: 'Weekly Drop', exact: true })).toBeVisible();
+  const menuAudit = await new AxeBuilder({ page })
+    .include('.site-header')
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+  expect(menuAudit.violations.map((v) => v.id)).toEqual([]);
+  await page.screenshot({ path: '.data/ui-polish-mobile-menu.png' });
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Open navigation' })).toBeFocused();
+  await page.goto('/weekly');
+  await expect(page.locator('main h1')).toBeVisible();
+  expect(
+    await page.locator('.site-header').evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).toBe('rgba(0, 0, 0, 0)');
 });
 test('curators can issue permanent badges and manage unranked recruitment', async ({ page }) => {
   await login(page, 'admin@demo.drop.test');
