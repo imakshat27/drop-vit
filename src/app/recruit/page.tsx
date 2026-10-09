@@ -1,28 +1,16 @@
+import { Suspense } from 'react';
+import { RecruitIntro } from '@/components/page-intros';
+import { DataSkeleton } from '@/components/data-skeleton';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import { openRoles, projectAwards } from '@/lib/data';
 import { Tag, RoleMeta, Empty } from '@/components/cards';
 export const metadata = { title: 'Recruit' };
-export default async function Recruit() {
+async function RecruitData() {
   const roles = await openRoles();
   const awards = await Promise.all(roles.map((r) => projectAwards(r.project.id)));
   return (
-    <main id="main" className="container">
-      <div className="page-head split">
-        <div>
-          <span className="eyebrow">YOUR NEXT TEAM IS BUILDING SOMETHING</span>
-          <h1>
-            A seat <em>at the table.</em>
-          </h1>
-          <p>
-            Find a project you believe in, then find your part in it. Real builds, clear
-            expectations, and a chance to make something together.
-          </p>
-        </div>
-        <span className="header-shape" aria-hidden>
-          +
-        </span>
-      </div>
+    <>
       <div className="drop-banner">
         <div>
           <span className="eyebrow">COLLABORATION, NOT COMPETITION</span>
@@ -82,6 +70,17 @@ export default async function Recruit() {
           label="Grow your team"
         />
       )}
+    </>
+  );
+}
+
+export default function Recruit() {
+  return (
+    <main id="main" className="container">
+      <RecruitIntro />
+      <Suspense fallback={<DataSkeleton />}>
+        <RecruitData />
+      </Suspense>
     </main>
   );
 }

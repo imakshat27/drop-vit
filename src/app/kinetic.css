@@ -927,3 +927,45 @@ html[data-warp='on'] .site-header {
     max-height: calc(100dvh - 100px);
   }
 }
+
+/* Keep the footer at the viewport edge while page data streams in. */
+body {
+  display: flex;
+  flex-direction: column;
+}
+body > main,
+body > .page-loading {
+  flex: 1 0 auto;
+}
+.site-footer {
+  flex-shrink: 0;
+}
+.data-loading {
+  padding-bottom: 48px;
+  min-height: 400px;
+}
+.data-loading-summary {
+  height: 40px;
+  width: min(280px, 65%);
+  background: var(--line);
+  border-radius: 8px;
+  margin: 24px 0;
+}
+.data-loading-rows {
+  display: grid;
+  gap: 20px;
+}
+.data-loading-rows .loading-skeleton {
+  min-height: 108px;
+  border-radius: 16px;
+}
+.nav-account-loading {
+  width: 72px;
+  height: 20px;
+  border-radius: 6px;
+  background: #fff9ed30;
+}
+body > main.container,
+body > .page-loading {
+  width: 100%;
+}

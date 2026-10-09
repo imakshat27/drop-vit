@@ -1,7 +1,10 @@
+import { Suspense } from 'react';
+import { WeeklyIntro } from '@/components/page-intros';
+import { WeeklyPending, WeeklyNote } from '@/components/weekly-pending';
 import { LiveRefresh } from '@/components/live-refresh';
 import Link from 'next/link';
 import { eq } from 'drizzle-orm';
-import { ArrowUpRight, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { db } from '@/lib/db';
 import { periods } from '@/lib/schema';
 import { currentWeek, supportedIds, allPeriods } from '@/lib/data';
@@ -11,11 +14,7 @@ import { dateRange } from '@/lib/constants';
 import { RankingRow, Empty } from '@/components/cards';
 import { Countdown } from '@/components/countdown';
 export const metadata = { title: 'Weekly Drop' };
-export default async function Weekly({
-  searchParams,
-}: {
-  searchParams: Promise<{ period?: string }>;
-}) {
+async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
   const active = await currentWeek();
   const { period: requested } = await searchParams;
   const [requestedPeriod] = requested
@@ -30,23 +29,8 @@ export default async function Weekly({
   const supported = await supportedIds(user?.id, period.id);
   const upcoming = period.startsAt > new Date();
   return (
-    <main id="main" className="container">
+    <>
       {!period.lockedAt && !upcoming && <LiveRefresh />}
-      <div className="page-head split">
-        <div>
-          <span className="eyebrow">A NEW EXHIBITION. EVERY MONDAY.</span>
-          <h1>
-            The Weekly <em>Drop.</em>
-          </h1>
-          <p>
-            Big ideas, small teams, and things that actually shipped. Take a look around. Back the
-            builds you believe in.
-          </p>
-        </div>
-        <span className="header-shape" aria-hidden>
-          ↗
-        </span>
-      </div>
       <div className="drop-banner">
         <div>
           <span className="eyebrow">
@@ -109,23 +93,7 @@ export default async function Weekly({
           )}
         </section>
         <aside>
-          <div className="note-panel">
-            <h3>
-              A little support
-              <br />
-              goes a long way.
-            </h3>
-            <p>Projects compete. People don’t.</p>
-            <ul>
-              <li>Verified builders can support each project once per Drop.</li>
-              <li>No downvotes. Just backing what you believe in.</li>
-              <li>When the week ends, the results stay put. Forever.</li>
-              <li>Recruitment is always outside the competition.</li>
-            </ul>
-            <Link href="/submit" className="button secondary">
-              Submit your build <ArrowUpRight size={16} aria-hidden />
-            </Link>
-          </div>
+          <WeeklyNote />
           <div className="aside-section" style={{ marginTop: 30 }}>
             <h2>Other exhibitions</h2>
             {archive
@@ -144,6 +112,17 @@ export default async function Weekly({
           </div>
         </aside>
       </div>
+    </>
+  );
+}
+
+export default function Weekly({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
+  return (
+    <main id="main" className="container">
+      <WeeklyIntro />
+      <Suspense fallback={<WeeklyPending />}>
+        <WeeklyData searchParams={searchParams} />
+      </Suspense>
     </main>
   );
 }

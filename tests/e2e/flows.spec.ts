@@ -311,7 +311,8 @@ test('orbital scene can pause and reduced motion stays static', async ({ page })
   await page.getByRole('button', { name: 'Pause motion', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
   await expect(orbit).toHaveCSS('animation-play-state', 'paused');
-  await expect(page.locator('.ribbon-track')).toHaveCSS('animation-play-state', 'paused');
+  for (const ribbon of await page.locator('.ribbon-track').all())
+    await expect(ribbon).toHaveCSS('animation-play-state', 'paused');
   await page.getByRole('button', { name: 'Play motion', exact: true }).click();
   await expect(orbit).toHaveCSS('animation-play-state', 'running');
   await page.getByRole('link', { name: 'Explore Canvas Club', exact: true }).focus();
@@ -319,7 +320,8 @@ test('orbital scene can pause and reduced motion stays static', async ({ page })
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.getByRole('button', { name: 'Reduced motion' })).toBeDisabled();
   await expect(orbit).toHaveCSS('animation-name', 'none');
-  await expect(page.locator('.ribbon-track')).toHaveCSS('animation-name', 'none');
+  for (const ribbon of await page.locator('.ribbon-track').all())
+    await expect(ribbon).toHaveCSS('animation-name', 'none');
 });
 
 test('kinetic reactions clean up on pause and project navigation stays direct', async ({

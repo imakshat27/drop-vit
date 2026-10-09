@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { DataSkeleton } from '@/components/data-skeleton';
 import { LiveRefresh } from '@/components/live-refresh';
 import Link from 'next/link';
 import { MotionControl } from '@/components/motion';
@@ -16,17 +18,9 @@ import {
 import { rankingFor } from '@/lib/rankings';
 import { currentUser } from '@/lib/auth';
 import { categories, categoryCopy, dateRange } from '@/lib/constants';
-export default async function Home() {
-  const week = await currentWeek();
-  const user = await currentUser();
-  const [projects, champion, roles, ranked, supported] = await Promise.all([
-    approvedProjects(),
-    lastChampion(),
-    openRoles(),
-    week ? rankingFor(week) : Promise.resolve([]),
-    supportedIds(user?.id, week?.id),
-  ]);
-  const team = champion ? await projectTeam(champion.project.id) : [];
+export default function Home() {
+  const projectsPromise = approvedProjects();
+  const data = loadHome(projectsPromise);
   return (
     <main id="main" className="maximalist-home">
       <LiveRefresh />
@@ -75,25 +69,15 @@ export default async function Home() {
                   <span className="collage-star" aria-hidden>
                     ✳
                   </span>
-                  {projects.slice(0, 3).map((project, i) => (
-                    <Link
-                      key={project.id}
-                      href={`/projects/${project.slug}`}
-                      className={`collage-build collage-build-${i}`}
-                      aria-label={`Explore ${project.title}`}
-                    >
-                      <div className="collage-label">
-                        <span>BUILD / 0{i + 1}</span>
-                        <ArrowUpRight size={17} aria-hidden />
-                      </div>
-                      <ProjectArt
-                        symbol={project.symbol}
-                        color={project.color}
-                        title={project.title}
-                      />
-                      <b>{project.title}</b>
-                    </Link>
-                  ))}
+                  <Suspense
+                    fallback={
+                      <span className="sr-only" role="status">
+                        Loading featured builds…
+                      </span>
+                    }
+                  >
+                    <HeroBuilds projectsPromise={projectsPromise} />
+                  </Suspense>
                   <span className="collage-caption">SIDE PROJECTS. OTHERWORLDLY ENERGY.</span>
                 </div>
               </div>
@@ -142,47 +126,9 @@ export default async function Home() {
             </div>
           </div>
         </div>
-        {champion && (
-          <section className="champion-section" data-reveal aria-label="Last week's champion">
-            <div className="champion">
-              <div className="champion-copy">
-                <div className="champion-top">
-                  <span className="award-tag">
-                    <Trophy size={14} aria-hidden /> LAST WEEK’S CHAMPION
-                  </span>
-                </div>
-                <h2>{champion.project.title}</h2>
-                <p>{champion.project.tagline}</p>
-                <div className="champion-stats">
-                  <span>
-                    <ArrowUp size={14} aria-hidden />
-                    {champion.count} supports
-                  </span>
-                  <span>By {team.map((t) => t.name.split(' ')[0]).join(' & ')}</span>
-                </div>
-                <Link href={`/projects/${champion.project.slug}`} className="text-link">
-                  Meet the winning build <ArrowUpRight size={18} aria-hidden />
-                </Link>
-                <div className="winner-seal" aria-hidden>
-                  <span>{champion.period.label.toUpperCase()}</span>
-                  <b>01</b>
-                  <span>WINNER</span>
-                </div>
-              </div>
-              <Link
-                href={`/projects/${champion.project.slug}`}
-                aria-label={`View ${champion.project.title}`}
-              >
-                <ProjectArt
-                  symbol={champion.project.symbol}
-                  color={champion.project.color}
-                  title={champion.project.title}
-                  large
-                />
-              </Link>
-            </div>
-          </section>
-        )}
+        <Suspense fallback={null}>
+          <Champion data={data} />
+        </Suspense>
         <section className="section" data-reveal>
           <SectionTitle
             eyebrow="THE WEEKLY EXHIBITION"
@@ -192,23 +138,9 @@ export default async function Home() {
           />
           <div className="weekly-home">
             <div>
-              <div className="weekly-intro">
-                <span className="eyebrow">
-                  <span className="live-dot" /> {week?.label.toUpperCase() || 'NEXT DROP SOON'}
-                </span>
-                <span className="micro">{week && dateRange(week.startsAt, week.endsAt)} · IST</span>
-              </div>
-              {ranked.slice(0, 4).map((row) => (
-                <RankingRow
-                  key={row.project.id}
-                  row={row}
-                  periodId={week.id}
-                  supported={supported.includes(row.project.id)}
-                />
-              ))}
-              {!ranked.length && (
-                <p>The next exhibition is taking shape. Your build could be in it.</p>
-              )}
+              <Suspense fallback={<DataSkeleton layout="ranking" />}>
+                <HomeRankings data={data} />
+              </Suspense>
             </div>
             <aside className="contribute-card">
               <span className="big-asterisk" aria-hidden>
@@ -252,14 +184,9 @@ export default async function Home() {
             href="/discover"
             label="All projects"
           />
-          <div className="project-grid">
-            {projects
-              .filter((p) => p.id !== champion?.project.id)
-              .slice(0, 3)
-              .map((p) => (
-                <ProjectCard project={p} key={p.id} />
-              ))}
-          </div>
+          <Suspense fallback={<DataSkeleton />}>
+            <HomeProjects data={data} />
+          </Suspense>
         </section>
         <section className="section" data-reveal>
           <SectionTitle
@@ -268,23 +195,9 @@ export default async function Home() {
             href="/recruit"
             label="All open roles"
           />
-          <div className="role-grid">
-            {roles.slice(0, 3).map(({ role, project }) => (
-              <article className="role-card" key={role.id}>
-                <Link href={`/projects/${project.slug}`} className="role-project">
-                  <span className={`project-monogram ${project.color}`}>{project.title[0]}</span>
-                  {project.title}
-                  <ArrowUpRight size={14} aria-hidden />
-                </Link>
-                <h3>{role.role}</h3>
-                <p>{role.description}</p>
-                <RoleMeta location={role.location} commitment={role.commitment} />
-                <Link href={`/projects/${project.slug}#recruitment`} className="text-link">
-                  Explore the opportunity <ArrowRight size={16} aria-hidden />
-                </Link>
-              </article>
-            ))}
-          </div>
+          <Suspense fallback={<DataSkeleton />}>
+            <HomeRoles data={data} />
+          </Suspense>
         </section>
         <section className="section" data-reveal>
           <div className="honors-teaser">
@@ -312,5 +225,160 @@ export default async function Home() {
         </section>
       </div>
     </main>
+  );
+}
+
+async function loadHome(projectsPromise: ReturnType<typeof approvedProjects>) {
+  const week = await currentWeek();
+  const user = await currentUser();
+  const [projects, champion, roles, ranked, supported] = await Promise.all([
+    projectsPromise,
+    lastChampion(),
+    openRoles(),
+    week ? rankingFor(week) : Promise.resolve([]),
+    supportedIds(user?.id, week?.id),
+  ]);
+  const team = champion ? await projectTeam(champion.project.id) : [];
+  return { week, projects, champion, roles, ranked, supported, team };
+}
+type HomeData = ReturnType<typeof loadHome>;
+
+async function HeroBuilds({
+  projectsPromise,
+}: {
+  projectsPromise: ReturnType<typeof approvedProjects>;
+}) {
+  const projects = await projectsPromise;
+  return (
+    <>
+      {projects.slice(0, 3).map((project, i) => (
+        <Link
+          key={project.id}
+          href={`/projects/${project.slug}`}
+          className={`collage-build collage-build-${i}`}
+          aria-label={`Explore ${project.title}`}
+        >
+          <div className="collage-label">
+            <span>BUILD / 0{i + 1}</span>
+            <ArrowUpRight size={17} aria-hidden />
+          </div>
+          <ProjectArt symbol={project.symbol} color={project.color} title={project.title} />
+          <b>{project.title}</b>
+        </Link>
+      ))}
+    </>
+  );
+}
+
+async function Champion({ data }: { data: HomeData }) {
+  const { champion, team } = await data;
+  return (
+    <>
+      {champion && (
+        <section className="champion-section" aria-label="Last week's champion">
+          <div className="champion">
+            <div className="champion-copy">
+              <div className="champion-top">
+                <span className="award-tag">
+                  <Trophy size={14} aria-hidden /> LAST WEEK’S CHAMPION
+                </span>
+              </div>
+              <h2>{champion.project.title}</h2>
+              <p>{champion.project.tagline}</p>
+              <div className="champion-stats">
+                <span>
+                  <ArrowUp size={14} aria-hidden />
+                  {champion.count} supports
+                </span>
+                <span>By {team.map((t) => t.name.split(' ')[0]).join(' & ')}</span>
+              </div>
+              <Link href={`/projects/${champion.project.slug}`} className="text-link">
+                Meet the winning build <ArrowUpRight size={18} aria-hidden />
+              </Link>
+              <div className="winner-seal" aria-hidden>
+                <span>{champion.period.label.toUpperCase()}</span>
+                <b>01</b>
+                <span>WINNER</span>
+              </div>
+            </div>
+            <Link
+              href={`/projects/${champion.project.slug}`}
+              aria-label={`View ${champion.project.title}`}
+            >
+              <ProjectArt
+                symbol={champion.project.symbol}
+                color={champion.project.color}
+                title={champion.project.title}
+                large
+              />
+            </Link>
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
+async function HomeRankings({ data }: { data: HomeData }) {
+  const { week, ranked, supported } = await data;
+  return (
+    <>
+      <div className="weekly-intro">
+        <span className="eyebrow">
+          <span className="live-dot" /> {week?.label.toUpperCase() || 'NEXT DROP SOON'}
+        </span>
+        <span className="micro">{week && dateRange(week.startsAt, week.endsAt)} · IST</span>
+      </div>
+      {ranked.slice(0, 4).map((row) => (
+        <RankingRow
+          key={row.project.id}
+          row={row}
+          periodId={week.id}
+          supported={supported.includes(row.project.id)}
+        />
+      ))}
+      {!ranked.length && <p>The next exhibition is taking shape. Your build could be in it.</p>}
+    </>
+  );
+}
+
+async function HomeProjects({ data }: { data: HomeData }) {
+  const { projects, champion } = await data;
+  return (
+    <>
+      <div className="project-grid">
+        {projects
+          .filter((p) => p.id !== champion?.project.id)
+          .slice(0, 3)
+          .map((p) => (
+            <ProjectCard project={p} key={p.id} />
+          ))}
+      </div>
+    </>
+  );
+}
+
+async function HomeRoles({ data }: { data: HomeData }) {
+  const { roles } = await data;
+  return (
+    <>
+      <div className="role-grid">
+        {roles.slice(0, 3).map(({ role, project }) => (
+          <article className="role-card" key={role.id}>
+            <Link href={`/projects/${project.slug}`} className="role-project">
+              <span className={`project-monogram ${project.color}`}>{project.title[0]}</span>
+              {project.title}
+              <ArrowUpRight size={14} aria-hidden />
+            </Link>
+            <h3>{role.role}</h3>
+            <p>{role.description}</p>
+            <RoleMeta location={role.location} commitment={role.commitment} />
+            <Link href={`/projects/${project.slug}#recruitment`} className="text-link">
+              Explore the opportunity <ArrowRight size={16} aria-hidden />
+            </Link>
+          </article>
+        ))}
+      </div>
+    </>
   );
 }

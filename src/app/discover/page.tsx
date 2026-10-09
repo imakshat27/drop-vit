@@ -1,7 +1,10 @@
+import { Suspense } from 'react';
+import { DiscoverIntro } from '@/components/page-intros';
+import { DataSkeleton } from '@/components/data-skeleton';
 import Link from 'next/link';
 import { Search, ArrowRight } from 'lucide-react';
 import { approvedProjects } from '@/lib/data';
-import { categories, categoryCopy, type Category } from '@/lib/constants';
+import { categories, type Category } from '@/lib/constants';
 import { ProjectCard, Empty } from '@/components/cards';
 export const metadata = { title: 'Discover' };
 export default async function Discover({
@@ -11,25 +14,9 @@ export default async function Discover({
 }) {
   const { category = 'All', q = '' } = await searchParams;
   const valid = categories.includes(category as Category) ? category : 'All';
-  const projects = await approvedProjects(valid, q.slice(0, 200));
   return (
     <main id="main" className="container">
-      <div className="page-head split">
-        <div>
-          <span className="eyebrow">THE CAMPUS WORKSHOP</span>
-          <h1>{valid === 'All' ? 'Follow your curiosity.' : valid}</h1>
-          <p>
-            {valid === 'All'
-              ? 'Side projects, fresh launches, and ideas with legs. Every build here has been reviewed by our curators.'
-              : categoryCopy[valid as Category]}{' '}
-            {valid === 'Open Source' &&
-              'Find an approachable issue, a useful tool, or your next contribution.'}
-          </p>
-        </div>
-        <span className="header-shape" aria-hidden>
-          {valid === 'Open Source' ? '{ }' : '✳'}
-        </span>
-      </div>
+      <DiscoverIntro valid={valid} />
       <div className="page-toolbar">
         <nav className="tabs" aria-label="Project categories">
           {['All', ...categories].map((c) => (
@@ -61,6 +48,17 @@ export default async function Discover({
           </button>
         </form>
       </div>
+      <Suspense key={`${valid}:${q}`} fallback={<DataSkeleton />}>
+        <DiscoverProjects valid={valid} q={q} />
+      </Suspense>
+    </main>
+  );
+}
+
+async function DiscoverProjects({ valid, q }: { valid: string; q: string }) {
+  const projects = await approvedProjects(valid, q.slice(0, 200));
+  return (
+    <>
       <p className="browse-count">
         {projects.length} approved {projects.length === 1 ? 'build' : 'builds'}
         {q && ` matching “${q}”`}
@@ -79,6 +77,6 @@ export default async function Discover({
           label="Reset discovery"
         />
       )}
-    </main>
+    </>
   );
 }

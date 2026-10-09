@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="container" aria-busy="true" aria-label="Loading the exhibition">
+    <div className="container page-loading" aria-busy="true" aria-label="Loading the exhibition">
       <div className="loading-skeleton heading" />
       <div className="project-grid">
         {[1, 2, 3].map((i) => (

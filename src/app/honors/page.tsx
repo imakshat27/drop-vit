@@ -1,3 +1,6 @@
+import { Suspense } from 'react';
+import { HonorsIntro } from '@/components/page-intros';
+import { DataSkeleton } from '@/components/data-skeleton';
 import Link from 'next/link';
 import { and, eq, desc, sql } from 'drizzle-orm';
 import { Lock, ArrowUpRight } from 'lucide-react';
@@ -8,13 +11,9 @@ import { rankingFor } from '@/lib/rankings';
 import { categories } from '@/lib/constants';
 import { RankingRow, Empty } from '@/components/cards';
 export const metadata = { title: 'Honors' };
-export default async function Honors({
-  searchParams,
-}: {
-  searchParams: Promise<{ kind?: string; category?: string; period?: string; view?: string }>;
-}) {
+type HonorsQuery = { kind?: string; category?: string; period?: string; view?: string };
+async function HonorsData({ query }: { query: HonorsQuery }) {
   await currentWeek();
-  const query = await searchParams;
   const kind = ['weekly', 'monthly', 'yearly', 'all-time'].includes(query.kind || '')
     ? query.kind!
     : 'monthly';
@@ -45,31 +44,7 @@ export default async function Honors({
       ...overrides,
     }).toString();
   return (
-    <main id="main" className="container">
-      <div className="page-head split">
-        <div>
-          <span className="eyebrow">GOOD WORK LEAVES A MARK</span>
-          <h1>
-            {hall ? (
-              <>
-                The Hall <em>of Fame.</em>
-              </>
-            ) : (
-              <>
-                A place <em>well earned.</em>
-              </>
-            )}
-          </h1>
-          <p>
-            {hall
-              ? 'The builds that became a little bigger than a side project. Their place here is permanent.'
-              : 'Weekly champions. Monthly standouts. Lasting recognition for projects that deserve it.'}
-          </p>
-        </div>
-        <span className="header-shape" aria-hidden>
-          ✳
-        </span>
-      </div>
+    <>
       <nav className="tabs honors-tabs" aria-label="Honors sections">
         <Link className={!hall ? 'selected' : ''} href="/honors">
           Leaderboards
@@ -218,6 +193,18 @@ export default async function Honors({
           </div>
         </>
       )}
+    </>
+  );
+}
+
+export default async function Honors({ searchParams }: { searchParams: Promise<HonorsQuery> }) {
+  const query = await searchParams;
+  return (
+    <main id="main" className="container">
+      <HonorsIntro hall={query.view === 'hall'} />
+      <Suspense key={JSON.stringify(query)} fallback={<DataSkeleton layout="ranking" />}>
+        <HonorsData query={query} />
+      </Suspense>
     </main>
   );
 }

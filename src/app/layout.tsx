@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Nav } from '@/components/nav';
@@ -13,15 +14,20 @@ export const metadata: Metadata = {
   description: 'Discover the projects, open source, and startups built between lectures at VIT.',
   metadataBase: new URL(process.env.APP_URL || 'https://droppp.tech'),
 };
-export default async function Layout({ children }: { children: React.ReactNode }) {
+async function AccountNav() {
   const user = await currentUser();
+  return <Nav user={user ? { name: user.name, role: user.role } : null} />;
+}
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
         <a className="skip-link" href="#main">
           Skip to content
         </a>
-        <Nav user={user ? { name: user.name, role: user.role } : null} />
+        <Suspense fallback={<Nav user={null} pending />}>
+          <AccountNav />
+        </Suspense>
         {children}
         <footer className="site-footer">
           <div className="container footer-top">

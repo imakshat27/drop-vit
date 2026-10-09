@@ -9,7 +9,13 @@ const links = [
   ['Honors', '/honors'],
   ['Recruit', '/recruit'],
 ];
-export function Nav({ user }: { user: { name: string; role: string } | null }) {
+export function Nav({
+  user,
+  pending = false,
+}: {
+  user: { name: string; role: string } | null;
+  pending?: boolean;
+}) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const header = useRef<HTMLElement>(null);
@@ -110,13 +116,17 @@ export function Nav({ user }: { user: { name: string; role: string } | null }) {
               Curate
             </Link>
           )}
-          <Link
-            className="account-link"
-            href={user ? '/me' : '/signin'}
-            onClick={() => setOpen(false)}
-          >
-            {user ? user.name.split(' ')[0] : 'Sign in'}
-          </Link>
+          {pending ? (
+            <span className="nav-account-loading" aria-label="Loading account" />
+          ) : (
+            <Link
+              className="account-link"
+              href={user ? '/me' : '/signin'}
+              onClick={() => setOpen(false)}
+            >
+              {user ? user.name.split(' ')[0] : 'Sign in'}
+            </Link>
+          )}
           <Link className="button small" href="/submit" onClick={() => setOpen(false)}>
             Submit a build <ArrowUpRight size={16} aria-hidden />
           </Link>
