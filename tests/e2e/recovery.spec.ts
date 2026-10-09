@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test('a Cloudflare error during soft navigation stays in the app and retries on demand', async ({
   page,
@@ -21,6 +22,11 @@ test('a Cloudflare error during soft navigation stays in the app and retries on 
   await page.locator('nav').getByRole('link', { name: 'Weekly Drop' }).click();
   const toast = page.getByRole('complementary', { name: 'Connection notification' });
   await expect(toast).toContainText('Drop hit a hiccup');
+  const accessibility = await new AxeBuilder({ page })
+    .include('.recovery-toast')
+    .withTags(['wcag2a', 'wcag2aa'])
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
   await expect(page.locator('nav')).toBeVisible();
   await expect(page.getByText('Cloudflare Error 1102')).toHaveCount(0);
   expect(documents).toBe(0);

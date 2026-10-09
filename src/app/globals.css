@@ -19,6 +19,7 @@
 }
 .recovery-toast p {
   margin: 0;
+  color: var(--paper);
 }
 .recovery-toast button {
   flex-shrink: 0;
