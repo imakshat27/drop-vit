@@ -9,6 +9,7 @@
   "routes": [{ "pattern": "droppp.tech", "custom_domain": true }],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "drop-vit" }],
+  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "a5f982b4f0184bb6a1dd5bdaaacc5f08" }],
   "vars": {
     "DROP_RUNTIME": "cloudflare",
     "APP_URL": "https://droppp.tech",

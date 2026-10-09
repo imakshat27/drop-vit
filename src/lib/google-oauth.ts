@@ -4,7 +4,6 @@ import { eq, or, sql } from 'drizzle-orm';
 import { db } from './db';
 import { users, sessions } from './schema';
 import { isVitEmail, VIT_DOMAIN, VIT_ONLY_MESSAGE } from './email-policy';
-import { hashPassword } from './password';
 const keys = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 export const GOOGLE_COOKIE = 'drop_google_flow';
 export function googleConfigured() {
@@ -103,8 +102,9 @@ export async function verifyGoogleIdToken(
 
 export async function googleAccount(profile: ReturnType<typeof validatedGoogleProfile>) {
   if (!isVitEmail(profile.email)) throw new Error(VIT_ONLY_MESSAGE);
-  // A random, discarded password makes new OAuth accounts unusable through password login.
-  const unusablePassword = await hashPassword(randomBytes(48).toString('base64url'));
+  // No password exists for Google-only accounts. This marker cannot pass password
+  // verification, so there is no reason to run an expensive password KDF here.
+  const unusablePassword = `!google-only!${randomBytes(32).toString('hex')}`;
   return db().transaction(async (tx) => {
     // Serialize callbacks for the same email, including first sign-in in two tabs.
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${profile.email}))`);

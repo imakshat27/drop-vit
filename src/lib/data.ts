@@ -2,6 +2,7 @@ import { and, eq, desc, asc, sql, or } from 'drizzle-orm';
 import { db } from './db';
 import { projects, users, members, awards, recruitments, periods, supports } from './schema';
 import { prepareWeeks, rankingFor } from './rankings';
+import { cache } from 'react';
 export async function approvedProjects(category?: string, q?: string) {
   const all = await db()
     .select()
@@ -19,9 +20,9 @@ export async function approvedProjects(category?: string, q?: string) {
       (!q || `${p.title} ${p.tagline} ${p.tech.join(' ')}`.toLowerCase().includes(q.toLowerCase())),
   );
 }
-export async function currentWeek() {
+export const currentWeek = cache(async () => {
   return prepareWeeks();
-}
+});
 export async function lastChampion() {
   const [p] = await db()
     .select()

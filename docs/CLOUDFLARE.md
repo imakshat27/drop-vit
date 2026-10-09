@@ -14,7 +14,9 @@ Put `DATABASE_URL`, `SMTP_USER`, and `SMTP_PASSWORD` in ignored `.dev.vars` for 
 
 The build backports OpenNext's upstream Next.js 16.4 preview-manifest fix until the installed adapter includes it. It also removes OpenNext's embedded dotenv values so server configuration comes exclusively from Worker bindings and secrets. Public client environment variables, if introduced later, still require a build.
 
-PostgreSQL uses request-scoped pools in Workers and closes connections after each checkout; this prevents sockets being reused across Worker requests. Normal Node development retains its shared pool.
+PostgreSQL uses request-scoped `pg` pools in Workers, backed by the free `drop-neon` Hyperdrive binding. Hyperdrive maintains origin connections to Neon, removing repeated TLS/SCRAM authentication work from the Worker. Its query cache is disabled: account checks, votes, and transactions always reach PostgreSQL. Each request closes its own pool after the complete response; sockets are never shared between Worker requests. Normal Node development retains its shared pool and uses `DATABASE_URL`.
+
+For local Worker preview, also put `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in ignored `.dev.vars`, using your test database connection string. The preview/deploy scripts load this before OpenNext creates its local binding proxy. This local string is not the deployed origin configuration. Hyperdrive's free plan allows 100,000 database statements per day and rejects excess usage; no paid subscription was enabled.
 
 ## Publish
 

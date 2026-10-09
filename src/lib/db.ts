@@ -6,11 +6,17 @@ import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { cache } from 'react';
 import { after } from 'next/server';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import * as schema from './schema';
 function createDatabase() {
-  if (process.env.DATABASE_URL) {
+  const hyperdrive =
+    process.env.DROP_RUNTIME === 'cloudflare'
+      ? (getCloudflareContext().env as { HYPERDRIVE?: { connectionString: string } }).HYPERDRIVE
+      : undefined;
+  const connectionString = hyperdrive?.connectionString || process.env.DATABASE_URL;
+  if (connectionString) {
     const client = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
       connectionTimeoutMillis: 15000,
       max: 5,
     });
