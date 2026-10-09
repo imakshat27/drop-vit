@@ -3,11 +3,11 @@ import { dirname } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle as pgliteDrizzle } from 'drizzle-orm/pglite';
 import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
 import { cache } from 'react';
 import { after } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import * as schema from './schema';
+import { createPostgresPool, reportPoolError } from './postgres-pool';
 function createDatabase() {
   const hyperdrive =
     process.env.DROP_RUNTIME === 'cloudflare'
@@ -15,18 +15,22 @@ function createDatabase() {
       : undefined;
   const connectionString = hyperdrive?.connectionString || process.env.DATABASE_URL;
   if (connectionString) {
-    const client = new Pool({
-      connectionString,
-      connectionTimeoutMillis: 15000,
-      max: 5,
-    });
+    const { client, close } = createPostgresPool(connectionString);
     // A pool belongs to one render/request, but its connections can serve all
     // queries in that request. Close only once the complete response is sent.
-    if (process.env.DROP_RUNTIME === 'cloudflare') after(() => client.end());
+    if (process.env.DROP_RUNTIME === 'cloudflare') {
+      after(async () => {
+        try {
+          await close();
+        } catch (error) {
+          reportPoolError(error, 'cleanup');
+        }
+      });
+    }
     return {
       db: pgDrizzle(client, { schema, casing: 'snake_case' }),
       executeScript: (script: string) => client.query(script),
-      close: () => client.end(),
+      close,
     };
   }
   if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_LOCAL_DB)

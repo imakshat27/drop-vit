@@ -16,6 +16,8 @@ The build backports OpenNext's upstream Next.js 16.4 preview-manifest fix until 
 
 PostgreSQL uses request-scoped `pg` pools in Workers, backed by the free `drop-neon` Hyperdrive binding. Hyperdrive maintains origin connections to Neon, removing repeated TLS/SCRAM authentication work from the Worker. Its query cache is disabled: account checks, votes, and transactions always reach PostgreSQL. Each request closes its own pool after the complete response; sockets are never shared between Worker requests. Normal Node development retains its shared pool and uses `DATABASE_URL`.
 
+Pools handle background socket errors explicitly; `pg` removes the failed idle connection, and the app records a credential-free warning. Request cleanup closes each pool once and catches cleanup failures. Active query/transaction errors still reject normally. This avoids an idle socket error turning into an unhandled rejection after an otherwise successful response.
+
 For local Worker preview, also put `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in ignored `.dev.vars`, using your test database connection string. The preview/deploy scripts load this before OpenNext creates its local binding proxy. This local string is not the deployed origin configuration. Hyperdrive's free plan allows 100,000 database statements per day and rejects excess usage; no paid subscription was enabled.
 
 ## Free-tier CPU optimisation
