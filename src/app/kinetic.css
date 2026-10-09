@@ -391,7 +391,7 @@
   transform: rotate(-3deg) translateY(-4px);
 }
 .winner-seal {
-  transform: none;
+  transform: rotate(var(--winner-rotation, 0deg));
   border: 2px solid var(--ink);
   background: var(--paper);
   color: var(--ink);

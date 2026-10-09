@@ -107,10 +107,21 @@ test('winner stamp keeps the period separate and the action clear', async ({ pag
     await page.goto('/', { waitUntil: 'networkidle' });
     await expect(page.locator('.champion-period')).not.toBeEmpty();
     await expect(page.locator('.winner-seal')).toHaveText('WEEKLY01WINNER');
-    await page.locator('.winner-seal').scrollIntoViewIfNeeded();
-    await expect(page.locator('.winner-seal')).toHaveCSS('transform', 'none');
-    await page.mouse.wheel(0, 400);
-    await expect(page.locator('.winner-seal')).toHaveCSS('transform', 'none');
+    const center = await page.locator('.champion').evaluate((el) => {
+      const bounds = el.getBoundingClientRect();
+      return scrollY + bounds.top + bounds.height / 2 - innerHeight / 2;
+    });
+    const rotation = () =>
+      page.evaluate(() =>
+        parseFloat(document.documentElement.style.getPropertyValue('--winner-rotation')),
+      );
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), center - 150);
+    await expect.poll(rotation).toBeLessThan(-15);
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), center);
+    await expect.poll(async () => Math.abs(await rotation())).toBeLessThan(0.2);
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), center + 150);
+    await expect.poll(rotation).toBeGreaterThan(15);
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), center);
     const layout = await page.locator('.champion-action').evaluate((el) => {
       const seal = el.querySelector('.winner-seal')!;
       const link = el.querySelector('a')!;

@@ -109,6 +109,17 @@ export function KineticEffects({ paused }: { paused: boolean }) {
       if (scrollFrame) return;
       scrollFrame = requestAnimationFrame(() => {
         scrollFrame = 0;
+        const champion = document.querySelector<HTMLElement>('.champion');
+        if (champion) {
+          const bounds = champion.getBoundingClientRect();
+          // Zero degrees exactly when the card's center reaches the viewport's center.
+          // Keep the signed distance unclamped so the stamp continues turning past it.
+          const offset = innerHeight / 2 - (bounds.top + bounds.height / 2);
+          document.documentElement.style.setProperty(
+            '--winner-rotation',
+            `${(offset / innerHeight) * 120}deg`,
+          );
+        }
         const distance = document.documentElement.scrollHeight - innerHeight;
         const progress = distance > 0 ? Math.min(1, Math.max(0, scrollY / distance)) : 1;
         document.documentElement.style.setProperty(
@@ -118,6 +129,10 @@ export function KineticEffects({ paused }: { paused: boolean }) {
       });
     };
     scroll();
+    // Streamed data and responsive reflow can move the card without a scroll event.
+    const layoutObserver = new ResizeObserver(scroll);
+    const main = document.querySelector('main');
+    if (main) layoutObserver.observe(main);
     document.addEventListener('pointermove', move, { passive: true });
     document.addEventListener('pointerout', out, { passive: true });
     hero?.addEventListener('click', click);
@@ -126,6 +141,7 @@ export function KineticEffects({ paused }: { paused: boolean }) {
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(scrollFrame);
+      layoutObserver.disconnect();
       document.removeEventListener('pointermove', move);
       document.removeEventListener('pointerout', out);
       hero?.removeEventListener('click', click);
@@ -136,6 +152,7 @@ export function KineticEffects({ paused }: { paused: boolean }) {
       particles.forEach((particle) => particle.remove());
       layer?.classList.remove('cursor-active');
       document.documentElement.style.removeProperty('--scroll-rotation');
+      document.documentElement.style.removeProperty('--winner-rotation');
     };
   }, [paused]);
   return null;
