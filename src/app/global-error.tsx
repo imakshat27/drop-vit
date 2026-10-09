@@ -1,5 +1,5 @@
 'use client';
-export default function GlobalError({ reset }: { reset: () => void }) {
+export default function GlobalError({ retry }: { retry: () => void }) {
   return (
     <html lang="en">
       <body
@@ -15,7 +15,7 @@ export default function GlobalError({ reset }: { reset: () => void }) {
           <h1 style={{ fontSize: 40 }}>A little workshop hiccup.</h1>
           <p>Drop couldn’t load. Please try again in a moment.</p>
           <button
-            onClick={reset}
+            onClick={retry}
             style={{
               font: 'inherit',
               background: '#20221f',

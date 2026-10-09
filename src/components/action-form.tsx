@@ -1,6 +1,7 @@
 'use client';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useMemo } from 'react';
 import type { ActionState } from '@/lib/validation';
+import { recoverAction } from '@/lib/request-recovery';
 export function ActionForm({
   action,
   children,
@@ -12,13 +13,31 @@ export function ActionForm({
   button?: string;
   className?: string;
 }) {
-  const [state, dispatch, pending] = useActionState(action, {});
+  const keepInputs = useRef(false);
+  const guardedAction = useMemo(() => {
+    const guarded = recoverAction(action);
+    return async (state: ActionState, data: FormData) => {
+      const result = await guarded(state, data);
+      keepInputs.current = !!result.error || !!result.errors;
+      return result;
+    };
+  }, [action]);
+  const [state, dispatch, pending] = useActionState(guardedAction, {});
   const error = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
     if (state.error) error.current?.focus();
   }, [state]);
   return (
-    <form action={dispatch} className={className}>
+    <form
+      action={dispatch}
+      className={className}
+      onSubmit={() => {
+        keepInputs.current = false;
+      }}
+      onReset={(event) => {
+        if (keepInputs.current) event.preventDefault();
+      }}
+    >
       {children}
       {state.error && (
         <p className="message error" role="alert" tabIndex={-1} ref={error}>

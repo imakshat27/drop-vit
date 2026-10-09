@@ -1,4 +1,41 @@
 @import 'tailwindcss';
+.recovery-toast {
+  position: fixed;
+  z-index: 10000;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  max-width: min(460px, calc(100vw - 40px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 4px 4px 0 var(--lime);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.recovery-toast p {
+  margin: 0;
+}
+.recovery-toast button {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--lime);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.recovery-toast button:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 3px;
+}
 :root {
   --paper: #f8f7f2;
   --ink: #20221f;

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { Nav } from '@/components/nav';
+import { RecoveryToast } from '@/components/recovery-toast';
 import { currentUser } from '@/lib/auth';
 import './globals.css';
 import './maximalist.css';
@@ -29,6 +30,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <AccountNav />
         </Suspense>
         {children}
+        <RecoveryToast />
         <footer className="site-footer">
           <div className="container footer-top">
             <div>

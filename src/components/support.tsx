@@ -3,6 +3,8 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import { ArrowUp, Check } from 'lucide-react';
 import { supportAction } from '@/app/actions';
+import { recoverAction } from '@/lib/request-recovery';
+const guardedSupport = recoverAction(supportAction);
 export function Support({
   projectId,
   title,
@@ -22,7 +24,7 @@ export function Support({
   compact?: boolean;
   upcoming?: boolean;
 }) {
-  const [state, action, pending] = useActionState(supportAction, {});
+  const [state, action, pending] = useActionState(guardedSupport, {});
   const done = supported || !!state.success;
   return (
     <div className={`support-wrap ${compact ? 'compact' : ''}`}>

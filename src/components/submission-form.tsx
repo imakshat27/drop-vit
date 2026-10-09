@@ -3,6 +3,8 @@ import { useActionState, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ArrowLeft, ArrowUpRight, Check } from 'lucide-react';
 import { submitAction } from '@/app/actions';
+import { recoverAction } from '@/lib/request-recovery';
+const guardedSubmit = recoverAction(submitAction);
 import { submissionSchema, type SubmissionInput } from '@/lib/validation';
 import { categories, categoryCopy } from '@/lib/constants';
 import { Tag } from './cards';
@@ -133,7 +135,7 @@ export function SubmissionForm({
   const [values, setValues] = useState<SubmissionInput>({ ...defaults, ...initial });
   const [step, setStep] = useState(0);
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [state, action, pending] = useActionState(submitAction, {});
+  const [state, action, pending] = useActionState(guardedSubmit, {});
   const summary = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const errors = { ...state.errors, ...clientErrors };

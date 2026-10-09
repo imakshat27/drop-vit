@@ -28,6 +28,14 @@ Account checks and voting transactions remain live. Public displays may lag by u
 
 Live cache hits measured 0–2 ms CPU, versus tens to hundreds of milliseconds for full uncached renders. Cache misses and authenticated requests still run Next.js and can exceed the free plan's 10 ms CPU budget; this reduces the failure risk but does not guarantee every request fits. The Cache API is local to each Cloudflare data center, so a new location needs its own warm entry. No paid plan was enabled.
 
+## In-app failure recovery
+
+Client instrumentation guards same-origin RSC GET requests. A network failure, HTTP 429, or HTTP 5xx waits for a manual retry and shows a compact notification; proxy HTML never reaches Next's fallback that would navigate the browser to Cloudflare's error document. The app shell remains available, although the target page may show its loading placeholder. Aborted requests leave the retry queue. This applies to navigation, prefetch, and refresh reads, with no automatic retry loop.
+
+Server action failures return an inline error and a notification, preserving form inputs. Writes are never automatically replayed: a lost response might mean the write already committed, so the message asks the user to check first. Next's render error boundaries use `retry` to refetch their segment.
+
+This cannot replace a Cloudflare resource-limit response on an initial visit or full reload before client code runs. It improves recovery within an already loaded app and does not remove the underlying CPU limit.
+
 ## Publish
 
 Authenticate with `npx wrangler login`. Keep the three credentials above in Cloudflare Worker secrets. Non-secret runtime settings are in `wrangler.jsonc`. Never upload the full local dotenv file: the direct migration URL and demo password are unnecessary in the Worker.
