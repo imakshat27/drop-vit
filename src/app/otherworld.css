@@ -420,7 +420,7 @@ body {
   white-space: nowrap;
   padding: 15px;
   transform: rotate(5deg);
-  text-align: center;
+  overflow: hidden;
   border: 1px solid var(--ink);
 }
 .drop-strip {
@@ -821,6 +821,7 @@ html[data-motion='running'] .portal-orbit,
 html[data-motion='running'] .ribbon-track {
   animation-play-state: running;
 }
+.ribbon-back:focus-within .ribbon-track,
 .drop-strip:focus-within .ribbon-track,
 .orbit-scene:focus-within .portal-orbit {
   animation-play-state: paused !important;

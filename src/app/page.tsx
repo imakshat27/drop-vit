@@ -111,8 +111,22 @@ export default async function Home() {
           </div>
         </section>
         <div className="ribbon-crossing">
-          <div className="ribbon-back" aria-hidden>
-            IDEAS ESCAPE THE CLASSROOM ↗ IDEAS ESCAPE THE CLASSROOM
+          <div
+            className="ribbon-back"
+            role="img"
+            aria-label="Ideas that escape the classroom. Submit your build now."
+          >
+            <div className="ribbon-track" aria-hidden>
+              {[0, 1].map((i) => (
+                <div className="ribbon-group" key={i}>
+                  {Array.from({ length: 8 }, (_, repeat) => (
+                    <span key={repeat}>
+                      IDEAS THAT ESCAPE THE CLASSROOM <b>✳</b> SUBMIT YOUR BUILD NOW <b>↗</b>
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="drop-strip" role="img" aria-label="Built here. Dropped weekly.">
             <div className="ribbon-track" aria-hidden>

@@ -292,6 +292,10 @@
 .ribbon-track {
   animation-duration: calc(80s * var(--motion-tempo));
 }
+.ribbon-back .ribbon-track {
+  animation-direction: reverse;
+  animation-duration: calc(120s * var(--motion-tempo));
+}
 .reaction-layer {
   position: absolute;
   inset: 0;
