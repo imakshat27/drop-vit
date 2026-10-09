@@ -11,6 +11,8 @@ import { rankingFor } from '@/lib/rankings';
 import { ProjectArt } from '@/components/art';
 import { Support } from '@/components/support';
 import { Tag, RoleMeta } from '@/components/cards';
+import { ShareButton } from '@/components/share-button';
+import { projectShareCards, type ShareCard } from '@/lib/share-cards';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const user = await currentUser();
@@ -51,6 +53,24 @@ export default async function ProjectPage({
   const ranked = enrolled.length ? await rankingFor(week) : [];
   const row = ranked.find((r) => r.project.id === p.id);
   const submitted = (await searchParams).submitted;
+  const shareCards: ShareCard[] =
+    p.status === 'approved' ? projectShareCards(p, team.map((t) => t.name).join(', ')) : [];
+  if (p.status === 'approved') {
+    for (const award of awards) {
+      const locked = history.find((h) => h.period.id === award.periodId && h.period.lockedAt);
+      // Period awards must be backed by locked results. Special curator awards stand alone.
+      if (award.periodId && !locked) continue;
+      shareCards.push({
+        kind: 'award',
+        title: locked?.result.titleSnapshot || p.title,
+        description: award.description,
+        distinction: award.title,
+        period: locked?.period.label,
+        path: `/projects/${p.slug}`,
+        tags: [],
+      });
+    }
+  }
   return (
     <main id="main" className="container">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
@@ -104,6 +124,11 @@ export default async function ProjectPage({
           </Link>
         )}
       </div>
+      {shareCards.length > 0 && (
+        <div className="project-share-row">
+          <ShareButton cards={shareCards} label="Share this build" />
+        </div>
+      )}
       <div className="project-hero-art">
         <ProjectArt symbol={p.symbol} color={p.color} title={p.title} large />
       </div>
@@ -351,6 +376,12 @@ export default async function ProjectPage({
               <p className="understated">
                 Every great build starts somewhere. Its first milestone is ahead.
               </p>
+            )}
+            {shareCards.some((card) => card.kind === 'award') && (
+              <ShareButton
+                cards={shareCards.filter((card) => card.kind === 'award')}
+                label="Share an achievement"
+              />
             )}
           </section>
           {row && (

@@ -4,6 +4,8 @@ import { and, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users, projects, members, awards } from '@/lib/schema';
 import { ProjectCard, Tag, Empty } from '@/components/cards';
+import { ShareButton } from '@/components/share-button';
+import { builderShareCard } from '@/lib/share-cards';
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [u] = await db().select({ name: users.name }).from(users).where(eq(users.id, id));
@@ -53,6 +55,9 @@ export default async function Builder({
             {u.skills.map((s) => (
               <Tag key={s}>{s}</Tag>
             ))}
+          </div>
+          <div className="profile-share-row">
+            <ShareButton cards={[builderShareCard(u)]} label="Share builder card" />
           </div>
         </div>
       </div>

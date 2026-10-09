@@ -6,6 +6,8 @@ import { projects } from '@/lib/schema';
 import { logoutAction, resendVerificationAction, updateProfileAction } from '../actions';
 import { ActionForm } from '@/components/action-form';
 import { Tag, Empty } from '@/components/cards';
+import { ShareButton } from '@/components/share-button';
+import { builderShareCard, projectShareCards } from '@/lib/share-cards';
 export const metadata = { title: 'Your workshop' };
 export default async function Me({
   searchParams,
@@ -33,6 +35,9 @@ export default async function Me({
         <Link href="/submit" className="button">
           Submit a new build ↗
         </Link>
+      </div>
+      <div className="workshop-share-row">
+        <ShareButton cards={[builderShareCard(u)]} owner label="Share my builder card" />
       </div>
       {q.verification === 'complete' && (
         <div className="message">
@@ -124,6 +129,9 @@ export default async function Me({
                 <Link href={`/submit?edit=${p.id}`} className="text-link">
                   {p.status === 'changes' ? 'Make changes & resubmit' : 'Edit submission'} →
                 </Link>
+              )}
+              {p.status === 'approved' && (
+                <ShareButton cards={projectShareCards(p, u.name)} owner label="Share my build" />
               )}
             </article>
           ))

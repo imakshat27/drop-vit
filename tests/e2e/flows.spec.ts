@@ -52,6 +52,7 @@ test('submission preview, private review, requested changes, approval and next-w
   await expect(page.getByRole('heading', { name: 'Looking good. Ready to Drop?' })).toBeVisible();
   await page.getByRole('button', { name: 'Submit for review', exact: true }).click();
   await expect(page.getByText('Pending review', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Share this build' })).toHaveCount(0);
   const detail = new URL(page.url()).pathname;
   await page.goto('/admin');
   await expect(
