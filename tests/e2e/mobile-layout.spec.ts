@@ -107,6 +107,10 @@ test('winner stamp keeps the period separate and the action clear', async ({ pag
     await page.goto('/', { waitUntil: 'networkidle' });
     await expect(page.locator('.champion-period')).not.toBeEmpty();
     await expect(page.locator('.winner-seal')).toHaveText('WEEKLY01WINNER');
+    await page.locator('.winner-seal').scrollIntoViewIfNeeded();
+    await expect(page.locator('.winner-seal')).toHaveCSS('transform', 'none');
+    await page.mouse.wheel(0, 400);
+    await expect(page.locator('.winner-seal')).toHaveCSS('transform', 'none');
     const layout = await page.locator('.champion-action').evaluate((el) => {
       const seal = el.querySelector('.winner-seal')!;
       const link = el.querySelector('a')!;
