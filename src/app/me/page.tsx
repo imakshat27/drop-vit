@@ -45,20 +45,18 @@ export default async function Me({
         </div>
       )}
       {!u.verified && (
-        <div className="message">
+        <div className="message" role="status">
           <b>Email verification is still pending.</b>
           <p>You can submit projects now. Verify your email to support other builds.</p>
           {q.verification === 'sent' ? (
-            <p>Check your inbox. The link expires in 24 hours.</p>
-          ) : q.verification === 'unavailable' ? (
             <p>
-              Email delivery is not configured yet. Contact your curator to enable verification.
+              Check your inbox and spam folder for an email from hello@droppp.tech. The link expires
+              in 24 hours.
             </p>
-          ) : (
-            <form action={resendVerificationAction}>
-              <button className="text-link">Send verification email →</button>
-            </form>
-          )}
+          ) : q.verification === 'unavailable' ? (
+            <p>We couldn’t send your verification email. Try again below in a moment.</p>
+          ) : null}
+          <ActionForm action={resendVerificationAction} button="Resend verification email" />
         </div>
       )}
       <div className="tabs">

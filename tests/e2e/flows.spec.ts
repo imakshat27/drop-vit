@@ -114,6 +114,16 @@ test('new accounts stay unverified and cannot support until email verification',
   await page.getByRole('button', { name: 'Create my profile' }).click();
   await expect(page).toHaveURL(/\/me\?welcome=1/);
   await expect(page.getByText('Email verification is still pending.')).toBeVisible();
+  await expect(page.getByText('We couldn’t send your verification email.')).toBeVisible();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.getByRole('button', { name: 'Resend verification email', exact: true }).click();
+    await expect(page).toHaveURL(/verification=unavailable/);
+    await expect(
+      page.getByRole('button', { name: 'Resend verification email', exact: true }),
+    ).toBeEnabled();
+  }
+  await page.getByRole('button', { name: 'Resend verification email', exact: true }).click();
+  await expect(page.locator('main').getByRole('alert')).toContainText('Wait 15 minutes');
   await page.goto('/weekly');
   await page.locator('.support').first().click();
   await expect(page.locator('main').getByRole('alert')).toContainText('Verify your email');

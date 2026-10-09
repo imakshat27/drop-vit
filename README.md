@@ -87,4 +87,6 @@ Production dependencies pass `npm audit --omit=dev`. The full audit currently re
 
 The UI UX Pro Max skill informed the composition and interaction system; decisions are persisted in `design-system/drop/MASTER.md`. Warm paper, confident solid colors, oversized type, illustrated project identities, editorial spacing, readable labels, mobile recomposition, keyboard focus, and reduced-motion support keep it closer to a builder exhibition than a dashboard.
 
-Sensible follow-ups: configure production PostgreSQL/SMTP and deploy; add VIT verification and password recovery; add hosted media uploads and GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.
+Production uses Cloudflare Workers at `https://droppp.tech`, Neon PostgreSQL, and Brevo SMTP from `hello@droppp.tech`. Signup sends a branded verification email; resends have delivery feedback and database-backed limits. Email verification confirms mailbox ownership, not VIT student eligibility.
+
+Sensible follow-ups: add VIT verification and password recovery; add hosted media uploads and GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.

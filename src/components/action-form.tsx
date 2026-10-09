@@ -8,7 +8,7 @@ export function ActionForm({
   className = '',
 }: {
   action: (s: ActionState, f: FormData) => Promise<ActionState>;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   button?: string;
   className?: string;
 }) {

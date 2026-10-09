@@ -1,17 +1,15 @@
 'use server';
-import { randomUUID, randomBytes } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { and, eq, gt, asc, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { createEmailTransport } from '@/lib/email';
-import { consumeVerification } from '@/lib/verification';
+import { consumeVerification, sendVerification } from '@/lib/verification';
 import { db } from '@/lib/db';
 import {
   users,
   sessions,
-  verificationTokens,
   projects,
   members,
   periods,
@@ -61,23 +59,6 @@ export async function loginAction(_: ActionState, form: FormData): Promise<Actio
   }
   redirect('/me');
 }
-async function sendVerification(userId: string, email: string) {
-  if (!process.env.SMTP_HOST) return false;
-  const token = randomBytes(32).toString('hex');
-  await db()
-    .insert(verificationTokens)
-    .values({ tokenHash: hashToken(token), userId, expiresAt: new Date(Date.now() + 86400000) });
-  const transport = createEmailTransport();
-  const url = new URL('/verify', process.env.APP_URL || 'http://localhost:3000');
-  url.searchParams.set('token', token);
-  await transport.sendMail({
-    from: process.env.SMTP_FROM || 'Drop <hello@droppp.tech>',
-    to: email,
-    subject: 'Verify your Drop email',
-    text: `Welcome to Drop. Verify your email to support projects: ${url.toString()}\nThis link expires in 24 hours.`,
-  });
-  return true;
-}
 export async function signupAction(_: ActionState, form: FormData): Promise<ActionState> {
   const parsed = z
     .object({
@@ -88,6 +69,7 @@ export async function signupAction(_: ActionState, form: FormData): Promise<Acti
     .safeParse(Object.fromEntries(form));
   if (!parsed.success)
     return { error: 'Add your name, a valid email, and a password of at least 10 characters.' };
+  let verificationSent = false;
   try {
     const email = parsed.data.email.toLowerCase();
     await rateLimit(`signup:${hashToken(email)}`, 3);
@@ -104,19 +86,33 @@ export async function signupAction(_: ActionState, form: FormData): Promise<Acti
       });
     await createSession(id);
     try {
-      await sendVerification(id, email);
+      verificationSent = await sendVerification(id, email);
     } catch {
       console.error('Verification email delivery failed');
     }
   } catch (e) {
     return { error: message(e) };
   }
-  redirect('/me?welcome=1');
+  redirect(`/me?welcome=1&verification=${verificationSent ? 'sent' : 'unavailable'}`);
 }
-export async function resendVerificationAction(): Promise<void> {
+export async function resendVerificationAction(
+  _: ActionState,
+  _form: FormData,
+): Promise<ActionState> {
+  void _;
+  void _form;
   const user = await requireUser();
   if (user.verified) redirect('/me');
-  await rateLimit(`verify:${user.id}`, 3);
+  try {
+    await rateLimit(`verify:${user.id}`, 3);
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error && error.message.startsWith('Too many attempts')
+          ? 'Too many requests. Wait 15 minutes before requesting another email.'
+          : 'We couldn’t request an email. Try again in a moment.',
+    };
+  }
   let sent = false;
   try {
     sent = await sendVerification(user.id, user.email);
@@ -453,5 +449,6 @@ export async function verifyEmailAction(_: ActionState, form: FormData): Promise
       error: 'This link has expired or was already used. Request a new link from your workshop.',
     };
   refresh();
-  redirect('/me?verification=complete');
+  const user = await currentUser();
+  redirect(user ? '/me?verification=complete' : '/signin?verification=complete');
 }

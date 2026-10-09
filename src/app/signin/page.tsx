@@ -4,10 +4,20 @@ import { currentUser } from '@/lib/auth';
 import { ActionForm } from '@/components/action-form';
 import { loginAction } from '../actions';
 export const metadata = { title: 'Sign in' };
-export default async function Signin() {
+export default async function Signin({
+  searchParams,
+}: {
+  searchParams: Promise<{ verification?: string }>;
+}) {
+  const { verification } = await searchParams;
   if (await currentUser()) redirect('/me');
   return (
     <main id="main" className="container">
+      {verification === 'complete' && (
+        <div className="message" role="status">
+          Email verified. Sign in to start supporting builds.
+        </div>
+      )}
       <div className="auth-layout">
         <div className="auth-art">
           <span className="big-asterisk" aria-hidden>

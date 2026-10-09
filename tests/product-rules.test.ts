@@ -1,9 +1,10 @@
-import { test, after } from 'node:test';
+import { test, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { eq } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
-import { consumeVerification } from '../src/lib/verification';
+import { consumeVerification, sendVerification } from '../src/lib/verification';
+import nodemailer from 'nodemailer';
 import { approvedProjects, projectBySlug, openRoles } from '../src/lib/data';
 import { db, database } from '../src/lib/db';
 import {
@@ -157,6 +158,55 @@ test('email verification tokens expire and can be consumed only once', async () 
     });
   assert.equal(await consumeVerification(expired), false);
   assert.equal(await consumeVerification('malformed'), false);
+});
+test('verification delivery hashes tokens, provides both email formats, and removes failed tokens', async () => {
+  const previous = { host: process.env.SMTP_HOST, origin: process.env.APP_URL };
+  process.env.SMTP_HOST = 'test.invalid';
+  process.env.APP_URL = 'https://droppp.tech';
+  await db()
+    .insert(users)
+    .values({ id: 'mail-user', name: 'Mail test', email: 'mail@test.test', passwordHash: 'x' });
+  let captured: { text: string; html: string } | undefined;
+  let fail = false;
+  let closed = 0;
+  const mocked = mock.method(nodemailer, 'createTransport', () => ({
+    sendMail: async (mail: { text: string; html: string }) => {
+      captured = mail;
+      return { accepted: fail ? [] : ['mail@test.test'] };
+    },
+    close: () => closed++,
+  }));
+  try {
+    assert.equal(await sendVerification('mail-user', 'mail@test.test'), true);
+    const token = captured!.text.match(/https:\/\/droppp\.tech\/verify\?token=([a-f0-9]{64})/)![1];
+    assert.ok(captured!.html.includes(`href="https://droppp.tech/verify?token=${token}"`));
+    const [stored] = await db()
+      .select()
+      .from(verificationTokens)
+      .where(eq(verificationTokens.userId, 'mail-user'));
+    assert.equal(stored.tokenHash, hashToken(token));
+    assert.ok(stored.expiresAt.getTime() > Date.now() + 23 * 3600000);
+    assert.equal(await consumeVerification(token), true);
+    assert.equal(await consumeVerification(token), false);
+    fail = true;
+    await assert.rejects(() => sendVerification('mail-user', 'mail@test.test'));
+    assert.equal(
+      (
+        await db()
+          .select()
+          .from(verificationTokens)
+          .where(eq(verificationTokens.userId, 'mail-user'))
+      ).length,
+      0,
+    );
+    assert.equal(closed, 2);
+  } finally {
+    mocked.mock.restore();
+    if (previous.host === undefined) delete process.env.SMTP_HOST;
+    else process.env.SMTP_HOST = previous.host;
+    if (previous.origin === undefined) delete process.env.APP_URL;
+    else process.env.APP_URL = previous.origin;
+  }
 });
 test('completed monthly scores freeze independently of later project changes', async () => {
   const now = Date.now();

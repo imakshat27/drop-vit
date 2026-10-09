@@ -1,0 +1,13 @@
+export function verificationEmail(url: URL) {
+  const link = url.toString();
+  const escaped = link
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+  return {
+    subject: 'One little step. Verify your Drop email.',
+    text: `Welcome to Drop.\n\nConfirm your email to support the builds you believe in:\n${link}\n\nThis link expires in 24 hours and can only be used once. You can still submit projects while unverified.\n\nIf you didn't create a Drop account, ignore this email.`,
+    html: `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify your Drop email</title></head><body style="margin:0;background:#f4f1e8;color:#171714;font-family:Arial,Helvetica,sans-serif"><div style="display:none;max-height:0;overflow:hidden">Confirm your email. Back the builds you believe in.</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:32px 16px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#fffdf7;border:2px solid #171714"><tr><td style="padding:28px;background:#d7ff3f;border-bottom:2px solid #171714;font-size:36px;font-weight:900;letter-spacing:-2px">Drop<span style="color:#5c2bf2">.</span></td></tr><tr><td style="padding:32px 28px"><p style="font-size:12px;font-weight:bold;letter-spacing:2px">ONE LITTLE STEP</p><h1 style="font-size:36px;line-height:1.1;letter-spacing:-1px;margin:20px 0">Back what you<br>believe in.</h1><p style="font-size:16px;line-height:1.6">Confirm your email to support projects in the Weekly Drop. Your next favourite build is waiting.</p><table role="presentation" cellspacing="0" cellpadding="0" style="margin:28px 0"><tr><td bgcolor="#171714"><a href="${escaped}" style="display:inline-block;padding:18px 24px;color:#ffffff;font-size:16px;font-weight:bold;text-decoration:none">Verify my email &rarr;</a></td></tr></table><p style="font-size:14px;line-height:1.6">This link expires in <strong>24 hours</strong> and can only be used once. You can still submit projects while unverified.</p><p style="font-size:14px;line-height:1.6">Button not working? Copy this link into your browser:</p><p style="font-size:13px;line-height:1.6;word-break:break-all"><a href="${escaped}" style="color:#5c2bf2">${escaped}</a></p></td></tr><tr><td style="padding:24px 28px;border-top:2px solid #171714;font-size:13px;line-height:1.6">If you didn't create a Drop account, you can ignore this email.<br>Small starts. Real builds. Drop.</td></tr></table></td></tr></table></body></html>`,
+  };
+}
