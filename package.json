@@ -18,7 +18,9 @@
     "test:e2e": "playwright test",
     "admin:create": "tsx --env-file-if-exists=.env.local scripts/create-admin.ts",
     "format": "prettier --write src scripts tests *.ts *.mjs *.json",
-    "format:check": "prettier --check src scripts tests *.ts *.mjs *.json"
+    "format:check": "prettier --check src scripts tests *.ts *.mjs *.json",
+    "demo:seed": "tsx --env-file-if-exists=.env.local scripts/live-demo.ts",
+    "demo:cleanup": "tsx --env-file-if-exists=.env.local scripts/live-demo.ts --cleanup"
   },
   "dependencies": {
     "@electric-sql/pglite": "latest",
