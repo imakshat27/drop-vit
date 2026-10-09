@@ -25,8 +25,8 @@ test('approved build shares export locally at exact sizes and preserve earned di
     .withTags(['wcag2a', 'wcag2aa'])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-  let remixSquare: Buffer | undefined;
-  await expect(studio.getByRole('button', { name: 'Remix', exact: true })).toHaveAttribute(
+  let fieldNotesSquare: Buffer | undefined;
+  await expect(studio.getByRole('button', { name: 'Field Notes', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
@@ -43,7 +43,7 @@ test('approved build shares export locally at exact sizes and preserve earned di
     expect(bytes.subarray(1, 4).toString()).toBe('PNG');
     expect(bytes.readUInt32BE(16)).toBe(width);
     expect(bytes.readUInt32BE(20)).toBe(height);
-    if (label === 'Square') remixSquare = bytes;
+    if (label === 'Square') fieldNotesSquare = bytes;
   }
   await studio.getByRole('button', { name: 'Original', exact: true }).click();
   const originalDownload = page.waitForEvent('download');
@@ -51,8 +51,10 @@ test('approved build shares export locally at exact sizes and preserve earned di
   const original = await readFile((await (await originalDownload).path())!);
   expect(original.readUInt32BE(16)).toBe(1080);
   expect(original.readUInt32BE(20)).toBe(1080);
-  expect(original.equals(remixSquare!)).toBe(false);
+  expect(original.equals(fieldNotesSquare!)).toBe(false);
   await studio.getByRole('button', { name: 'Remix', exact: true }).click();
+  await expect(studio.getByRole('img')).toBeVisible();
+  await studio.getByRole('button', { name: 'Field Notes', exact: true }).click();
   await studio.getByRole('button', { name: 'Curator pick', exact: true }).click();
   await expect(studio.getByLabel('Your caption')).toContainText('is a curator pick');
   await studio

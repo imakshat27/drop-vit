@@ -1,3 +1,4 @@
+import { renderFieldNotesPoster } from './share-poster-field-notes';
 import { renderRemixPoster } from './share-poster-remix';
 import { shareFormats, type ShareCard, type ShareFormat } from './share-cards';
 
@@ -7,12 +8,13 @@ const ink = '#18151d',
   lilac = '#c8afff',
   peach = '#ffcab9';
 // No remote images/fonts, DOM screenshots, uploads, or server work. Everything is local Canvas.
-export type ShareEdition = 'remix' | 'original';
+export type ShareEdition = 'field-notes' | 'remix' | 'original';
 export async function renderSharePoster(
   card: ShareCard,
   format: ShareFormat,
-  edition: ShareEdition = 'remix',
+  edition: ShareEdition = 'field-notes',
 ): Promise<Blob> {
+  if (edition === 'field-notes') return renderFieldNotesPoster(card, format);
   return edition === 'remix' ? renderRemixPoster(card, format) : renderOriginalPoster(card, format);
 }
 

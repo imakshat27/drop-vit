@@ -22,7 +22,7 @@ export default function ShareStudio({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [index, setIndex] = useState(0);
-  const [edition, setEdition] = useState<ShareEdition>('remix');
+  const [edition, setEdition] = useState<ShareEdition>('field-notes');
   const [format, setFormat] = useState<ShareFormat>('portrait');
   const [image, setImage] = useState<{ blob: Blob; url: string; key: string }>();
   const [error, setError] = useState('');
@@ -148,7 +148,7 @@ export default function ShareStudio({
           <fieldset>
             <legend>The edition</legend>
             <div className="share-options">
-              {(['remix', 'original'] as const).map((value) => (
+              {(['field-notes', 'remix', 'original'] as const).map((value) => (
                 <button
                   key={value}
                   aria-pressed={edition === value}
@@ -158,7 +158,11 @@ export default function ShareStudio({
                     setEdition(value);
                   }}
                 >
-                  {value === 'remix' ? 'Remix' : 'Original'}
+                  {value === 'field-notes'
+                    ? 'Field Notes'
+                    : value === 'remix'
+                      ? 'Remix'
+                      : 'Original'}
                 </button>
               ))}
             </div>
