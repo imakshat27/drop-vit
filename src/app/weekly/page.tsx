@@ -58,7 +58,15 @@ export default async function Weekly({
               / {ranked.length} {ranked.length === 1 ? 'build' : 'builds'}
             </span>
           </h2>
-          <p>{dateRange(period.startsAt, period.endsAt)} · Closes at midnight IST</p>
+          <p>
+            Week of {dateRange(period.startsAt, period.endsAt)} · Voting closes{' '}
+            {period.endsAt.toLocaleDateString('en-IN', {
+              day: 'numeric',
+              month: 'short',
+              timeZone: 'Asia/Kolkata',
+            })}{' '}
+            at 00:00 IST
+          </p>
         </div>
         {period.lockedAt ? (
           <span className="locked-label">

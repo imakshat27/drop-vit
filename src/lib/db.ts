@@ -5,6 +5,7 @@ import { drizzle as pgliteDrizzle } from 'drizzle-orm/pglite';
 import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { cache } from 'react';
+import { after } from 'next/server';
 import * as schema from './schema';
 function createDatabase() {
   if (process.env.DATABASE_URL) {
@@ -12,8 +13,10 @@ function createDatabase() {
       connectionString: process.env.DATABASE_URL,
       connectionTimeoutMillis: 15000,
       max: 5,
-      ...(process.env.DROP_RUNTIME === 'cloudflare' ? { maxUses: 1 } : {}),
     });
+    // A pool belongs to one render/request, but its connections can serve all
+    // queries in that request. Close only once the complete response is sent.
+    if (process.env.DROP_RUNTIME === 'cloudflare') after(() => client.end());
     return {
       db: pgDrizzle(client, { schema, casing: 'snake_case' }),
       executeScript: (script: string) => client.query(script),

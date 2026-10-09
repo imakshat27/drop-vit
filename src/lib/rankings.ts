@@ -1,4 +1,4 @@
-import { and, eq, gte, lt, sql, asc } from 'drizzle-orm';
+import { and, or, eq, gte, lt, lte, sql, asc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from './db';
 import { awards, entries, periods, projects, results, type Period, type Project } from './schema';
@@ -226,41 +226,48 @@ export async function lockPeriod(id: string) {
   });
 }
 export async function prepareWeeks() {
-  await prepareCalendarPeriods();
-  const expired = await db()
-    .select()
-    .from(periods)
-    .where(
-      and(
-        eq(periods.kind, 'weekly'),
-        lt(periods.endsAt, new Date()),
-        sql`${periods.lockedAt} IS NULL`,
-      ),
-    );
-  for (const p of expired) await lockPeriod(p.id);
-  const { start, end } = weekBounds();
-  for (const [s, e] of [
-    [start, end],
-    [end, new Date(end.getTime() + 7 * 86400000)],
-  ]) {
-    const existing = await db()
+  const now = new Date();
+  const { start, end } = weekBounds(now);
+  const [, weeks] = await Promise.all([
+    prepareCalendarPeriods(),
+    db()
       .select()
       .from(periods)
-      .where(and(eq(periods.kind, 'weekly'), eq(periods.startsAt, s)))
-      .limit(1);
-    if (!existing.length)
-      await db()
-        .insert(periods)
-        .values({
-          id: `week-${s.toISOString().slice(0, 10)}`,
-          label: `Drop · ${s.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' })}`,
-          kind: 'weekly',
-          startsAt: s,
-          endsAt: e,
-          formula: 'weekly-support-v1',
-        })
-        .onConflictDoNothing();
-  }
+      .where(
+        and(
+          eq(periods.kind, 'weekly'),
+          or(
+            eq(periods.startsAt, start),
+            eq(periods.startsAt, end),
+            and(lte(periods.endsAt, now), sql`${periods.lockedAt} IS NULL`),
+          ),
+        ),
+      ),
+  ]);
+  for (const p of weeks.filter((p) => p.endsAt <= now && !p.lockedAt)) await lockPeriod(p.id);
+  const missing = [
+    [start, end],
+    [end, new Date(end.getTime() + 7 * 86400000)],
+  ]
+    .filter(([s]) => !weeks.some((p) => p.startsAt.getTime() === s.getTime()))
+    .map(([s, e]) => ({
+      id: `week-${s.toISOString().slice(0, 10)}`,
+      label: `Drop · ${s.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' })}`,
+      kind: 'weekly',
+      startsAt: s,
+      endsAt: e,
+      formula: 'weekly-support-v1',
+    }));
+  if (missing.length) await db().insert(periods).values(missing).onConflictDoNothing();
+  const active = weeks.find((p) => p.startsAt.getTime() === start.getTime());
+  if (active) return active;
+  // Re-read after an insert, including when another request created it first.
+  const [created] = await db()
+    .select()
+    .from(periods)
+    .where(and(eq(periods.kind, 'weekly'), eq(periods.startsAt, start)))
+    .limit(1);
+  return created;
 }
 
 export async function prepareCalendarPeriods() {
@@ -291,12 +298,15 @@ export async function prepareCalendarPeriods() {
       endsAt: new Date('2100-01-01T00:00:00Z'),
     },
   ];
-  for (const c of candidates) {
-    const existing = await db()
-      .select()
-      .from(periods)
-      .where(and(eq(periods.kind, c.kind), eq(periods.startsAt, c.startsAt)))
-      .limit(1);
-    if (!existing.length) await db().insert(periods).values(c).onConflictDoNothing();
-  }
+  const existing = await db()
+    .select({ kind: periods.kind, startsAt: periods.startsAt })
+    .from(periods)
+    .where(
+      or(...candidates.map((c) => and(eq(periods.kind, c.kind), eq(periods.startsAt, c.startsAt)))),
+    );
+  const missing = candidates.filter(
+    (c) =>
+      !existing.some((p) => p.kind === c.kind && p.startsAt.getTime() === c.startsAt.getTime()),
+  );
+  if (missing.length) await db().insert(periods).values(missing).onConflictDoNothing();
 }

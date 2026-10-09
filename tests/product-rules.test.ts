@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { randomBytes } from 'node:crypto';
 import { consumeVerification, sendVerification } from '../src/lib/verification';
 import nodemailer from 'nodemailer';
-import { approvedProjects, projectBySlug, openRoles } from '../src/lib/data';
+import { approvedProjects, projectBySlug, openRoles, currentWeek } from '../src/lib/data';
 import { db, database } from '../src/lib/db';
 import {
   users,
@@ -289,4 +289,29 @@ test('unsafe URLs and invalid conditional details are rejected on otherwise vali
   assert.equal(submissionSchema.safeParse({ ...valid, openSource: true }).success, false);
   assert.equal(submissionSchema.safeParse({ ...valid, recruiting: true }).success, false);
   assert.equal(submissionSchema.safeParse({ ...valid, launchDate: '2026-99-99' }).success, false);
+});
+
+test('week preparation creates both editions once and locks expired editions', async () => {
+  await db()
+    .insert(periods)
+    .values({
+      id: 'expired-preparation',
+      label: 'Expired preparation',
+      kind: 'weekly',
+      startsAt: new Date('2020-01-06T00:00:00Z'),
+      endsAt: new Date('2020-01-13T00:00:00Z'),
+    });
+  const first = await currentWeek();
+  assert.ok(first.startsAt <= new Date() && first.endsAt > new Date());
+  const before = await db().select().from(periods);
+  const repeated = await currentWeek();
+  const after = await db().select().from(periods);
+  assert.equal(repeated.id, first.id);
+  assert.equal(after.length, before.length);
+  assert.ok(
+    after.some((p) => p.kind === 'weekly' && p.startsAt.getTime() === first.endsAt.getTime()),
+  );
+  assert.ok(after.find((p) => p.id === 'expired-preparation')?.lockedAt);
+  assert.ok(after.some((p) => p.kind === 'monthly'));
+  assert.ok(after.some((p) => p.kind === 'yearly'));
 });

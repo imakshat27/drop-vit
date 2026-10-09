@@ -1,4 +1,4 @@
-import { and, eq, desc, asc, sql, or, lte, gt } from 'drizzle-orm';
+import { and, eq, desc, asc, sql, or } from 'drizzle-orm';
 import { db } from './db';
 import { projects, users, members, awards, recruitments, periods, supports } from './schema';
 import { prepareWeeks, rankingFor } from './rankings';
@@ -20,15 +20,7 @@ export async function approvedProjects(category?: string, q?: string) {
   );
 }
 export async function currentWeek() {
-  await prepareWeeks();
-  const now = new Date();
-  const [p] = await db()
-    .select()
-    .from(periods)
-    .where(and(eq(periods.kind, 'weekly'), lte(periods.startsAt, now), gt(periods.endsAt, now)))
-    .orderBy(desc(periods.startsAt))
-    .limit(1);
-  return p;
+  return prepareWeeks();
 }
 export async function lastChampion() {
   const [p] = await db()
