@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { GoogleSignin } from '@/components/google-signin';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import { ActionForm } from '@/components/action-form';
@@ -7,9 +8,9 @@ export const metadata = { title: 'Sign in' };
 export default async function Signin({
   searchParams,
 }: {
-  searchParams: Promise<{ verification?: string }>;
+  searchParams: Promise<{ verification?: string; oauth?: string }>;
 }) {
-  const { verification } = await searchParams;
+  const { verification, oauth } = await searchParams;
   if (await currentUser()) redirect('/me');
   return (
     <main id="main" className="container">
@@ -17,6 +18,17 @@ export default async function Signin({
         <div className="message" role="status">
           Email verified. Sign in to start supporting builds.
         </div>
+      )}
+      {oauth && (
+        <p className="message error" role="alert">
+          {oauth === 'vit-only'
+            ? 'Use your VIT Google account ending in @vitstudent.ac.in.'
+            : oauth === 'cancelled'
+              ? 'Google sign-in was cancelled. Try again when you’re ready.'
+              : oauth === 'unavailable'
+                ? 'Google sign-in is being configured. Use your VIT email and password for now.'
+                : 'Google sign-in did not complete. Please try again.'}
+        </p>
       )}
       <div className="auth-layout">
         <div className="auth-art">
@@ -38,9 +50,10 @@ export default async function Signin({
           <span className="eyebrow">GOOD TO HAVE YOU BACK</span>
           <h1 style={{ marginTop: 18 }}>Welcome to the workshop.</h1>
           <p>Sign in to build, share, and support.</p>
+          <GoogleSignin />
           <ActionForm action={loginAction} button="Sign in">
             <div className="field">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">VIT student email</label>
               <input
                 id="email"
                 name="email"
@@ -69,9 +82,9 @@ export default async function Signin({
             <div className="message">
               <b>Trying the sample exhibition?</b>
               <p>
-                Builder: ananya@demo.drop.test
+                Builder: ananya@vitstudent.ac.in
                 <br />
-                Curator: admin@demo.drop.test
+                Curator: admin@vitstudent.ac.in
               </p>
               <p className="understated">
                 Use the password supplied to SEED_DEMO_PASSWORD when seeding.

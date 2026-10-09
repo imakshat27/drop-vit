@@ -4,8 +4,10 @@ import { z } from 'zod';
 import { db, database } from '../src/lib/db';
 import { users } from '../src/lib/schema';
 import { hashPassword } from '../src/lib/password';
+import { isVitEmail } from '../src/lib/email-policy';
 async function main() {
   const email = z.email().parse(process.env.ADMIN_EMAIL).toLowerCase();
+  if (!isVitEmail(email)) throw new Error('Curators must use a VIT email');
   const name = process.env.ADMIN_NAME || 'Drop Curator';
   const [existing] = await db().select({ id: users.id }).from(users).where(eq(users.email, email));
   if (existing) {
@@ -31,7 +33,7 @@ async function main() {
 }
 main().catch(() => {
   console.error(
-    'Supply ADMIN_EMAIL and, for new accounts, ADMIN_PASSWORD (at least 14 characters). Ensure migrations have run.',
+    'Supply a VIT ADMIN_EMAIL and, for new accounts, ADMIN_PASSWORD (at least 14 characters). Ensure migrations have run.',
   );
   process.exit(1);
 });

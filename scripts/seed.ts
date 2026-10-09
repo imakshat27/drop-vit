@@ -172,7 +172,7 @@ async function main() {
       {
         id: 'ananya',
         name: 'Ananya Rao',
-        email: 'ananya@demo.drop.test',
+        email: 'ananya@vitstudent.ac.in',
         passwordHash: hash,
         verified: true,
         bio: 'Making tools for people with too many ideas. CSE · VIT Vellore, 2027.',
@@ -181,7 +181,7 @@ async function main() {
       {
         id: 'arjun',
         name: 'Arjun Mehta',
-        email: 'arjun@demo.drop.test',
+        email: 'arjun@vitstudent.ac.in',
         passwordHash: hash,
         verified: true,
         bio: 'Open-source enthusiast. Learning in public, one pull request at a time.',
@@ -190,7 +190,7 @@ async function main() {
       {
         id: 'diya',
         name: 'Diya Menon',
-        email: 'diya@demo.drop.test',
+        email: 'diya@vitstudent.ac.in',
         passwordHash: hash,
         verified: true,
         bio: 'Finding small solutions to everyday campus problems. ECE · Class of 2027.',
@@ -199,7 +199,7 @@ async function main() {
       {
         id: 'ishaan',
         name: 'Ishaan Shah',
-        email: 'ishaan@demo.drop.test',
+        email: 'ishaan@vitstudent.ac.in',
         passwordHash: hash,
         verified: true,
         bio: 'Shipping small things that make the internet a little nicer.',
@@ -208,7 +208,7 @@ async function main() {
       {
         id: 'admin',
         name: 'Drop Curator',
-        email: 'admin@demo.drop.test',
+        email: 'admin@vitstudent.ac.in',
         passwordHash: hash,
         role: 'admin',
         verified: true,
@@ -217,7 +217,7 @@ async function main() {
       ...Array.from({ length: 132 }, (_, i) => ({
         id: `supporter-${i}`,
         name: `Sample builder ${i + 1}`,
-        email: `builder-${i}@demo.drop.test`,
+        email: `builder-${i}@vitstudent.ac.in`,
         passwordHash: hash,
         verified: true,
       })),
@@ -416,7 +416,7 @@ async function main() {
         skills: ['React', 'Accessibility'],
         commitment: '4–6 hours / week',
         compensation: 'Unpaid · learning collaboration',
-        applicationUrl: 'mailto:arjun@demo.drop.test',
+        applicationUrl: 'mailto:arjun@vitstudent.ac.in',
       },
       {
         id: 'role-after',
@@ -427,7 +427,7 @@ async function main() {
         skills: ['Figma', 'User research'],
         commitment: '6–8 hours / week',
         compensation: 'Equity discussion',
-        applicationUrl: 'mailto:diya@demo.drop.test',
+        applicationUrl: 'mailto:diya@vitstudent.ac.in',
       },
       {
         id: 'role-tiny',
@@ -438,14 +438,14 @@ async function main() {
         skills: ['C++', 'ESP32'],
         commitment: '3–5 hours / week',
         compensation: 'Unpaid · open source',
-        applicationUrl: 'mailto:arjun@demo.drop.test',
+        applicationUrl: 'mailto:arjun@vitstudent.ac.in',
       },
     ]);
   });
   console.log('Seeded fictional projects, builders, supports, and locked archive.');
   if (process.env.SEED_DEMO_PASSWORD)
     console.log(
-      'Demo sign-in: ananya@demo.drop.test / admin@demo.drop.test with SEED_DEMO_PASSWORD',
+      'Demo sign-in: ananya@vitstudent.ac.in / admin@vitstudent.ac.in with SEED_DEMO_PASSWORD',
     );
   await database().close();
 }

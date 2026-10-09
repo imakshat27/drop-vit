@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { GoogleSignin } from '@/components/google-signin';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import { ActionForm } from '@/components/action-form';
@@ -30,6 +31,7 @@ export default async function Signup() {
           <span className="eyebrow">COME ON IN</span>
           <h1 style={{ marginTop: 18 }}>Make a little space for your work.</h1>
           <p>Your builder identity starts with what you make.</p>
+          <GoogleSignin />
           <ActionForm action={signupAction} button="Create my profile">
             <div className="field">
               <label htmlFor="name">Your name</label>
@@ -43,7 +45,7 @@ export default async function Signup() {
               />
             </div>
             <div className="field">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">VIT student email</label>
               <input
                 id="email"
                 name="email"
@@ -53,8 +55,8 @@ export default async function Signup() {
                 maxLength={254}
               />
               <small>
-                You’ll need to verify your email before supporting projects. VIT student
-                verification is planned.
+                Use your @vitstudent.ac.in email. Google sign-in verifies it automatically; password
+                signup needs email verification.
               </small>
             </div>
             <div className="field">

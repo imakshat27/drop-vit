@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>. Without `DATABASE_URL`, Drop runs a persistent PGlite PostgreSQL engine in `.data/drop`. Stop the local app before running migrations/seeds against that same local database; PGlite is intended for one application process. Real PostgreSQL supports multiple application processes.
 
-Sample accounts: `ananya@demo.drop.test` (builder) and `admin@demo.drop.test` (curator), using the password supplied to `SEED_DEMO_PASSWORD`. If no password is supplied, the seed generates an undisclosed random password and the demo accounts cannot be signed into. New account registration still works. Seed data is fictional and marked as such in the local exhibition; sample GitHub links point to contribution directories and sample recruitment email addresses are non-deliverable.
+Sample accounts: `ananya@vitstudent.ac.in` (builder) and `admin@vitstudent.ac.in` (curator), using the password supplied to `SEED_DEMO_PASSWORD`. If no password is supplied, the seed generates an undisclosed random password and the demo accounts cannot be signed into. New account registration still works. Seed data is fictional and marked as such in the local exhibition; sample GitHub links point to contribution directories and sample VIT addresses are fictional and must never receive mail.
 
 ## Experience
 
@@ -87,6 +87,14 @@ Production dependencies pass `npm audit --omit=dev`. The full audit currently re
 
 The UI UX Pro Max skill informed the composition and interaction system; decisions are persisted in `design-system/drop/MASTER.md`. Warm paper, confident solid colors, oversized type, illustrated project identities, editorial spacing, readable labels, mobile recomposition, keyboard focus, and reduced-motion support keep it closer to a builder exhibition than a dashboard.
 
-Production uses Cloudflare Workers at `https://droppp.tech`, Neon PostgreSQL, and Brevo SMTP from `hello@droppp.tech`. Signup sends a branded verification email; resends have delivery feedback and database-backed limits. Email verification confirms mailbox ownership, not VIT student eligibility.
+Production uses Cloudflare Workers at `https://droppp.tech`, Neon PostgreSQL, and Brevo SMTP from `hello@droppp.tech`. Signup sends a branded verification email; resends have delivery feedback and database-backed limits. All sign-in methods and existing sessions require @vitstudent.ac.in. Google OAuth validates the ID token and verified VIT Workspace domain; VIT password signup uses mailbox verification.
 
-Sensible follow-ups: add VIT verification and password recovery; add hosted media uploads and GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.
+Sensible follow-ups: add password recovery; add hosted media uploads and GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.
+
+### Google sign-in
+
+Create a Google OAuth **Web application** client. Register `https://droppp.tech/auth/google/callback` and `http://localhost:3000/auth/google/callback` as authorized redirect URIs. Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in ignored `.env.local` and Cloudflare Worker secrets. The client secret stays on the server. In Testing mode, add the intended VIT accounts as Google test users; publish the consent screen when ready for all students.
+
+Google sign-in checks signature, issuer, audience, expiry, nonce, verified email, and the exact `vitstudent.ac.in` Workspace domain. State cookies and PKCE protect the redirect flow. Only basic identity scopes are requested; Google access/refresh tokens are not retained. Existing verified VIT accounts keep their IDs and project history. An unverified pre-registration loses its old password and sessions when the real Google owner claims it.
+
+Set `CURATOR_EMAIL` only to an explicitly authorized VIT address. That account becomes a curator after Google proves ownership. There are no Gmail/admin domain exceptions. Run migrations before deploying the new auth code.

@@ -969,3 +969,17 @@ body > main.container,
 body > .page-loading {
   width: 100%;
 }
+.google-signin {
+  background: #fff;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  width: 100%;
+  justify-content: center;
+  margin-top: 24px;
+}
+.auth-divider {
+  margin: 24px 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}

@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 const password = 'Drop-test-only-2026!';
 async function login(page: Page, email: string) {
   await page.goto('/signin');
-  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('VIT student email', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).toHaveURL(/\/me$/);
@@ -14,7 +14,7 @@ async function logout(page: Page) {
   await expect(page).toHaveURL(/\/$/);
 }
 test('verified support persists once and historical results remain locked', async ({ page }) => {
-  await login(page, 'ananya@demo.drop.test');
+  await login(page, 'ananya@vitstudent.ac.in');
   await page.goto('/weekly');
   const row = page
     .locator('.ranking-row')
@@ -34,7 +34,7 @@ test('verified support persists once and historical results remain locked', asyn
 test('submission preview, private review, requested changes, approval and next-week schedule', async ({
   page,
 }) => {
-  await login(page, 'ananya@demo.drop.test');
+  await login(page, 'ananya@vitstudent.ac.in');
   await page.goto('/submit');
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.locator('main').getByRole('alert')).toContainText('Give your build a name');
@@ -62,7 +62,7 @@ test('submission preview, private review, requested changes, approval and next-w
   await expect(page.getByRole('heading', { name: 'This build is off the grid.' })).toBeVisible();
   await page.goto('/discover?q=Lab+Lantern');
   await expect(page.locator('.project-card')).toHaveCount(0);
-  await login(page, 'admin@demo.drop.test');
+  await login(page, 'admin@vitstudent.ac.in');
   await page.goto('/admin');
   const review = page
     .locator('.admin-card')
@@ -74,7 +74,7 @@ test('submission preview, private review, requested changes, approval and next-w
   await review.getByRole('button', { name: 'Save review' }).click();
   await expect(review).toContainText('Decision saved');
   await logout(page);
-  await login(page, 'ananya@demo.drop.test');
+  await login(page, 'ananya@vitstudent.ac.in');
   const own = page
     .locator('.admin-card')
     .filter({ has: page.getByRole('link', { name: 'Lab Lantern ↗', exact: true }) });
@@ -90,7 +90,7 @@ test('submission preview, private review, requested changes, approval and next-w
   await page.getByRole('button', { name: 'Resubmit for review' }).click();
   await expect(page.getByText('Pending review', { exact: true })).toBeVisible();
   await logout(page);
-  await login(page, 'admin@demo.drop.test');
+  await login(page, 'admin@vitstudent.ac.in');
   await page.goto('/admin');
   await review.getByLabel('A useful note for the builder').fill('Approved.');
   await review.getByRole('button', { name: 'Save review' }).click();
@@ -109,7 +109,7 @@ test('new accounts stay unverified and cannot support until email verification',
 }) => {
   await page.goto('/signup');
   await page.getByLabel('Your name').fill('QA Builder');
-  await page.getByLabel('Email', { exact: true }).fill('qa-builder@demo.drop.test');
+  await page.getByLabel('VIT student email', { exact: true }).fill('qa-builder@vitstudent.ac.in');
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Create my profile' }).click();
   await expect(page).toHaveURL(/\/me\?welcome=1/);
@@ -236,7 +236,7 @@ test('floating navigation, viewport hero, readable menu and upright honors remai
   ).toBe('rgba(0, 0, 0, 0)');
 });
 test('curators can issue permanent badges and manage unranked recruitment', async ({ page }) => {
-  await login(page, 'admin@demo.drop.test');
+  await login(page, 'admin@vitstudent.ac.in');
   await page.goto('/admin');
   await page.getByLabel('Project', { exact: true }).selectOption('folio');
   await page.getByLabel('Badge title').fill('Exhibition Pick');
@@ -266,7 +266,7 @@ test('curators can issue permanent badges and manage unranked recruitment', asyn
 test('builder profile edits persist and invalid verification links stay actionable', async ({
   page,
 }) => {
-  await login(page, 'ishaan@demo.drop.test');
+  await login(page, 'ishaan@vitstudent.ac.in');
   await page.goto('/me?edit=1');
   await page.getByLabel('A little about you').fill('Building thoughtful tools for student makers.');
   await page.getByRole('button', { name: 'Save builder profile' }).click();
@@ -343,4 +343,32 @@ test('kinetic reactions clean up on pause and project navigation stays direct', 
   await expect(page.locator('.kinetic-glyph').first()).toHaveCSS('animation-play-state', 'paused');
   await page.getByRole('link', { name: 'Explore Canvas Club', exact: true }).click();
   await expect(page).toHaveURL(/\/projects\/canvas$/);
+});
+
+test('personal email is rejected and Google callback requires a matching browser flow', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/signin');
+  await page.getByLabel('VIT student email', { exact: true }).fill('outside@gmail.com');
+  await page.getByLabel('Password', { exact: true }).fill('Drop-test-only-2026!');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.locator('main').getByRole('alert')).toContainText('VIT students only');
+  const start = await request.get('/auth/google', { maxRedirects: 0 });
+  expect(start.status()).toBe(307);
+  const authorization = new URL(start.headers().location);
+  expect(authorization.hostname).toBe('accounts.google.com');
+  expect(authorization.searchParams.get('hd')).toBe('vitstudent.ac.in');
+  expect(authorization.searchParams.get('code_challenge_method')).toBe('S256');
+  expect(start.headers()['set-cookie']).toContain('HttpOnly');
+  const callback = await request.get('/auth/google/callback?code=unused&state=invalid', {
+    maxRedirects: 0,
+  });
+  expect(callback.status()).toBe(307);
+  expect(callback.headers().location).toContain('/signin?oauth=failed');
+  expect(callback.headers()['set-cookie']).toContain('Path=/auth/google');
+  expect(callback.headers()['set-cookie']).toContain('Max-Age=0');
+  const icon = await request.get('/icon.svg');
+  expect(icon.status()).toBe(200);
+  expect(icon.headers()['content-type']).toContain('image/svg+xml');
 });

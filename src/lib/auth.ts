@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { db } from './db';
 import { sessions, users, rateLimits } from './schema';
 import { hashToken } from './password';
+import { isVitEmail } from './email-policy';
 export const currentUser = cache(async () => {
   const cookie = (await cookies()).get('drop_session')?.value;
   if (!cookie) return null;
@@ -14,7 +15,7 @@ export const currentUser = cache(async () => {
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .where(and(eq(sessions.tokenHash, hashToken(cookie)), gt(sessions.expiresAt, new Date())));
-  if (!row) return null;
+  if (!row || !isVitEmail(row.user.email)) return null;
   const { passwordHash: _, ...safe } = row.user;
   void _;
   return safe;

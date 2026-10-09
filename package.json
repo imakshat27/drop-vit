@@ -25,6 +25,7 @@
     "@neon/config": "^1.8.5",
     "@neon/env": "^1.5.2",
     "drizzle-orm": "latest",
+    "jose": "^6.2.12",
     "lucide-react": "latest",
     "next": "latest",
     "nodemailer": "latest",

@@ -14,6 +14,7 @@ export const users = pgTable('users', {
   name: text().notNull(),
   email: text().notNull().unique(),
   passwordHash: text().notNull(),
+  googleSubject: text().unique(),
   role: text().notNull().default('user'),
   verified: boolean().notNull().default(false),
   bio: text().notNull().default(''),

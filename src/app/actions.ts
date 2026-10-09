@@ -23,6 +23,7 @@ import { createSession, currentUser, requireUser, requireAdmin, rateLimit } from
 import { hashPassword, verifyPassword, hashToken } from '@/lib/password';
 import { submissionSchema, type ActionState } from '@/lib/validation';
 import { categories } from '@/lib/constants';
+import { isVitEmail, VIT_ONLY_MESSAGE } from '@/lib/email-policy';
 import { lockPeriod, prepareWeeks } from '@/lib/rankings';
 function refresh() {
   revalidatePath('/', 'layout');
@@ -47,6 +48,7 @@ export async function loginAction(_: ActionState, form: FormData): Promise<Actio
   let id: string;
   try {
     const email = parsed.data.email.toLowerCase();
+    if (!isVitEmail(email)) return { error: VIT_ONLY_MESSAGE };
     await rateLimit(`login:${hashToken(email)}`);
     const [user] = await db().select().from(users).where(eq(users.email, email));
     const fallback = '00000000000000000000000000000000:' + '00'.repeat(64);
@@ -72,6 +74,7 @@ export async function signupAction(_: ActionState, form: FormData): Promise<Acti
   let verificationSent = false;
   try {
     const email = parsed.data.email.toLowerCase();
+    if (!isVitEmail(email)) return { error: VIT_ONLY_MESSAGE };
     await rateLimit(`signup:${hashToken(email)}`, 3);
     if ((await db().select({ id: users.id }).from(users).where(eq(users.email, email))).length)
       return { error: 'Could not create an account with these details. Try signing in.' };
