@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowRight, Star, MapPin } from 'lucide-react';
 import { ProjectArt } from './art';
@@ -140,7 +141,7 @@ export function Empty({
   return (
     <div className="empty">
       <span className="empty-spark" aria-hidden>
-        ✳
+        <BrandSpark className="brand-mark" />
       </span>
       <Heading>{title}</Heading>
       <p>{description}</p>

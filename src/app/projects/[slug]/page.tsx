@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { MediaGallery } from '@/components/media-gallery';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -362,7 +363,9 @@ export default async function ProjectPage({
             <h2>Earned, not given</h2>
             {awards.map((a) => (
               <div className={`badge-card ${a.type === 'special' ? 'special' : ''}`} key={a.id}>
-                <b aria-hidden>✳</b>
+                <b aria-hidden>
+                  <BrandSpark className="brand-mark" />
+                </b>
                 <div>
                   <h3>{a.title}</h3>
                   <p>{a.description}</p>

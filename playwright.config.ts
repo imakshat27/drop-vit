@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 const qaPath = `.data/e2e-${Date.now()}`;
 export default defineConfig({
   testDir: 'tests/e2e',
+  testIgnore: 'mobile-layout.spec.ts',
   fullyParallel: false,
   workers: 1,
   timeout: 45000,

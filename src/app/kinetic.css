@@ -992,3 +992,123 @@ body > .page-loading {
   margin-left: 0.18em;
   overflow: visible;
 }
+
+/* Decorative marks use the same vector artwork as the wordmark. */
+.brand-mark {
+  display: inline-block;
+  overflow: visible;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  vertical-align: -0.12em;
+}
+.cursor-stamp svg,
+.click-spark svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+/* Content must shrink/wrap inside the decorative shells, especially with real titles. */
+.project-card > h3,
+.project-card > p,
+.rank-info,
+.role-card,
+.hall-card,
+.badge-card > div,
+.profile-hero > div,
+.project-heading,
+.stack-tags,
+.tech-list,
+.timeline-item,
+.breadcrumb {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-card > h3 a svg,
+.text-link svg,
+.badge-card > b {
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .section-title {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .section-title > div {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+  .section-title > .text-link {
+    white-space: normal;
+  }
+  .project-art .folio-paper {
+    width: 230px;
+    padding: 18px;
+  }
+  .project-art .folio-paper small {
+    font-size: 7px;
+    letter-spacing: 0.05em;
+  }
+  .project-art .folio-paper h3 {
+    font-size: 26px;
+    line-height: 1.05;
+    margin: 18px 0 0;
+  }
+  .project-art .folio-shapes {
+    margin: 16px 0;
+    height: 48px;
+  }
+  .project-art .folio-caption {
+    font-size: 7px;
+    gap: 5px;
+  }
+  .project-art .folio-caption svg {
+    width: 12px;
+  }
+}
+
+/* Let the content breathe before adding motion on narrow screens. */
+@media (max-width: 640px) {
+  .contribute-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .contribute-card .big-asterisk {
+    display: block;
+    font-size: 60px;
+    margin: 0 0 12px;
+  }
+  .contribute-card h3 {
+    margin-top: 0;
+  }
+  .contribute-card p {
+    margin: 16px 0 24px;
+  }
+  .contribute-card .text-link {
+    margin-top: 0;
+  }
+  .award-display {
+    width: calc(100% - 40px);
+    margin-inline: auto;
+    padding: 24px 16px;
+  }
+  .draw-star {
+    font-size: 22px;
+    right: 8px;
+    bottom: 6px;
+  }
+  .sticky-one b {
+    padding-bottom: 24px;
+  }
+  .collage-build .draw-star {
+    font-size: 12px;
+    right: 5px;
+    bottom: 5px;
+  }
+  .collage-build .sticky-one b {
+    padding-bottom: 12px;
+  }
+}

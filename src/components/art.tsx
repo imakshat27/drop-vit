@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { ArrowUpRight, Code2, Command, Layers, MousePointer2, Plus, Search } from 'lucide-react';
 export function ProjectArt({
   symbol,
@@ -44,7 +45,9 @@ export function ProjectArt({
                 <br />
                 built this?
               </b>
-              <span className="draw-star">✳</span>
+              <span className="draw-star">
+                <BrandSpark className="brand-mark" />
+              </span>
             </div>
             <div className="sticky sticky-two">
               <small>STEP 01</small>
@@ -69,7 +72,9 @@ export function ProjectArt({
         <div className="patch-art">
           <div className="patch-word">
             patch<span>work</span>
-            <span className="patch-flower">✳</span>
+            <span className="patch-flower">
+              <BrandSpark className="brand-mark" />
+            </span>
           </div>
           <div className="code-window">
             <div className="code-dots">

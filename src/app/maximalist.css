@@ -425,7 +425,7 @@ h3 {
   border: 2px solid var(--ink);
 }
 .project-card .card-meta,
-.project-card h3,
+.project-card > h3,
 .project-card > p,
 .project-card > .tech-list {
   margin-left: 4px;

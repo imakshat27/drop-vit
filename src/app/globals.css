@@ -1201,11 +1201,11 @@ img {
   gap: 5px;
   align-items: center;
 }
-.project-card h3 {
+.project-card > h3 {
   margin-top: 12px;
   font-size: 26px;
 }
-.project-card h3 a {
+.project-card > h3 a {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2739,7 +2739,7 @@ img {
   .project-art {
     height: 255px;
   }
-  .project-card h3 {
+  .project-card > h3 {
     font-size: 27px;
   }
   .project-card p {

@@ -1,3 +1,4 @@
+import { drawBrandMark } from './brand-mark';
 import { shareFormats, type ShareCard, type ShareFormat } from './share-cards';
 
 const ink = '#18151d',
@@ -48,17 +49,8 @@ export async function renderRemixPoster(card: ShareCard, format: ShareFormat): P
     c!.lineTo(right, y);
     c!.stroke();
   }
-  function spark(cx: number, cy: number, r: number, color: string, stroke = r * 0.15) {
-    c!.strokeStyle = color;
-    c!.lineWidth = stroke;
-    c!.lineCap = 'butt';
-    for (let i = 0; i < 4; i++) {
-      const a = (Math.PI * i) / 4;
-      c!.beginPath();
-      c!.moveTo(cx - Math.cos(a) * r, cy - Math.sin(a) * r);
-      c!.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
-      c!.stroke();
-    }
+  function spark(cx: number, cy: number, r: number, color: string) {
+    drawBrandMark(c!, cx, cy, r, color);
   }
   function fit(
     value: string,
@@ -111,7 +103,7 @@ export async function renderRemixPoster(card: ShareCard, format: ShareFormat): P
   // Logo clear space is measured from the text, never guessed from its position.
   text('drop', x, top, 74);
   c.font = '700 74px Arial, sans-serif';
-  spark(x + c.measureText('drop').width + 22 + 27, top + 38, 27, dark ? lime : ink, 7);
+  spark(x + c.measureText('drop').width + 22 + 27, top + 38, 27, dark ? lime : ink);
   text('BUILT HERE.', 775, top + 17, 23, fg, '700', 'monospace');
   text('DROPPED WEEKLY.', 775, top + 47, 20, fg, '400', 'monospace');
   rule(top + 105);
@@ -211,7 +203,7 @@ export async function renderRemixPoster(card: ShareCard, format: ShareFormat): P
     c.setLineDash([]);
   } else {
     // A sculptural solid asterisk with a ribbon wrapping across its base.
-    spark(540, cy - artH * 0.07, Math.min(290, artH * 0.42), lime, Math.min(47, artH * 0.075));
+    spark(540, cy - artH * 0.07, Math.min(290, artH * 0.42), lime);
     c.translate(540, cy + artH * 0.22);
     c.rotate(-0.065);
     c.fillStyle = lilac;

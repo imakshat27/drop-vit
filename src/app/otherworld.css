@@ -663,13 +663,13 @@ body {
   border-radius: 22px;
 }
 .project-card .card-meta,
-.project-card h3,
+.project-card > h3,
 .project-card > p,
 .project-card > .tech-list {
   margin-left: 12px;
   margin-right: 12px;
 }
-.project-card h3 {
+.project-card > h3 {
   font-size: 27px;
 }
 .role-card {

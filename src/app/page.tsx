@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { Suspense } from 'react';
 import { DataSkeleton } from '@/components/data-skeleton';
 import { LiveRefresh } from '@/components/live-refresh';
@@ -27,7 +28,9 @@ export default function Home() {
       <div className="container">
         <section className="hero">
           <div className="reaction-layer" aria-hidden="true">
-            <span className="kinetic-cursor">+</span>
+            <span className="kinetic-cursor">
+              <BrandSpark className="brand-mark" />
+            </span>
           </div>
           <div className="hero-top">
             <span className="eyebrow">
@@ -67,7 +70,7 @@ export default function Home() {
                     MORE DROP.
                   </span>
                   <span className="collage-star" aria-hidden>
-                    ✳
+                    <BrandSpark className="brand-mark" />
                   </span>
                   <Suspense
                     fallback={
@@ -105,7 +108,11 @@ export default function Home() {
                 <div className="ribbon-group" key={i}>
                   {Array.from({ length: 8 }, (_, repeat) => (
                     <span key={repeat}>
-                      IDEAS THAT ESCAPE THE CLASSROOM <b>✳</b> SUBMIT YOUR BUILD NOW <b>↗</b>
+                      IDEAS THAT ESCAPE THE CLASSROOM{' '}
+                      <b>
+                        <BrandSpark className="brand-mark" />
+                      </b>{' '}
+                      SUBMIT YOUR BUILD NOW <b>↗</b>
                     </span>
                   ))}
                 </div>
@@ -118,7 +125,11 @@ export default function Home() {
                 <div className="ribbon-group" key={i}>
                   {Array.from({ length: 8 }, (_, repeat) => (
                     <span key={repeat}>
-                      DROPPED WEEKLY <b>✳</b> BUILT HERE <b>↗</b>
+                      DROPPED WEEKLY{' '}
+                      <b>
+                        <BrandSpark className="brand-mark" />
+                      </b>{' '}
+                      BUILT HERE <b>↗</b>
                     </span>
                   ))}
                 </div>
@@ -144,7 +155,7 @@ export default function Home() {
             </div>
             <aside className="contribute-card">
               <span className="big-asterisk" aria-hidden>
-                ✳
+                <BrandSpark className="brand-mark" />
               </span>
               <h3>
                 You don’t have to
@@ -169,7 +180,7 @@ export default function Home() {
               >
                 <ArrowUpRight size={22} aria-hidden />
                 <span className="category-shape" aria-hidden>
-                  {['{ }', '◒', '✳', '↗'][i]}
+                  {i === 2 ? <BrandSpark className="brand-mark" /> : ['{ }', '◒', '', '↗'][i]}
                 </span>
                 <h3>{c}</h3>
                 <p>{categoryCopy[c]}</p>
@@ -217,7 +228,9 @@ export default function Home() {
               </Link>
             </div>
             <div className="award-display">
-              <span aria-hidden>✳</span>
+              <span aria-hidden>
+                <BrandSpark className="brand-mark" />
+              </span>
               <b>The things we’re proud of.</b>
               <small>PERMANENT HONORS. NO POPULARITY CONTESTS.</small>
             </div>

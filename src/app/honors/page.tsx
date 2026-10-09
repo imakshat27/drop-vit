@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { Suspense } from 'react';
 import { HonorsIntro } from '@/components/page-intros';
 import { DataSkeleton } from '@/components/data-skeleton';
@@ -62,7 +63,7 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
                   <Lock size={12} aria-hidden /> {p.label.toUpperCase()}
                 </span>
                 <span className="award-star" aria-hidden>
-                  ✳
+                  <BrandSpark className="brand-mark" />
                 </span>
                 <span className="eyebrow">
                   {r.category === 'Overall'

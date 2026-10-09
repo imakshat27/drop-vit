@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { categoryCopy, type Category } from '@/lib/constants';
 export function WeeklyIntro() {
   return (
@@ -33,7 +34,7 @@ export function DiscoverIntro({ valid }: { valid: string }) {
         </p>
       </div>
       <span className="header-shape" aria-hidden>
-        {valid === 'Open Source' ? '{ }' : '✳'}
+        {valid === 'Open Source' ? '{ }' : <BrandSpark className="brand-mark" />}
       </span>
     </div>
   );
@@ -80,7 +81,7 @@ export function HonorsIntro({ hall = false }: { hall?: boolean }) {
         </p>
       </div>
       <span className="header-shape" aria-hidden>
-        ✳
+        <BrandSpark className="brand-mark" />
       </span>
     </div>
   );

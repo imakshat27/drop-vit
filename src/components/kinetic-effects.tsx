@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { createBrandMarkElement } from '@/lib/brand-mark';
 
 /** Decorative reactions use delegated listeners; ordinary links keep their native behavior. */
 export function KineticEffects({ paused }: { paused: boolean }) {
@@ -27,7 +28,7 @@ export function KineticEffects({ paused }: { paused: boolean }) {
       if (!layer || !enabled() || particles.size > 45) return;
       const particle = document.createElement('span');
       particle.className = burst ? 'click-spark' : 'cursor-stamp';
-      particle.textContent = burst ? '✳' : ['↗', '+', '✳'][Math.floor(Math.random() * 3)];
+      particle.append(createBrandMarkElement());
       particle.style.left = `${x}px`;
       particle.style.top = `${y}px`;
       layer.appendChild(particle);

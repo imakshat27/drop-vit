@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import { Suspense } from 'react';
 import { RecruitIntro } from '@/components/page-intros';
 import { DataSkeleton } from '@/components/data-skeleton';
@@ -49,7 +50,9 @@ async function RecruitData() {
                 .slice(0, 1)
                 .map((a) => (
                   <div className="badge-card" style={{ marginTop: 20 }} key={a.id}>
-                    <b aria-hidden>✳</b>
+                    <b aria-hidden>
+                      <BrandSpark className="brand-mark" />
+                    </b>
                     <div>
                       <h3>{a.title}</h3>
                       <small>{a.type.toUpperCase()}</small>

@@ -1,3 +1,4 @@
+import { drawBrandMark } from './brand-mark';
 import { renderFieldNotesPoster } from './share-poster-field-notes';
 import { renderRemixPoster } from './share-poster-remix';
 import { shareFormats, type ShareCard, type ShareFormat } from './share-cards';
@@ -48,15 +49,7 @@ async function renderOriginalPoster(card: ShareCard, format: ShareFormat): Promi
     c!.save();
     c!.translate(x, y);
     c!.rotate(rotation);
-    c!.strokeStyle = color;
-    c!.lineWidth = 10;
-    for (let i = 0; i < 8; i++) {
-      const a = (Math.PI * i) / 4;
-      c!.beginPath();
-      c!.moveTo(0, 0);
-      c!.lineTo(Math.cos(a) * radius, Math.sin(a) * radius);
-      c!.stroke();
-    }
+    drawBrandMark(c!, 0, 0, radius, color);
     c!.restore();
   }
   function wrap(

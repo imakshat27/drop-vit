@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { GoogleSignin } from '@/components/google-signin';
 import { redirect } from 'next/navigation';
@@ -12,7 +13,7 @@ export default async function Signup() {
       <div className="auth-layout">
         <div className="auth-art lime">
           <span className="big-asterisk" aria-hidden>
-            ✳
+            <BrandSpark className="brand-mark" />
           </span>
           <p className="auth-statement">
             You don’t need

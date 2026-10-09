@@ -1,3 +1,4 @@
+import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { and, eq } from 'drizzle-orm';
@@ -96,7 +97,9 @@ export default async function Builder({
                   key={a.id}
                   href={`/projects/${p.slug}`}
                 >
-                  <b aria-hidden>✳</b>
+                  <b aria-hidden>
+                    <BrandSpark className="brand-mark" />
+                  </b>
                   <div>
                     <h3>{a.title}</h3>
                     <p>

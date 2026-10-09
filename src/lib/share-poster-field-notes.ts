@@ -1,3 +1,4 @@
+import { drawBrandMark } from './brand-mark';
 import { shareFormats, type ShareCard, type ShareFormat } from './share-cards';
 
 const ink = '#18151d',
@@ -62,17 +63,8 @@ export async function renderFieldNotesPoster(card: ShareCard, format: ShareForma
     c!.lineTo(right, y);
     c!.stroke();
   }
-  function spark(cx: number, cy: number, r: number, color: string, stroke = r * 0.15) {
-    c!.strokeStyle = color;
-    c!.lineWidth = stroke;
-    c!.lineCap = 'butt';
-    for (let i = 0; i < 4; i++) {
-      const a = (Math.PI * i) / 4;
-      c!.beginPath();
-      c!.moveTo(cx - Math.cos(a) * r, cy - Math.sin(a) * r);
-      c!.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
-      c!.stroke();
-    }
+  function spark(cx: number, cy: number, r: number, color: string) {
+    drawBrandMark(c!, cx, cy, r, color);
   }
   function fit(
     value: string,
@@ -125,7 +117,7 @@ export async function renderFieldNotesPoster(card: ShareCard, format: ShareForma
   // Shared identity and the approved Field Notes composition.
   text('drop', 70, top, 76);
   c.font = '700 76px Arial, sans-serif';
-  spark(70 + c.measureText('drop').width + 50, top + 38, 28, fg, 7);
+  spark(70 + c.measureText('drop').width + 50, top + 38, 28, fg);
   text('FIELD NOTES', 765, top + 25, 24, fg, '700', 'monospace');
   const panelY = top + 143;
   const panelH = square ? 230 : story ? 310 : 275;
@@ -182,7 +174,7 @@ export async function renderFieldNotesPoster(card: ShareCard, format: ShareForma
   c.strokeStyle = ink;
   c.lineWidth = 3;
   c.strokeRect(-stampSize, -stampSize, stampSize * 2, stampSize * 2);
-  spark(0, 0, stampSize * 0.73, ink, stampSize * 0.13);
+  spark(0, 0, stampSize * 0.73, ink);
   c.restore();
 
   const badge =
