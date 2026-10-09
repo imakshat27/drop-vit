@@ -443,7 +443,11 @@ body {
   animation: ribbon-run 28s linear infinite;
   animation-play-state: paused;
 }
-.ribbon-track > span {
+.ribbon-group {
+  display: flex;
+  flex-shrink: 0;
+}
+.ribbon-group > span {
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -1111,7 +1115,7 @@ html[data-motion='running'] .ribbon-track {
     font-size: 25px;
     padding: 10px 0;
   }
-  .ribbon-track > span {
+  .ribbon-group > span {
     gap: 20px;
     padding-right: 20px;
   }

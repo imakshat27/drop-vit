@@ -117,9 +117,13 @@ export default async function Home() {
           <div className="drop-strip" role="img" aria-label="Built here. Dropped weekly.">
             <div className="ribbon-track" aria-hidden>
               {[0, 1].map((i) => (
-                <span key={i}>
-                  BUILT HERE <b>✳</b> DROPPED WEEKLY <b>✳</b> VIT, INDIA <b>↗</b>{' '}
-                </span>
+                <div className="ribbon-group" key={i}>
+                  {Array.from({ length: 8 }, (_, repeat) => (
+                    <span key={repeat}>
+                      DROPPED WEEKLY <b>✳</b> BUILT HERE <b>↗</b>
+                    </span>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
