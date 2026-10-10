@@ -33,7 +33,7 @@ References: https://help.brevo.com/hc/en-us/articles/7924908994450-Send-transact
 
 ## 3. Verify and start
 
-Keep `APP_URL=http://localhost:3000` while testing locally. Set it to `https://droppp.tech` in the deployed environment so verification links point to the right app. Do not prefix database or SMTP secrets with `NEXT_PUBLIC_`.
+Keep `APP_URL=http://localhost:3000` while testing locally. Set it to `https://droppp.tech` in the deployed environment so Google callbacks point to the right app. Do not prefix database or SMTP secrets with `NEXT_PUBLIC_`.
 
 ```sh
 npm run services:check
@@ -43,7 +43,7 @@ npm run services:check
 
 The check performs read-only database queries and SMTP connection/authentication verification. It fails until the remote database has all migrations. It never opens the local PGlite database, prints secrets, or sends a message. Successful SMTP authentication does not prove that a sender domain is approved or mail reaches an inbox.
 
-Restart the dev server after changing credentials. Register with an email address you own and confirm the delivered link to test the full verification flow. Production requires a curator; provision one with `ADMIN_EMAIL`, `ADMIN_NAME`, and `ADMIN_PASSWORD`, then run `npm run admin:create`. Do not reuse the local demo password.
+Restart the dev server after changing credentials. Sign in with your own VIT Google account to test the callback and verified session. Password and verification-email flows are disabled. To provision a curator, set an explicitly authorized `CURATOR_EMAIL` before Google sign-in, or sign in first and run `npm run admin:create` with that account’s `ADMIN_EMAIL`.
 
 Changing `DATABASE_URL` switches the app to a fresh database; it does not transfer `.data/drop` or its demo accounts. The local data stays on disk. Use a separate Neon development branch for future testing against PostgreSQL rather than exercising mutations on production.
 

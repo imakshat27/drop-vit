@@ -3,7 +3,7 @@ import { eq, desc } from 'drizzle-orm';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { projects } from '@/lib/schema';
-import { logoutAction, resendVerificationAction, updateProfileAction } from '../actions';
+import { logoutAction, updateProfileAction } from '../actions';
 import { ActionForm } from '@/components/action-form';
 import { Tag, Empty } from '@/components/cards';
 import { ShareButton } from '@/components/share-button';
@@ -12,7 +12,7 @@ export const metadata = { title: 'Your workshop' };
 export default async function Me({
   searchParams,
 }: {
-  searchParams: Promise<{ welcome?: string; verification?: string; edit?: string }>;
+  searchParams: Promise<{ welcome?: string; edit?: string }>;
 }) {
   const u = await requireUser();
   const q = await searchParams;
@@ -39,29 +39,9 @@ export default async function Me({
       <div className="workshop-share-row">
         <ShareButton cards={[builderShareCard(u)]} owner label="Share my builder card" />
       </div>
-      {q.verification === 'complete' && (
-        <div className="message">
-          Email verified. You’re ready to back the builds you believe in.
-        </div>
-      )}
       {q.welcome && (
         <div className="message">
           You’re in. Start with a little about yourself, then show us what you’re building.
-        </div>
-      )}
-      {!u.verified && (
-        <div className="message" role="status">
-          <b>Email verification is still pending.</b>
-          <p>You can submit projects now. Verify your email to support other builds.</p>
-          {q.verification === 'sent' ? (
-            <p>
-              Check your inbox and spam folder for an email from hello@droppp.tech. The link expires
-              in 24 hours.
-            </p>
-          ) : q.verification === 'unavailable' ? (
-            <p>We couldn’t send your verification email. Try again below in a moment.</p>
-          ) : null}
-          <ActionForm action={resendVerificationAction} button="Resend verification email" />
         </div>
       )}
       <div className="tabs">

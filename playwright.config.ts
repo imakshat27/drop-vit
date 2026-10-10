@@ -18,6 +18,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       LOCAL_DB_PATH: qaPath,
+      E2E_AUTH_FIXTURES: '1',
       ALLOW_LOCAL_DB: '1',
       DATABASE_URL: '',
       DATABASE_MIGRATION_URL: '',
@@ -27,7 +28,6 @@ export default defineConfig({
       GOOGLE_CLIENT_ID: 'qa-client.apps.googleusercontent.com',
       GOOGLE_CLIENT_SECRET: 'qa-only-placeholder',
       CURATOR_EMAIL: '',
-      SEED_DEMO_PASSWORD: 'Drop-test-only-2026!',
     },
   },
 });

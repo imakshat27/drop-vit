@@ -1,39 +1,19 @@
-import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db, database } from '../src/lib/db';
 import { users } from '../src/lib/schema';
-import { hashPassword } from '../src/lib/password';
 import { isVitEmail } from '../src/lib/email-policy';
 async function main() {
   const email = z.email().parse(process.env.ADMIN_EMAIL).toLowerCase();
   if (!isVitEmail(email)) throw new Error('Curators must use a VIT email');
-  const name = process.env.ADMIN_NAME || 'Drop Curator';
-  const [existing] = await db().select({ id: users.id }).from(users).where(eq(users.email, email));
-  if (existing) {
-    await db().update(users).set({ role: 'admin' }).where(eq(users.id, existing.id));
-    console.log(
-      'Existing account granted curator role. Existing password and verification unchanged.',
-    );
-  } else {
-    const password = z.string().min(14).max(128).parse(process.env.ADMIN_PASSWORD);
-    await db()
-      .insert(users)
-      .values({
-        id: randomUUID(),
-        name,
-        email,
-        passwordHash: await hashPassword(password),
-        role: 'admin',
-        verified: false,
-      });
-    console.log('Curator account created. Sign in and request email verification.');
-  }
+  const [existing] = await db().select().from(users).where(eq(users.email, email));
+  if (!existing?.googleSubject || !existing.verified)
+    throw new Error('The account must sign in with its VIT Google account first');
+  await db().update(users).set({ role: 'admin' }).where(eq(users.id, existing.id));
+  console.log('Existing Google account granted curator role.');
   await database().close();
 }
-main().catch(() => {
-  console.error(
-    'Supply a VIT ADMIN_EMAIL and, for new accounts, ADMIN_PASSWORD (at least 14 characters). Ensure migrations have run.',
-  );
+main().catch((error) => {
+  console.error(error instanceof Error ? error.message : 'Could not provision curator');
   process.exit(1);
 });

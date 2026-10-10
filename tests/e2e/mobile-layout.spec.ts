@@ -1,3 +1,4 @@
+import { login } from './auth-fixture';
 import { test, expect } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 const routes = [
@@ -80,10 +81,7 @@ test('mobile navigation and authenticated workspaces stay usable', async ({ page
     .click();
   await expect(page).toHaveURL(/weekly$/);
   await expect(page.getByRole('button', { name: 'Open navigation' })).toBeVisible();
-  await page.goto('/signin');
-  await page.getByLabel('VIT student email', { exact: true }).fill('admin@vitstudent.ac.in');
-  await page.getByLabel('Password', { exact: true }).fill('Drop-test-only-2026!');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await login(page, 'admin@vitstudent.ac.in');
   await expect(page).toHaveURL(/me$/);
   for (const route of ['/me', '/me?edit=1', '/submit', '/admin']) {
     await page.goto(route, { waitUntil: 'networkidle' });

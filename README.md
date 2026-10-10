@@ -9,7 +9,7 @@ Requires Node.js 24 or newer.
 ```sh
 npm ci
 cp .env.example .env.local
-# Set SEED_DEMO_PASSWORD in .env.local before seeding if you want demo sign-in.
+# Configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET for local sign-in.
 npm run db:migrate
 npm run db:seed
 npm run dev
@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>. Without `DATABASE_URL`, Drop runs a persistent PGlite PostgreSQL engine in `.data/drop`. Stop the local app before running migrations/seeds against that same local database; PGlite is intended for one application process. Real PostgreSQL supports multiple application processes.
 
-Sample accounts: `ananya@vitstudent.ac.in` (builder) and `admin@vitstudent.ac.in` (curator), using the password supplied to `SEED_DEMO_PASSWORD`. If no password is supplied, the seed generates an undisclosed random password and the demo accounts cannot be signed into. New account registration still works. Seed data is fictional and marked as such in the local exhibition; sample GitHub links point to contribution directories and sample VIT addresses are fictional and must never receive mail.
+Seed data is fictional and cannot sign in. The automated browser suite creates random session fixtures only in its isolated `.data/e2e-*` local databases; no test login endpoint is shipped. Use your own VIT Google account for normal development. Sample VIT addresses must never receive mail.
 
 ## Experience
 
@@ -25,7 +25,7 @@ Sample accounts: `ananya@vitstudent.ac.in` (builder) and `admin@vitstudent.ac.in
 - **Weekly Drop:** IST-aligned Monday-to-Monday editions, closing countdown, 30-second refresh, verified support, current lineup, upcoming exhibition, and permanently locked archives.
 - **Projects:** rich stories, project-specific illustrations, screenshot gallery with failure fallback, team, tech stack, open-source setup and contribution areas, startup stage, launch details, awards, ranking history, and attached roles. A single project can appear in multiple relevant categories.
 - **Honors:** weekly, monthly, yearly, and all-time leaderboards; category filtering; immutable completed editions; Hall of Fame. Only projects compete. Recruitment does not enter ranking tables.
-- **Builders:** work, contributions, skills, and permanent project achievements. No follower counts or user leaderboards. Private workshop includes submission status, curator feedback, profile editing, and email-verification state.
+- **Builders:** work, contributions, skills, and permanent project achievements. No follower counts or user leaderboards. Private workshop includes submission status, curator feedback, profile editing, and share cards.
 - **Submit:** four deliberate steps grouping category, story/media/team, relevant details, and preview. Draft values stay in memory between steps. Submitted builds remain private until reviewed; requested changes can be edited and resubmitted.
 - **Curate:** server-authorized approval/rejection/change requests, category editing during review, next-week scheduling, featuring, permanent special badges, recruitment status, period locking, and audit history.
 
@@ -33,7 +33,7 @@ Sample accounts: `ananya@vitstudent.ac.in` (builder) and `admin@vitstudent.ac.in
 
 Next.js 16 App Router, React, TypeScript, Tailwind CSS, and Drizzle. Server Components load public data, Server Actions validate/authorize mutations, and small Client Components handle forms, countdowns, support, refresh, and navigation. No external fonts, analytics, or stock imagery are needed for the initial exhibition.
 
-`src/lib/schema.ts` defines users, hashed sessions, expiring verification tokens, projects, team memberships, weekly entries, supports, ranking periods, immutable results, permanent awards, attached recruitment, rate limits, and curator audit events. Ordered transactional SQL migrations live in `migrations/`; the transactional seed is idempotent for an empty development database.
+`src/lib/schema.ts` defines users, hashed sessions, legacy verification tokens (inactive), projects, team memberships, weekly entries, supports, ranking periods, immutable results, permanent awards, attached recruitment, rate limits, and curator audit events. Ordered transactional SQL migrations live in `migrations/`; the transactional seed is idempotent for an empty development database.
 
 Database constraints and triggers enforce approval and verification, one support per user/project/week, voting windows, immutable supports, immutable ranking snapshots, permanent awards, and unchangeable locked periods. Weekly result insertion and support insertion share a period-row lock to serialize finalization. Approval and resubmission lock the project row to prevent conflicting reviews.
 
@@ -45,11 +45,11 @@ Closed weekly editions finalize transactionally on the next exhibition-related r
 
 ### Authentication
 
-Password hashes use salted scrypt. Sessions are random opaque tokens stored only as SHA-256 hashes, expire after seven days, and use HttpOnly / SameSite=Lax cookies with Secure in production. Server-side roles guard all curator mutations. Email verification uses hashed, single-use 24-hour tokens delivered through SMTP; GET requests never consume the token. Verification is required for support, while unverified builders may submit. Database-backed limits constrain repeated login, submission, support, and verification attempts. VIT-specific student verification remains separate from email verification.
+Google is the only sign-in and sign-up method. Sessions are random opaque tokens stored as SHA-256 hashes, expire after seven days, and use HttpOnly / SameSite=Lax cookies with Secure in production. Protected access requires a Google-linked, verified VIT account. Legacy password-only sessions cannot access the workshop. Server-side roles guard curator mutations; database-backed limits constrain OAuth, submission, and support attempts. Google verifies mailbox ownership, not independent enrollment status.
 
 ## Deployment
 
-Set `DATABASE_URL` to a real PostgreSQL connection string and `APP_URL` to your deployed origin (working domain: `https://droppp.tech`). Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` for verification delivery.
+Set `DATABASE_URL` to a real PostgreSQL connection string, `APP_URL` to `https://droppp.tech`, and the Google client credentials as server secrets. SMTP settings remain available for future transactional messages; sign-in does not send email.
 
 The recommended starter setup is Neon PostgreSQL and Brevo SMTP. See [the connection walkthrough](docs/SERVICES_SETUP.md). After setting credentials, run `npm run services:check` to check the remote database schema and SMTP authentication without sending mail. An optional `DATABASE_MIGRATION_URL` lets schema migrations use a direct connection while the app uses a pooled URL.
 
@@ -62,7 +62,7 @@ npm run start
 
 Do not seed demo accounts into production. The app requires `DATABASE_URL` in production. `ALLOW_LOCAL_DB=1` is an explicit escape hatch for local production testing only.
 
-Provision a curator using `ADMIN_EMAIL`, `ADMIN_NAME`, and `ADMIN_PASSWORD` (at least 14 characters for a new account), then run `npm run admin:create`. Existing accounts gain the role without changing their password or verification. Store credentials in your host’s secret manager or ignored environment file. The production app sends verification from its configured SMTP service.
+Provision a curator by first signing in with the intended VIT Google account, then setting `ADMIN_EMAIL` and running `npm run admin:create`. Alternatively, configure an explicitly authorized `CURATOR_EMAIL` before that account signs in with Google.
 
 For multiple server instances, use one shared PostgreSQL database and configure a stable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` according to Next.js deployment guidance. Domain provisioning and publishing are separate from this local build.
 
@@ -93,7 +93,7 @@ Sensible follow-ups: add password recovery; add hosted media uploads and GitHub 
 
 ### Google sign-in
 
-Create a Google OAuth **Web application** client. Register `https://droppp.tech/auth/google/callback` and `http://localhost:3000/auth/google/callback` as authorized redirect URIs. Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in ignored `.env.local` and Cloudflare Worker secrets. The client secret stays on the server. In Testing mode, add the intended VIT accounts as Google test users; publish the consent screen when ready for all students.
+Create a Google OAuth **Web application** client. Register `https://droppp.tech/auth/google/callback` and `http://localhost:3000/auth/google/callback` as authorized redirect URIs. Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in ignored `.env.local` and Cloudflare Worker secrets. The client secret stays on the server. Only `openid email profile` scopes are requested; Google documents an exception to the Testing allowlist for these basic identity scopes.
 
 Google sign-in checks signature, issuer, audience, expiry, nonce, verified email, and the exact `vitstudent.ac.in` Workspace domain. State cookies and PKCE protect the redirect flow. Only basic identity scopes are requested; Google access/refresh tokens are not retained. Existing verified VIT accounts keep their IDs and project history. An unverified pre-registration loses its old password and sessions when the real Google owner claims it.
 

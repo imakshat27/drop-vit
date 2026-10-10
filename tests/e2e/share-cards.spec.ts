@@ -1,3 +1,4 @@
+import { login } from './auth-fixture';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
@@ -80,10 +81,7 @@ test('builder cards fit mobile and workshop cards use owner captions without pri
   await expect(studio.getByLabel('Your caption')).not.toContainText('@vitstudent');
   expect(await studio.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
   await page.keyboard.press('Escape');
-  await page.goto('/signin');
-  await page.getByLabel('VIT student email', { exact: true }).fill('ananya@vitstudent.ac.in');
-  await page.getByLabel('Password', { exact: true }).fill('Drop-test-only-2026!');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await login(page, 'ananya@vitstudent.ac.in');
   await expect(page).toHaveURL(/\/me$/);
   await page.getByRole('button', { name: 'Share my build', exact: true }).first().click();
   await expect(page.getByLabel('Your caption')).toContainText('I’ve been building');

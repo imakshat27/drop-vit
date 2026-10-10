@@ -1,7 +1,16 @@
 import { googleConfigured } from '@/lib/google-oauth';
 export function GoogleSignin() {
   if (!googleConfigured())
-    return <p className="understated">VIT student accounts only · @vitstudent.ac.in</p>;
+    return (
+      <>
+        <button className="button google-signin" disabled>
+          Continue with Google
+        </button>
+        <p className="understated" role="status">
+          Google sign-in is temporarily unavailable. Please try again later.
+        </p>
+      </>
+    );
   return (
     <>
       <a className="button google-signin" href="/auth/google">
@@ -22,8 +31,11 @@ export function GoogleSignin() {
         </svg>
         Continue with Google
       </a>
-      <p className="understated">Use your VIT Google account · @vitstudent.ac.in</p>
-      <p className="auth-divider">or use your VIT email and password</p>
+      <p className="understated">
+        Use your @vitstudent.ac.in Google account.
+        <br />
+        Your email is verified automatically.
+      </p>
     </>
   );
 }

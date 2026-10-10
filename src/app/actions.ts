@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { and, eq, gt, asc, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { consumeVerification, sendVerification } from '@/lib/verification';
 import { db } from '@/lib/db';
 import {
   users,
@@ -19,11 +18,10 @@ import {
   recruitments,
   audit,
 } from '@/lib/schema';
-import { createSession, currentUser, requireUser, requireAdmin, rateLimit } from '@/lib/auth';
-import { hashPassword, verifyPassword, hashToken } from '@/lib/password';
+import { currentUser, requireUser, requireAdmin, rateLimit } from '@/lib/auth';
+import { hashToken } from '@/lib/password';
 import { submissionSchema, type ActionState } from '@/lib/validation';
 import { categories } from '@/lib/constants';
-import { isVitEmail, VIT_ONLY_MESSAGE } from '@/lib/email-policy';
 import { lockPeriod, prepareWeeks } from '@/lib/rankings';
 function refresh() {
   revalidatePath('/', 'layout');
@@ -40,90 +38,6 @@ function message(e: unknown) {
     ? e.message
     : 'Something went wrong. Please try again.';
 }
-export async function loginAction(_: ActionState, form: FormData): Promise<ActionState> {
-  const parsed = z
-    .object({ email: z.email().max(254), password: z.string().min(1).max(128) })
-    .safeParse(Object.fromEntries(form));
-  if (!parsed.success) return { error: 'Enter a valid email and password.' };
-  let id: string;
-  try {
-    const email = parsed.data.email.toLowerCase();
-    if (!isVitEmail(email)) return { error: VIT_ONLY_MESSAGE };
-    await rateLimit(`login:${hashToken(email)}`);
-    const [user] = await db().select().from(users).where(eq(users.email, email));
-    const fallback = '00000000000000000000000000000000:' + '00'.repeat(64);
-    if (!(await verifyPassword(parsed.data.password, user?.passwordHash || fallback)) || !user)
-      return { error: 'Email or password is incorrect.' };
-    id = user.id;
-    await createSession(id);
-  } catch (e) {
-    return { error: message(e) };
-  }
-  redirect('/me');
-}
-export async function signupAction(_: ActionState, form: FormData): Promise<ActionState> {
-  const parsed = z
-    .object({
-      name: z.string().trim().min(2).max(80),
-      email: z.email().max(254),
-      password: z.string().min(10).max(128),
-    })
-    .safeParse(Object.fromEntries(form));
-  if (!parsed.success)
-    return { error: 'Add your name, a valid email, and a password of at least 10 characters.' };
-  let verificationSent = false;
-  try {
-    const email = parsed.data.email.toLowerCase();
-    if (!isVitEmail(email)) return { error: VIT_ONLY_MESSAGE };
-    await rateLimit(`signup:${hashToken(email)}`, 3);
-    if ((await db().select({ id: users.id }).from(users).where(eq(users.email, email))).length)
-      return { error: 'Could not create an account with these details. Try signing in.' };
-    const id = randomUUID();
-    await db()
-      .insert(users)
-      .values({
-        id,
-        name: parsed.data.name,
-        email,
-        passwordHash: await hashPassword(parsed.data.password),
-      });
-    await createSession(id);
-    try {
-      verificationSent = await sendVerification(id, email);
-    } catch {
-      console.error('Verification email delivery failed');
-    }
-  } catch (e) {
-    return { error: message(e) };
-  }
-  redirect(`/me?welcome=1&verification=${verificationSent ? 'sent' : 'unavailable'}`);
-}
-export async function resendVerificationAction(
-  _: ActionState,
-  _form: FormData,
-): Promise<ActionState> {
-  void _;
-  void _form;
-  const user = await requireUser();
-  if (user.verified) redirect('/me');
-  try {
-    await rateLimit(`verify:${user.id}`, 3);
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error && error.message.startsWith('Too many attempts')
-          ? 'Too many requests. Wait 15 minutes before requesting another email.'
-          : 'We couldn’t request an email. Try again in a moment.',
-    };
-  }
-  let sent = false;
-  try {
-    sent = await sendVerification(user.id, user.email);
-  } catch {
-    sent = false;
-  }
-  redirect(sent ? '/me?verification=sent' : '/me?verification=unavailable');
-}
 export async function logoutAction() {
   const jar = await cookies();
   const token = jar.get('drop_session')?.value;
@@ -137,7 +51,7 @@ export async function logoutAction() {
 export async function supportAction(_: ActionState, form: FormData): Promise<ActionState> {
   const user = await currentUser();
   if (!user) return { error: 'Sign in to support this project.' };
-  if (!user.verified) return { error: 'Verify your email before supporting projects.' };
+  if (!user.verified) return { error: 'Sign in with your VIT Google account to support projects.' };
   const projectId = String(form.get('projectId') || '');
   const periodId = String(form.get('periodId') || '');
   try {
@@ -436,22 +350,4 @@ export async function updateProfileAction(_: ActionState, form: FormData): Promi
     .where(eq(users.id, user.id));
   refresh();
   return { success: 'Builder profile updated.' };
-}
-export async function verifyEmailAction(_: ActionState, form: FormData): Promise<ActionState> {
-  const token = String(form.get('token') || '');
-  if (!/^[a-f0-9]{64}$/.test(token))
-    return { error: 'This verification link is invalid. Request a new one from your workshop.' };
-  let valid = false;
-  try {
-    valid = await consumeVerification(token);
-  } catch (e) {
-    return { error: message(e) };
-  }
-  if (!valid)
-    return {
-      error: 'This link has expired or was already used. Request a new link from your workshop.',
-    };
-  refresh();
-  const user = await currentUser();
-  redirect(user ? '/me?verification=complete' : '/signin?verification=complete');
 }

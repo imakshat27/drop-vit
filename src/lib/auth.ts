@@ -15,7 +15,8 @@ export const currentUser = cache(async () => {
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .where(and(eq(sessions.tokenHash, hashToken(cookie)), gt(sessions.expiresAt, new Date())));
-  if (!row || !isVitEmail(row.user.email)) return null;
+  if (!row || !isVitEmail(row.user.email) || !row.user.googleSubject || !row.user.verified)
+    return null;
   const { passwordHash: _, ...safe } = row.user;
   void _;
   return safe;

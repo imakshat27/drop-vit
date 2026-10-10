@@ -1,13 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-const password = 'Drop-test-only-2026!';
-async function login(page: Page, email: string) {
-  await page.goto('/signin');
-  await page.getByLabel('VIT student email', { exact: true }).fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).toHaveURL(/\/me$/);
-}
+import { login } from './auth-fixture';
 async function logout(page: Page) {
   await page.goto('/me');
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
@@ -105,29 +98,17 @@ test('submission preview, private review, requested changes, approval and next-w
   await page.goto(detail);
   await expect(page.getByText('First Project', { exact: true })).toBeVisible();
 });
-test('new accounts stay unverified and cannot support until email verification', async ({
+test('Google is the only entry and legacy password sessions cannot access the workshop', async ({
   page,
 }) => {
   await page.goto('/signup');
-  await page.getByLabel('Your name').fill('QA Builder');
-  await page.getByLabel('VIT student email', { exact: true }).fill('qa-builder@vitstudent.ac.in');
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Create my profile' }).click();
-  await expect(page).toHaveURL(/\/me\?welcome=1/);
-  await expect(page.getByText('Email verification is still pending.')).toBeVisible();
-  await expect(page.getByText('We couldn’t send your verification email.')).toBeVisible();
-  for (let attempt = 0; attempt < 3; attempt++) {
-    await page.getByRole('button', { name: 'Resend verification email', exact: true }).click();
-    await expect(page).toHaveURL(/verification=unavailable/);
-    await expect(
-      page.getByRole('button', { name: 'Resend verification email', exact: true }),
-    ).toBeEnabled();
-  }
-  await page.getByRole('button', { name: 'Resend verification email', exact: true }).click();
-  await expect(page.locator('main').getByRole('alert')).toContainText('Wait 15 minutes');
-  await page.goto('/weekly');
-  await page.locator('.support').first().click();
-  await expect(page.locator('main').getByRole('alert')).toContainText('Verify your email');
+  await expect(page).toHaveURL(/\/signin$/);
+  await expect(page.getByRole('link', { name: 'Continue with Google' })).toBeVisible();
+  await expect(page.locator('main input')).toHaveCount(0);
+  await login(page, 'legacy@vitstudent.ac.in');
+  await expect(page).toHaveURL(/\/signin$/);
+  await page.goto('/verify?token=invalid');
+  await expect(page).toHaveURL(/\/signin$/);
 });
 for (const width of [375, 768, 1024, 1440])
   test(`public routes fit ${width}px and pass automated accessibility checks`, async ({ page }) => {
@@ -146,6 +127,10 @@ for (const width of [375, 768, 1024, 1440])
     ]) {
       await page.goto(route);
       await expect(page.locator('main')).toBeVisible();
+      if (route === '/signin')
+        await page
+          .locator('.google-auth-shell')
+          .screenshot({ path: `.data/google-auth-${width}.png` });
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth > window.innerWidth,
       );
@@ -264,7 +249,7 @@ test('curators can issue permanent badges and manage unranked recruitment', asyn
     page.getByRole('heading', { name: 'Frontend collaborator', exact: true }),
   ).toBeVisible();
 });
-test('builder profile edits persist and invalid verification links stay actionable', async ({
+test('builder profile edits persist and old email links lead to Google sign-in', async ({
   page,
 }) => {
   await login(page, 'ishaan@vitstudent.ac.in');
@@ -277,10 +262,7 @@ test('builder profile edits persist and invalid verification links stay actionab
     page.getByText('Building thoughtful tools for student makers.', { exact: true }),
   ).toBeVisible();
   await page.goto('/verify?token=invalid');
-  await page.getByRole('button', { name: 'Verify my email' }).click();
-  await expect(page.locator('main').getByRole('alert')).toContainText(
-    'verification link is invalid',
-  );
+  await expect(page).toHaveURL(/\/me$/);
 });
 test('landscape mobile and tablet support comfortable navigation', async ({ page }) => {
   for (const size of [
@@ -346,15 +328,12 @@ test('kinetic reactions clean up on pause and project navigation stays direct', 
   await expect(page).toHaveURL(/\/projects\/canvas$/);
 });
 
-test('personal email is rejected and Google callback requires a matching browser flow', async ({
+test('VIT-only error is actionable and Google callback requires a matching browser flow', async ({
   page,
   request,
 }) => {
-  await page.goto('/signin');
-  await page.getByLabel('VIT student email', { exact: true }).fill('outside@gmail.com');
-  await page.getByLabel('Password', { exact: true }).fill('Drop-test-only-2026!');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.locator('main').getByRole('alert')).toContainText('VIT students only');
+  await page.goto('/signin?oauth=vit-only');
+  await expect(page.locator('main').getByRole('alert')).toContainText('@vitstudent.ac.in');
   const start = await request.get('/auth/google', { maxRedirects: 0 });
   expect(start.status()).toBe(307);
   const authorization = new URL(start.headers().location);

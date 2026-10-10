@@ -1,3 +1,4 @@
+import { login } from './auth-fixture';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -41,9 +42,10 @@ test('a Cloudflare error during soft navigation stays in the app and retries on 
 test('a failed action keeps the form open, preserves inputs and never automatically replays', async ({
   page,
 }) => {
-  await page.goto('/signin');
+  await login(page, 'ananya@vitstudent.ac.in');
+  await page.goto('/me?edit=1');
   let posts = 0;
-  await page.route('**/signin', async (route) => {
+  await page.route('**/me**', async (route) => {
     if (route.request().method() === 'POST') {
       posts++;
       await route.fulfill({
@@ -53,17 +55,16 @@ test('a failed action keeps the form open, preserves inputs and never automatica
       });
     } else await route.continue();
   });
-  const email = page.getByLabel('VIT student email', { exact: true });
-  const password = page.getByLabel('Password', { exact: true });
-  await email.fill('ananya@vitstudent.ac.in');
-  await password.fill('Drop-test-only-2026!');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  const bio = page.getByLabel('A little about you');
+  await bio.fill('My preserved profile draft.');
+  await page.getByRole('button', { name: 'Save builder profile' }).click();
   await expect(page.getByRole('complementary', { name: 'Connection notification' })).toContainText(
     'Couldn’t confirm',
   );
-  await expect(page).toHaveURL(/\/signin$/);
-  await expect(email).toHaveValue('ananya@vitstudent.ac.in');
-  await expect(password).toHaveValue('Drop-test-only-2026!');
-  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
+  await expect(page).toHaveURL(/\/me\?edit=1$/);
+  await expect(bio).toHaveValue('My preserved profile draft.');
+  await expect(
+    page.getByRole('button', { name: 'Save builder profile', exact: true }),
+  ).toBeEnabled();
   expect(posts).toBe(1);
 });

@@ -1,97 +1,73 @@
 import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
+import { ArrowUpRight, Code2, Users, ArrowUp } from 'lucide-react';
 import { GoogleSignin } from '@/components/google-signin';
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
-import { ActionForm } from '@/components/action-form';
-import { loginAction } from '../actions';
-export const metadata = { title: 'Sign in' };
+export const metadata = { title: 'Join the workshop' };
 export default async function Signin({
   searchParams,
 }: {
-  searchParams: Promise<{ verification?: string; oauth?: string }>;
+  searchParams: Promise<{ oauth?: string }>;
 }) {
-  const { verification, oauth } = await searchParams;
+  const { oauth } = await searchParams;
   if (await currentUser()) redirect('/me');
   return (
-    <main id="main" className="container">
-      {verification === 'complete' && (
-        <div className="message" role="status">
-          Email verified. Sign in to start supporting builds.
-        </div>
-      )}
-      {oauth && (
-        <p className="message error" role="alert">
-          {oauth === 'vit-only'
-            ? 'Use your VIT Google account ending in @vitstudent.ac.in.'
-            : oauth === 'cancelled'
-              ? 'Google sign-in was cancelled. Try again when you’re ready.'
-              : oauth === 'unavailable'
-                ? 'Google sign-in is being configured. Use your VIT email and password for now.'
-                : 'Google sign-in did not complete. Please try again.'}
-        </p>
-      )}
-      <div className="auth-layout">
-        <div className="auth-art">
-          <span className="big-asterisk" aria-hidden>
-            <BrandSpark className="brand-mark" />
+    <main id="main" className="container google-auth-page">
+      <div className="google-auth-shell">
+        <aside className="google-auth-poster" aria-label="The Drop workshop">
+          <span className="eyebrow">BUILT BETWEEN CLASSES</span>
+          <BrandSpark className="google-auth-spark" />
+          <p className="google-auth-statement">
+            A little obsession.
+            <br />A lot of <em>possibility.</em>
+          </p>
+          <p>The things you make deserve a place in the world.</p>
+          <span className="google-auth-poster-note">
+            YOUR WORK. YOUR PEOPLE. YOUR NEXT WHAT IF.
           </span>
-          <p className="auth-statement">
-            Your next great thing
+        </aside>
+        <section className="google-auth-entry" aria-labelledby="auth-title">
+          <span className="eyebrow">COME ON IN</span>
+          <h1 id="auth-title">
+            Welcome to
             <br />
-            starts <em>right here.</em>
-          </p>
-          <p>
-            Back a build. Find your people.
-            <br />
-            Share something you’re proud of.
-          </p>
-        </div>
-        <section className="auth-form">
-          <span className="eyebrow">GOOD TO HAVE YOU BACK</span>
-          <h1 style={{ marginTop: 18 }}>Welcome to the workshop.</h1>
-          <p>Sign in to build, share, and support.</p>
-          <GoogleSignin />
-          <ActionForm action={loginAction} button="Sign in">
-            <div className="field">
-              <label htmlFor="email">VIT student email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                maxLength={254}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                maxLength={128}
-              />
-            </div>
-          </ActionForm>
-          <p className="form-links">
-            New around here? <Link href="/signup">Create your builder profile →</Link>
-          </p>
-          {!process.env.DATABASE_URL && (
-            <div className="message">
-              <b>Trying the sample exhibition?</b>
-              <p>
-                Builder: ananya@vitstudent.ac.in
-                <br />
-                Curator: admin@vitstudent.ac.in
-              </p>
-              <p className="understated">
-                Use the password supplied to SEED_DEMO_PASSWORD when seeding.
-              </p>
-            </div>
+            the workshop.
+          </h1>
+          <p className="google-auth-intro">One VIT account. Everything you’re here to make.</p>
+          <ul className="google-auth-benefits">
+            <li>
+              <Code2 size={20} aria-hidden />
+              <span>Give your build a place to shine.</span>
+            </li>
+            <li>
+              <ArrowUp size={20} aria-hidden />
+              <span>Back the projects you believe in.</span>
+            </li>
+            <li>
+              <Users size={20} aria-hidden />
+              <span>Find your next collaborator.</span>
+            </li>
+          </ul>
+          {oauth && (
+            <p className="message error" role="alert">
+              {oauth === 'vit-only'
+                ? 'Use your VIT Google account ending in @vitstudent.ac.in.'
+                : oauth === 'cancelled'
+                  ? 'Google sign-in was cancelled. You can try again below.'
+                  : oauth === 'unavailable'
+                    ? 'Google sign-in is temporarily unavailable. Please try again later.'
+                    : 'Google sign-in did not complete. Please try again.'}
+            </p>
           )}
+          <GoogleSignin />
+          <p className="google-auth-note">
+            New here? We’ll create your builder profile. Already part of Drop? You’ll pick up where
+            you left off.
+          </p>
+          <Link href="/discover" className="text-link google-auth-browse">
+            Just looking? Explore the builds <ArrowUpRight size={18} aria-hidden />
+          </Link>
         </section>
       </div>
     </main>

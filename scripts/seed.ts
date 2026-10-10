@@ -1,7 +1,10 @@
 import { randomUUID, randomBytes } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
+import { eq } from 'drizzle-orm';
 import { db, database } from '../src/lib/db';
 import {
   users,
+  sessions,
   projects,
   members,
   periods,
@@ -11,11 +14,18 @@ import {
   awards,
   recruitments,
 } from '../src/lib/schema';
-import { hashPassword } from '../src/lib/password';
+import { hashToken } from '../src/lib/password';
 import { weekBounds } from '../src/lib/constants';
 import { fixtures } from './demo-fixtures';
 
 async function main() {
+  if (
+    process.env.E2E_AUTH_FIXTURES === '1' &&
+    (process.env.DATABASE_URL ||
+      process.env.ALLOW_LOCAL_DB !== '1' ||
+      !/^\.data\/e2e-\d+$/.test(process.env.LOCAL_DB_PATH || ''))
+  )
+    throw new Error('E2E sessions require an isolated local QA database');
   if ((await db().select().from(users).limit(1)).length) {
     console.log('Seed skipped: database already contains users');
     await database().close();
@@ -23,8 +33,7 @@ async function main() {
   }
   if (process.env.NODE_ENV === 'production')
     throw new Error('Fictional seed data is development-only');
-  const password = process.env.SEED_DEMO_PASSWORD || randomBytes(32).toString('hex');
-  const hash = await hashPassword(password);
+  const hash = '!demo-only!';
   await db().transaction(async (tx) => {
     await tx.insert(users).values([
       {
@@ -301,10 +310,53 @@ async function main() {
     ]);
   });
   console.log('Seeded fictional projects, builders, supports, and locked archive.');
-  if (process.env.SEED_DEMO_PASSWORD)
-    console.log(
-      'Demo sign-in: ananya@vitstudent.ac.in / admin@vitstudent.ac.in with SEED_DEMO_PASSWORD',
-    );
+  if (process.env.E2E_AUTH_FIXTURES === '1') {
+    const path = process.env.LOCAL_DB_PATH || '';
+    if (
+      process.env.DATABASE_URL ||
+      process.env.ALLOW_LOCAL_DB !== '1' ||
+      !/^\.data\/e2e-\d+$/.test(path)
+    )
+      throw new Error('E2E sessions require an isolated local QA database');
+    const tokens: Record<string, string[]> = {};
+    for (const id of ['ananya', 'arjun', 'diya', 'ishaan', 'admin']) {
+      const [user] = await db()
+        .update(users)
+        .set({ googleSubject: `qa-google-${id}` })
+        .where(eq(users.id, id))
+        .returning();
+      tokens[user.email] = [];
+      for (let attempt = 0; attempt < 32; attempt++) {
+        const token = randomBytes(32).toString('hex');
+        tokens[user.email].push(token);
+        await db()
+          .insert(sessions)
+          .values({
+            tokenHash: hashToken(token),
+            userId: id,
+            expiresAt: new Date(Date.now() + 86400000),
+          });
+      }
+    }
+    // A legacy password-only session must no longer grant protected access.
+    await db().insert(users).values({
+      id: 'legacy',
+      email: 'legacy@vitstudent.ac.in',
+      name: 'Legacy builder',
+      passwordHash: hash,
+      verified: true,
+    });
+    const legacyToken = randomBytes(32).toString('hex');
+    tokens['legacy@vitstudent.ac.in'] = [legacyToken];
+    await db()
+      .insert(sessions)
+      .values({
+        tokenHash: hashToken(legacyToken),
+        userId: 'legacy',
+        expiresAt: new Date(Date.now() + 86400000),
+      });
+    await writeFile(`${path}/session-fixtures.json`, JSON.stringify(tokens), { mode: 0o600 });
+  }
   await database().close();
 }
 main().catch((e) => {
