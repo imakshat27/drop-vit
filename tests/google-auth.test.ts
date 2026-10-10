@@ -135,3 +135,21 @@ test('Google signup verifies ownership, preserves identity, and removes access f
     googleAccount({ subject: 'other-owner', email: 'claimed@vitstudent.ac.in', name: 'Other' }),
   );
 });
+test('multiple authorized curators are promoted without granting other students access', async () => {
+  const previous = process.env.CURATOR_EMAIL;
+  try {
+    process.env.CURATOR_EMAIL = ' first@vitstudent.ac.in, SECOND@vitstudent.ac.in ';
+    for (const [email, role] of [
+      ['first@vitstudent.ac.in', 'admin'],
+      ['second@vitstudent.ac.in', 'admin'],
+      ['third@vitstudent.ac.in', 'user'],
+    ]) {
+      const id = await googleAccount({ subject: email, email, name: 'Student' });
+      assert.equal((await db().select().from(users).where(eq(users.id, id)))[0].role, role);
+      assert.equal(await googleAccount({ subject: email, email, name: 'Student' }), id);
+    }
+  } finally {
+    if (previous === undefined) delete process.env.CURATOR_EMAIL;
+    else process.env.CURATOR_EMAIL = previous;
+  }
+});

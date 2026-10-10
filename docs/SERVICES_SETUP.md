@@ -43,7 +43,7 @@ npm run services:check
 
 The check performs read-only database queries and SMTP connection/authentication verification. It fails until the remote database has all migrations. It never opens the local PGlite database, prints secrets, or sends a message. Successful SMTP authentication does not prove that a sender domain is approved or mail reaches an inbox.
 
-Restart the dev server after changing credentials. Sign in with your own VIT Google account to test the callback and verified session. Password and verification-email flows are disabled. To provision a curator, set an explicitly authorized `CURATOR_EMAIL` before Google sign-in, or sign in first and run `npm run admin:create` with that account’s `ADMIN_EMAIL`.
+Restart the dev server after changing credentials. Sign in with your own VIT Google account to test the callback and verified session. Password and verification-email flows are disabled. To provision a curator, set an explicitly authorized `CURATOR_EMAIL` (comma-separated for multiple curators) before Google sign-in, or sign in first and run `npm run admin:create` with that account’s `ADMIN_EMAIL`.
 
 Changing `DATABASE_URL` switches the app to a fresh database; it does not transfer `.data/drop` or its demo accounts. The local data stays on disk. Use a separate Neon development branch for future testing against PostgreSQL rather than exercising mutations on production.
 

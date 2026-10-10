@@ -62,7 +62,7 @@ npm run start
 
 Do not seed demo accounts into production. The app requires `DATABASE_URL` in production. `ALLOW_LOCAL_DB=1` is an explicit escape hatch for local production testing only.
 
-Provision a curator by first signing in with the intended VIT Google account, then setting `ADMIN_EMAIL` and running `npm run admin:create`. Alternatively, configure an explicitly authorized `CURATOR_EMAIL` before that account signs in with Google.
+Provision a curator by first signing in with the intended VIT Google account, then setting `ADMIN_EMAIL` and running `npm run admin:create`. Alternatively, configure an explicitly authorized `CURATOR_EMAIL` (comma-separated for multiple curators) before that account signs in with Google.
 
 For multiple server instances, use one shared PostgreSQL database and configure a stable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` according to Next.js deployment guidance. Domain provisioning and publishing are separate from this local build.
 
@@ -97,4 +97,4 @@ Create a Google OAuth **Web application** client. Register `https://droppp.tech/
 
 Google sign-in checks signature, issuer, audience, expiry, nonce, verified email, and the exact `vitstudent.ac.in` Workspace domain. State cookies and PKCE protect the redirect flow. Only basic identity scopes are requested; Google access/refresh tokens are not retained. Existing verified VIT accounts keep their IDs and project history. An unverified pre-registration loses its old password and sessions when the real Google owner claims it.
 
-Set `CURATOR_EMAIL` only to an explicitly authorized VIT address. That account becomes a curator after Google proves ownership. There are no Gmail/admin domain exceptions. Run migrations before deploying the new auth code.
+Set `CURATOR_EMAIL` only to explicitly authorized VIT addresses, separated by commas. Each account becomes a curator after Google proves ownership. There are no Gmail/admin domain exceptions. Run migrations before deploying the new auth code.

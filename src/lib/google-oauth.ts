@@ -116,7 +116,10 @@ export async function googleAccount(profile: ReturnType<typeof validatedGooglePr
     const existing = matches[0];
     if (existing?.googleSubject && existing.googleSubject !== profile.subject)
       throw new Error('Google account conflict');
-    const curator = process.env.CURATOR_EMAIL?.toLowerCase() === profile.email;
+    const curator = (process.env.CURATOR_EMAIL || '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .includes(profile.email);
     if (existing) {
       // Google owns this Workspace email. Discard an unverified account's old password
       // so someone who pre-registered that address cannot retain access.
