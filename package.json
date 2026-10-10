@@ -26,6 +26,7 @@
     "@electric-sql/pglite": "latest",
     "@neon/config": "^1.8.5",
     "@neon/env": "^1.5.2",
+    "@radix-ui/react-select": "^2.3.8",
     "drizzle-orm": "latest",
     "jose": "^6.2.12",
     "lucide-react": "latest",

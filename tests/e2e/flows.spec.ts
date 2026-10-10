@@ -61,7 +61,8 @@ test('submission preview, private review, requested changes, approval and next-w
   const review = page
     .locator('.admin-card')
     .filter({ has: page.getByRole('link', { name: 'Lab Lantern ↗', exact: true }) });
-  await review.getByLabel('Decision').selectOption('changes');
+  await review.getByRole('combobox', { name: 'Decision' }).click();
+  await page.getByRole('option', { name: 'Request changes', exact: true }).click();
   await review
     .getByLabel('A useful note for the builder')
     .fill('Explain how handover notes are organized.');
@@ -224,7 +225,8 @@ test('floating navigation, viewport hero, readable menu and upright honors remai
 test('curators can issue permanent badges and manage unranked recruitment', async ({ page }) => {
   await login(page, 'admin@vitstudent.ac.in');
   await page.goto('/admin');
-  await page.getByLabel('Project', { exact: true }).selectOption('folio');
+  await page.getByRole('combobox', { name: 'Project', exact: true }).click();
+  await page.getByRole('option', { name: 'Folio', exact: true }).click();
   await page.getByLabel('Badge title').fill('Exhibition Pick');
   await page
     .getByLabel('Why it earned this')

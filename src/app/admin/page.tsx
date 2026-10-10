@@ -1,3 +1,4 @@
+import { DropSelect } from '@/components/drop-select';
 import Link from 'next/link';
 import { eq, desc, ne } from 'drizzle-orm';
 import { requireUser } from '@/lib/auth';
@@ -75,19 +76,24 @@ export default async function Admin() {
                 <div className="review-layout">
                   <div className="field">
                     <label htmlFor={`decision-${p.id}`}>Decision</label>
-                    <select id={`decision-${p.id}`} name="decision">
-                      <option value="approved">Approve & schedule next Drop</option>
-                      <option value="changes">Request changes</option>
-                      <option value="rejected">Reject</option>
-                    </select>
+                    <DropSelect
+                      id={`decision-${p.id}`}
+                      name="decision"
+                      options={[
+                        { value: 'approved', label: 'Approve & schedule next Drop' },
+                        { value: 'changes', label: 'Request changes' },
+                        { value: 'rejected', label: 'Reject' },
+                      ]}
+                    />
                   </div>
                   <div className="field">
                     <label htmlFor={`category-${p.id}`}>Primary category</label>
-                    <select id={`category-${p.id}`} name="category" defaultValue={p.category}>
-                      {categories.map((c) => (
-                        <option key={c}>{c}</option>
-                      ))}
-                    </select>
+                    <DropSelect
+                      id={`category-${p.id}`}
+                      name="category"
+                      defaultValue={p.category}
+                      options={categories.map((c) => ({ value: c, label: c }))}
+                    />
                   </div>
                 </div>
                 <div className="field">
@@ -145,13 +151,11 @@ export default async function Admin() {
               <input type="hidden" name="action" value="badge" />
               <div className="field">
                 <label htmlFor="badge-project">Project</label>
-                <select name="id" id="badge-project">
-                  {approved.map((p) => (
-                    <option value={p.id} key={p.id}>
-                      {p.title}
-                    </option>
-                  ))}
-                </select>
+                <DropSelect
+                  name="id"
+                  id="badge-project"
+                  options={approved.map((p) => ({ value: p.id, label: p.title }))}
+                />
               </div>
               <div className="field">
                 <label htmlFor="badge-title">Badge title</label>

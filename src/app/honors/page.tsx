@@ -1,3 +1,4 @@
+import { DropSelect } from '@/components/drop-select';
 import { BrandSpark } from '@/components/brand-spark';
 import { Suspense } from 'react';
 import { HonorsIntro } from '@/components/page-intros';
@@ -108,14 +109,15 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
               <input type="hidden" name="kind" value={kind} />
               <input type="hidden" name="category" value={category} />
               <label htmlFor="period">Edition</label>
-              <select id="period" name="period" defaultValue={period?.id}>
-                {options.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                    {p.lockedAt ? ' · Locked' : ' · In progress'}
-                  </option>
-                ))}
-              </select>
+              <DropSelect
+                id="period"
+                name="period"
+                defaultValue={period?.id}
+                options={options.map((p) => ({
+                  value: p.id,
+                  label: `${p.label} · ${p.lockedAt ? 'Locked' : 'In progress'}`,
+                }))}
+              />
               <button className="button secondary small">View edition</button>
             </form>
           </div>
