@@ -85,10 +85,4 @@ Weekly editorial carousels, scheduled social publishing and semester recaps are 
 
 ## Remix edition
 
-The share studio defaults to Remix, a second print-inspired edition using the original peach, lilac, lime and ink colours. Build cards use stacked sheets; builder cards use maker IDs; curator picks use a selection ticket; earned awards use a solid asterisk and ribbon. The Original edition remains available in the same studio, with a corrected solid logo and measured clear space. Both editions support portrait, story and square exports on the user's device. Changing editions adds no API calls, image storage or server rendering.
-
-The header and footer now share a solid SVG brand asterisk with consistent spacing from the wordmark. Canvas posters also draw a solid centre and measure the word width before positioning the mark.
-
-## Field Notes edition
-
-Field Notes is the default edition after user selection: grid-paper backgrounds, layered typographic strips, a lime stamp and the existing brand palette. The actual project or builder name stays in a separate readable title panel. Portrait, story and square adapt the collage area and preserve captions, credits and locked award periods. Remix and Original remain selectable. Exports continue to run only in the browser.
+The share studio defaults to Field Notes, with Flow and Signal as alternative art directions. Field Notes uses layered paper and stamps, Flow uses flat sculptural curves, and Signal uses oversized type and contrasting bands. Project and builder names, including builder credits, are uppercase in every design. All three support portrait, story and square exports entirely on the user's device. Changing editions adds no API calls, image storage or server rendering.

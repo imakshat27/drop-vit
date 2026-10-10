@@ -1,11 +1,21 @@
 import { login } from './auth-fixture';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 test('approved build shares export locally at exact sizes and preserve earned distinctions', async ({
   page,
 }) => {
+  await page.addInitScript(() => {
+    const state = window as unknown as { posterText: string[] };
+    state.posterText = [];
+    const original = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (value, x, y, maxWidth) {
+      state.posterText.push(value);
+      if (maxWidth === undefined) original.call(this, value, x, y);
+      else original.call(this, value, x, y, maxWidth);
+    };
+  });
   // Let existing navbar/link prefetch finish before measuring export traffic.
   await page.goto('/projects/canvas', { waitUntil: 'networkidle' });
   const requests: string[] = [];
@@ -26,35 +36,38 @@ test('approved build shares export locally at exact sizes and preserve earned di
     .withTags(['wcag2a', 'wcag2aa'])
     .analyze();
   expect(accessibility.violations).toEqual([]);
-  let fieldNotesSquare: Buffer | undefined;
-  await expect(studio.getByRole('button', { name: 'Field Notes', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  for (const [label, width, height] of [
-    ['Portrait', 1080, 1350],
-    ['Story', 1080, 1920],
-    ['Square', 1080, 1080],
-  ] as const) {
-    await studio.getByRole('button', { name: new RegExp(`^${label}`) }).click();
-    const download = page.waitForEvent('download');
-    await studio.getByRole('button', { name: 'Download PNG' }).click();
-    const file = await download;
-    const bytes = await readFile((await file.path())!);
-    expect(bytes.subarray(1, 4).toString()).toBe('PNG');
-    expect(bytes.readUInt32BE(16)).toBe(width);
-    expect(bytes.readUInt32BE(20)).toBe(height);
-    if (label === 'Square') fieldNotesSquare = bytes;
+  await expect(studio.getByRole('button', { name: 'Remix', exact: true })).toHaveCount(0);
+  await expect(studio.getByRole('button', { name: 'Original', exact: true })).toHaveCount(0);
+  const squares: Buffer[] = [];
+  for (const edition of ['Field Notes', 'Flow', 'Signal']) {
+    await page.evaluate(() => ((window as unknown as { posterText: string[] }).posterText = []));
+    await studio.getByRole('button', { name: edition, exact: true }).click();
+    for (const [label, width, height] of [
+      ['Portrait', 1080, 1350],
+      ['Story', 1080, 1920],
+      ['Square', 1080, 1080],
+    ] as const) {
+      await studio.getByRole('button', { name: new RegExp(`^${label}`) }).click();
+      const download = page.waitForEvent('download');
+      await studio.getByRole('button', { name: 'Download PNG' }).click();
+      const bytes = await readFile((await (await download).path())!);
+      expect(bytes.subarray(1, 4).toString()).toBe('PNG');
+      expect(bytes.readUInt32BE(16)).toBe(width);
+      expect(bytes.readUInt32BE(20)).toBe(height);
+      await writeFile(
+        `.data/share-${edition.toLowerCase().replaceAll(' ', '-')}-${label.toLowerCase()}.png`,
+        bytes,
+      );
+      if (label === 'Square') squares.push(bytes);
+    }
+    const painted = await page.evaluate(
+      () => (window as unknown as { posterText: string[] }).posterText,
+    );
+    expect(painted).toContain('CANVAS CLUB');
+    expect(painted).not.toContain('Canvas Club');
   }
-  await studio.getByRole('button', { name: 'Original', exact: true }).click();
-  const originalDownload = page.waitForEvent('download');
-  await studio.getByRole('button', { name: 'Download PNG' }).click();
-  const original = await readFile((await (await originalDownload).path())!);
-  expect(original.readUInt32BE(16)).toBe(1080);
-  expect(original.readUInt32BE(20)).toBe(1080);
-  expect(original.equals(fieldNotesSquare!)).toBe(false);
-  await studio.getByRole('button', { name: 'Remix', exact: true }).click();
-  await expect(studio.getByRole('img')).toBeVisible();
+  expect(squares[0].equals(squares[1])).toBe(false);
+  expect(squares[1].equals(squares[2])).toBe(false);
   await studio.getByRole('button', { name: 'Field Notes', exact: true }).click();
   await studio.getByRole('button', { name: 'Curator pick', exact: true }).click();
   await expect(studio.getByLabel('Your caption')).toContainText('is a curator pick');

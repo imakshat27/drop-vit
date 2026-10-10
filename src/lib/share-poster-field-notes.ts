@@ -133,7 +133,7 @@ export async function renderFieldNotesPoster(card: ShareCard, format: ShareForma
     award: 'EARNED ON DROP',
   };
   text(labels[card.kind], 86, panelY + 31, 23, ink, '700', 'monospace');
-  fit(card.title, panelY + 86, 116, 3, panelH - 110, ink);
+  fit(card.title.toUpperCase(), panelY + 86, 116, 3, panelH - 110, ink);
 
   const copyY = footer - 192;
   const artStart = panelY + panelH + 58;
@@ -205,7 +205,11 @@ export async function renderFieldNotesPoster(card: ShareCard, format: ShareForma
     fg,
     '400',
   );
-  const meta = dark ? card.period : card.credit ? `BY ${card.credit}` : card.tags.join(' / ');
+  const meta = dark
+    ? card.period
+    : card.credit
+      ? `BY ${card.credit.toUpperCase()}`
+      : card.tags.join(' / ');
   if (meta) fit(meta, footer - 98, 21, 2, 48, fg, '400');
   rule(footer - 53);
   text('BUILT HERE. DROPPED WEEKLY.', 70, footer - 30, 20, fg, '700', 'monospace');
