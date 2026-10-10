@@ -20,10 +20,20 @@ h1{margin:0;font-weight:900;letter-spacing:-9px;line-height:.92}.foot{position:a
 .steps{margin-top:38px}.step{display:grid;grid-template-columns:84px 1fr;gap:20px;border-top:2px solid #000;padding:20px 0 20px}.step .num{font-family:'Courier New',monospace;font-weight:700;font-size:44px;line-height:1}.step h2{font-size:43px;margin:0 0 9px;letter-spacing:-1.5px;line-height:1.1}.step p{font-size:29px;line-height:1.25;max-width:760px;margin:0}.weekly .join{margin-top:5px;display:flex;justify-content:space-between;align-items:center;padding:20px 25px;background:var(--lime);border:3px solid #000;box-shadow:8px 8px 0 #000}.join .mono{font-size:20px}.join strong{font-size:28px;letter-spacing:-1px}
 .avatar{width:1080px;height:1080px;background:#000;display:flex;justify-content:center;align-items:center}.avatar .brand{gap:27px;transform:translateY(-10px)}.avatar .wordmark{font-size:238px;letter-spacing:-19px}.avatar .brand svg{width:175px;height:175px;margin-top:25px}
 `;
+const benefitsStyles = `
+.benefits{background:var(--lime);color:#000}.benefits .brand svg path{stroke:#000}
+.benefits h1{font-size:104px;letter-spacing:-6px;margin-top:28px;line-height:.93}
+.benefits .perks{margin-top:28px}.perk{display:grid;grid-template-columns:80px 1fr;gap:18px;padding:16px 0;border-top:2px solid #000}
+.perk .num{font-family:'Courier New',monospace;font-size:36px;font-weight:700;line-height:1.2}
+.perk h2{font-size:42px;line-height:1;margin:0 0 12px;letter-spacing:-1.5px}
+.perk p{font-size:29px;line-height:1.25;margin:0}
+.perk.guest{margin-top:5px;background:#000;color:#fff;padding:20px 22px;box-shadow:8px 8px 0 var(--lilac)}
+.guest .num{color:var(--lime)}.guest h2{color:var(--lime)}
+`;
 const arrow =
   '<svg class="arrow" viewBox="0 0 40 40" fill="none"><path d="M8 32L32 8M8 8h24v24" stroke="currentColor" stroke-width="3.5"/></svg>';
 const document = (body) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=1080, initial-scale=1"><title>Drop / Instagram introduction</title><style>${styles}</style></head><body>${body}</body></html>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=1080, initial-scale=1"><title>Drop / Instagram introduction</title><style>${styles}${benefitsStyles}</style></head><body>${body}</body></html>`;
 const designs = [
   [
     'drop-instagram-logo-1080x1080',
@@ -41,6 +51,11 @@ const designs = [
     `<article class="canvas weekly"><header class="topline"><div class="brand">${logo}</div><div class="mono">THE WEEKLY EXHIBITION<br>HOW IT WORKS / 002</div></header><h1>BUILT HERE.<br>DROPPED<br><span class="underline">WEEKLY.</span></h1><section class="steps"><div class="step"><span class="num">01</span><div><h2>Make something real.</h2><p>A project. An open-source contribution. A startup.<br>Something worth putting out into the world.</p></div></div><div class="step"><span class="num">02</span><div><h2>Submit it to Drop.</h2><p>Curators review each build. Approved projects<br>join an upcoming weekly exhibition.</p></div></div><div class="step"><span class="num">03</span><div><h2>Back the work you love.</h2><p>Explore the lineup. Support the builds.<br>Celebrate the standouts in Honors.</p></div></div></section><footer class="foot"><span class="mono">VIT BUILDERS.<br>GOOGLE SIGN-IN.</span><strong>droppp.tech</strong>${arrow}</footer></article>`,
   ],
 ];
+designs.push([
+  '03-whats-in-it-for-you-1080x1350',
+  1350,
+  `<article class="canvas benefits"><header class="topline"><div class="brand">${logo}</div><div class="mono">FOR THE BUILDERS<br>WHY DROP? / 003</div></header><h1>WHAT’S<br>IN IT<br>FOR YOU?</h1><section class="perks"><div class="perk"><span class="num">01</span><div><h2>GET YOUR WORK SEEN.</h2><p>Put your build in front of students who care<br>about what you’re making.</p></div></div><div class="perk"><span class="num">02</span><div><h2>FIND YOUR PEOPLE.</h2><p>Meet fellow builders. Find collaborators.<br>Bring the right people into your next project.</p></div></div><div class="perk"><span class="num">03</span><div><h2>BUILD A TRACK RECORD.</h2><p>Compete for weekly recognition. Earn Honors.<br>Share your work and the wins behind it.</p></div></div><div class="perk guest"><span class="num">04</span><div><h2>HELP SHAPE THE NEXT DROP.</h2><p>Standout builders may be invited to guest-curate<br>a future edition. Bring your taste to the lineup.</p></div></div></section><footer class="foot"><span class="mono">YOU BUILD.<br>WE MAKE ROOM.</span><strong>droppp.tech</strong>${arrow}</footer></article>`,
+]);
 const browser = await chromium.launch();
 try {
   for (const [name, height, body] of designs) {
