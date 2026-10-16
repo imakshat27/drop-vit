@@ -49,6 +49,6 @@ Changing `DATABASE_URL` switches the app to a fresh database; it does not transf
 
 ## Agent tooling
 
-Neon skills are installed in `.agents/skills/neon*` and pinned by `skills-lock.json`. Project-level Codex MCP settings are in `.codex/config.toml`, using OAuth and restricted to project `restless-cherry-21622170`. The agent may request sign-in on first MCP use; new skills/server configuration may require a new Codex turn or restart. Existing global configuration remains separate.
+Local Neon skills are installed in `.agents/skills/neon*` and pinned by `skills-lock.json`. These installed tools, their lockfile, and machine-specific `.codex/` settings are ignored by Git and remain on the developer’s machine. Reinstall Neon tooling for a new checkout as needed. The local `.codex/config.toml` uses OAuth and restricts access to project `restless-cherry-21622170`. The agent may request sign-in on first MCP use; new skills/server configuration may require a new Codex turn or restart. Existing global configuration remains separate.
 
 The local ignored `.neon` context pins the production branch. `neon.ts` contains an empty policy preserving existing services/settings. `neon deploy` reconciles that policy; it does not publish this Next.js frontend. For later development, use a separate Neon branch and refresh both pooled/direct URLs together.

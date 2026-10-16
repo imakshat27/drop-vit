@@ -14,3 +14,17 @@ __pycache__/
 .wrangler/
 .dev.vars*
 !.dev.vars.example
+
+# Local agent installations and machine-specific configuration
+/.agents/
+/.codex/
+/skills-lock.json
+
+# Reproducible social-asset preview galleries
+/assets/social/**/preview.html
+/assets/social/**/preview.png
+
+# Local logs and editor state
+*.log
+/.idea/
+/.vscode/
