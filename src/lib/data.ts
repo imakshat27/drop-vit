@@ -87,3 +87,26 @@ export async function allPeriods() {
     .where(sql`${periods.startsAt} <= ${new Date()}`)
     .orderBy(desc(periods.startsAt), asc(periods.kind));
 }
+
+/** The hero celebrates one completed lineup, never a mixture of editions. */
+export async function heroRanking(
+  active: typeof periods.$inferSelect,
+  currentRanking?: Awaited<ReturnType<typeof rankingFor>>,
+) {
+  const [closed] = await db()
+    .select()
+    .from(periods)
+    .where(
+      and(
+        eq(periods.kind, 'weekly'),
+        sql`${periods.lockedAt} IS NOT NULL`,
+        sql`${periods.endsAt} <= ${new Date()}`,
+      ),
+    )
+    .orderBy(desc(periods.endsAt))
+    .limit(1);
+  return (closed ? await rankingFor(closed) : (currentRanking ?? (await rankingFor(active)))).slice(
+    0,
+    3,
+  );
+}

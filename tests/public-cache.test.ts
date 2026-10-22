@@ -40,8 +40,8 @@ test('shared edge caching excludes accounts, actions, cookies and unknown query 
   assert.equal(await publicCacheRequest(guest('/discover?q=one&q=two'), 'build'), null);
 });
 
-test('cache keys separate builds, searches and RSC variants and roll over exactly at Monday IST', async () => {
-  const before = Date.parse('2026-10-11T18:29:59.999Z');
+test('cache keys separate builds, searches and RSC variants and roll over exactly at Sunday IST', async () => {
+  const before = Date.parse('2026-10-10T18:29:59.999Z');
   const after = before + 1;
   const html = (await publicCacheRequest(guest('/weekly'), 'build', before))!;
   assert.notEqual(

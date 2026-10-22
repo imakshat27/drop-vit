@@ -22,7 +22,7 @@ For local Worker preview, also put `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRIN
 
 ## Free-tier CPU optimisation
 
-`cloudflare/worker.mjs` checks Cloudflare's Cache API before importing the OpenNext handler. Successful anonymous GET responses on public discovery, exhibition, recruitment, project, and builder pages are cached for 60 seconds. HTML and RSC/router variants have separate keys. Build IDs isolate deployments, and keys rotate at Monday 00:00 IST so a new weekly edition cannot receive the previous week's cached response.
+`cloudflare/worker.mjs` checks Cloudflare's Cache API before importing the OpenNext handler. Successful anonymous GET responses on public discovery, exhibition, recruitment, project, and builder pages are cached for 60 seconds. HTML and RSC/router variants have separate keys. Build IDs isolate deployments, and keys rotate at Sunday 00:00 IST so a new weekly edition cannot receive the previous week's cached response.
 
 Any cookie, Authorization header, server action, private route, verification route, OAuth route, unknown query parameter, or explicit no-cache request bypasses this cache. Responses setting cookies, redirecting, or returning errors are never stored. The origin render receives a constrained set of headers to prevent cache poisoning. Browsers receive `private, no-store`; this is an edge-only cache, not a browser cache. `x-drop-cache: HIT/MISS` is available for diagnosis on eligible responses. Next's `_rsc` navigation hash must remain on the actual render request even though the edge key uses the router-header digest instead.
 

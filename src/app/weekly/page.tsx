@@ -10,7 +10,7 @@ import { periods } from '@/lib/schema';
 import { currentWeek, supportedIds, allPeriods } from '@/lib/data';
 import { rankingFor } from '@/lib/rankings';
 import { currentUser } from '@/lib/auth';
-import { dateRange } from '@/lib/constants';
+import { firstDropDescription, dateRange } from '@/lib/constants';
 import { RankingRow, Empty } from '@/components/cards';
 import { Countdown } from '@/components/countdown';
 export const metadata = { title: 'Weekly Drop' };
@@ -46,7 +46,8 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
             </span>
           </h2>
           <p>
-            Week of {dateRange(period.startsAt, period.endsAt)} · Voting closes{' '}
+            {upcoming ? 'Opens Sunday at 00:00 IST · ' : 'Week of '}
+            {dateRange(period.startsAt, period.endsAt)} · Voting closes{' '}
             {period.endsAt.toLocaleDateString('en-IN', {
               day: 'numeric',
               month: 'short',
@@ -89,7 +90,7 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
           ) : (
             <Empty
               title="The next big thing is coming."
-              description="Approved submissions stay private until their scheduled Drop opens. New exhibitions release every Monday at 00:00 IST."
+              description={firstDropDescription()}
               href="/submit"
               label="Put your build in the mix"
             />

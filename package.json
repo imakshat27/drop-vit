@@ -21,6 +21,7 @@
     "format:check": "prettier --check src scripts tests *.ts *.mjs *.json",
     "demo:seed": "tsx --env-file-if-exists=.env.local scripts/live-demo.ts",
     "demo:cleanup": "tsx --env-file-if-exists=.env.local scripts/live-demo.ts --cleanup",
+    "launch:reset": "tsx --env-file-if-exists=.env.local scripts/launch-reset.ts",
     "media:cleanup": "tsx --env-file-if-exists=.env.local scripts/cleanup-images.ts"
   },
   "dependencies": {

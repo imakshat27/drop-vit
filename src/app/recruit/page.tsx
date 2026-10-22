@@ -1,3 +1,4 @@
+import { firstDropDescription } from '@/lib/constants';
 import { BrandSpark } from '@/components/brand-spark';
 import { Suspense } from 'react';
 import { RecruitIntro } from '@/components/page-intros';
@@ -68,7 +69,7 @@ async function RecruitData() {
       ) : (
         <Empty
           title="The workshop is quiet today."
-          description="Check back for new opportunities, or submit your project with an open role."
+          description={firstDropDescription()}
           href="/submit"
           label="Grow your team"
         />

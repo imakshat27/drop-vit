@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { MotionControl } from '@/components/motion';
 import { Portal, CurveType } from '@/components/portal';
 import { ArrowUpRight, ArrowRight, Trophy, ArrowUp } from 'lucide-react';
+import { ProjectCover } from '@/components/project-cover';
 import { ProjectArt } from '@/components/art';
 import { ProjectCard, RankingRow, SectionTitle, RoleMeta } from '@/components/cards';
 import {
   approvedProjects,
+  heroRanking,
   currentWeek,
   lastChampion,
   openRoles,
@@ -18,7 +20,13 @@ import {
 } from '@/lib/data';
 import { rankingFor } from '@/lib/rankings';
 import { currentUser } from '@/lib/auth';
-import { categories, categoryCopy, dateRange } from '@/lib/constants';
+import {
+  categories,
+  categoryCopy,
+  dateRange,
+  firstDropDescription,
+  firstDropLabel,
+} from '@/lib/constants';
 export default function Home() {
   const projectsPromise = approvedProjects();
   const data = loadHome(projectsPromise);
@@ -79,7 +87,7 @@ export default function Home() {
                       </span>
                     }
                   >
-                    <HeroBuilds projectsPromise={projectsPromise} />
+                    <HeroBuilds data={data} />
                   </Suspense>
                   <span className="collage-caption">SIDE PROJECTS. OTHERWORLDLY ENERGY.</span>
                 </div>
@@ -89,10 +97,11 @@ export default function Home() {
           </div>
           <div className="hero-bottom">
             <div className="avatar-stack" aria-hidden>
-              <span>AR</span>
-              <span>AM</span>
-              <span>DM</span>
-              <span>IS</span>
+              <span>
+                <BrandSpark className="brand-mark" />
+              </span>
+              <span>YOU</span>
+              <span>+</span>
             </div>
             <span>Made by students. Worth your attention.</span>
           </div>
@@ -252,19 +261,27 @@ async function loadHome(projectsPromise: ReturnType<typeof approvedProjects>) {
     supportedIds(user?.id, week?.id),
   ]);
   const team = champion ? await projectTeam(champion.project.id) : [];
-  return { week, projects, champion, roles, ranked, supported, team };
+  const hero = await heroRanking(week, ranked);
+  return { week, projects, champion, roles, ranked, supported, team, hero };
 }
 type HomeData = ReturnType<typeof loadHome>;
 
-async function HeroBuilds({
-  projectsPromise,
-}: {
-  projectsPromise: ReturnType<typeof approvedProjects>;
-}) {
-  const projects = await projectsPromise;
+async function HeroBuilds({ data }: { data: HomeData }) {
+  const { hero } = await data;
   return (
     <>
-      {projects.slice(0, 3).map((project, i) => (
+      {!hero.length && (
+        <div className="hero-first-drop">
+          <BrandSpark className="brand-mark" />
+          <span className="eyebrow">THE FIRST DROP</span>
+          <strong>{firstDropLabel()}</strong>
+          <span>Your build could be here.</span>
+          <Link href="/submit" className="text-link">
+            Submit your build <ArrowUpRight size={16} aria-hidden />
+          </Link>
+        </div>
+      )}
+      {hero.map(({ project }, i) => (
         <Link
           key={project.id}
           href={`/projects/${project.slug}`}
@@ -275,7 +292,12 @@ async function HeroBuilds({
             <span>BUILD / 0{i + 1}</span>
             <ArrowUpRight size={17} aria-hidden />
           </div>
-          <ProjectArt symbol={project.symbol} color={project.color} title={project.title} />
+          <ProjectCover
+            url={project.details.media?.[0]}
+            symbol={project.symbol}
+            color={project.color}
+            title={project.title}
+          />
           <b>{project.title}</b>
         </Link>
       ))}
@@ -353,7 +375,7 @@ async function HomeRankings({ data }: { data: HomeData }) {
           supported={supported.includes(row.project.id)}
         />
       ))}
-      {!ranked.length && <p>The next exhibition is taking shape. Your build could be in it.</p>}
+      {!ranked.length && <p className="message">{firstDropDescription()}</p>}
     </>
   );
 }
@@ -362,6 +384,7 @@ async function HomeProjects({ data }: { data: HomeData }) {
   const { projects, champion } = await data;
   return (
     <>
+      {!projects.length && <p className="message">{firstDropDescription()}</p>}
       <div className="project-grid">
         {projects
           .filter((p) => p.id !== champion?.project.id)
@@ -378,6 +401,7 @@ async function HomeRoles({ data }: { data: HomeData }) {
   const { roles } = await data;
   return (
     <>
+      {!roles.length && <p className="message">{firstDropDescription()}</p>}
       <div className="role-grid">
         {roles.slice(0, 3).map(({ role, project }) => (
           <article className="role-card" key={role.id}>

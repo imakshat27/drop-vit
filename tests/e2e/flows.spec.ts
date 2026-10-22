@@ -346,8 +346,10 @@ test('kinetic reactions clean up on pause and project navigation stays direct', 
   await expect(page.locator('.cursor-stamp')).toHaveCount(0);
   await expect(page.locator('.portal-core')).toHaveCSS('animation-play-state', 'paused');
   await expect(page.locator('.kinetic-glyph').first()).toHaveCSS('animation-play-state', 'paused');
-  await page.getByRole('link', { name: 'Explore Canvas Club', exact: true }).click();
-  await expect(page).toHaveURL(/\/projects\/canvas$/);
+  const heroBuild = page.locator('.collage-build').first();
+  const href = await heroBuild.getAttribute('href');
+  await heroBuild.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
 });
 
 test('VIT-only error is actionable and Google callback requires a matching browser flow', async ({

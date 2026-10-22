@@ -380,6 +380,16 @@ async function main() {
         });
       await db().insert(entries).values({ projectId: id, periodId: 'week-18' });
     }
+    const [coverFixture] = await db().select().from(projects).where(eq(projects.id, 'patchwork'));
+    await db()
+      .update(projects)
+      .set({
+        details: {
+          ...coverFixture.details,
+          media: ['https://images.example.test/hero-cover.webp'],
+        },
+      })
+      .where(eq(projects.id, 'patchwork'));
     const tokens: Record<string, string[]> = {};
     for (const id of ['ananya', 'arjun', 'diya', 'ishaan', 'admin']) {
       const [user] = await db()

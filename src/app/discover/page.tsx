@@ -6,7 +6,7 @@ import { DataSkeleton } from '@/components/data-skeleton';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { approvedProjects } from '@/lib/data';
-import { categories, type Category } from '@/lib/constants';
+import { firstDropDescription, categories, type Category } from '@/lib/constants';
 import { ProjectCard, Empty } from '@/components/cards';
 export const metadata = { title: 'Discover' };
 export default async function Discover({
@@ -107,10 +107,12 @@ async function DiscoverProjects({
         </section>
       ) : (
         <Empty
-          title="Nothing here. Yet."
-          description="Try a different search, or be the first to bring a build to this corner of Drop."
-          href="/discover"
-          label="Reset discovery"
+          title={q || format ? 'Nothing here. Yet.' : 'The first Drop is on its way.'}
+          description={
+            q || format ? 'Try a different search or clear your filters.' : firstDropDescription()
+          }
+          href={q || format ? '/discover' : '/submit'}
+          label={q || format ? 'Reset discovery' : 'Join the first Drop'}
         />
       )}
     </>

@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 const qaPath = `.data/e2e-${Date.now()}`;
 export default defineConfig({
   testDir: 'tests/e2e',
-  testIgnore: 'mobile-layout.spec.ts',
+  testIgnore: ['mobile-layout.spec.ts', 'launch-empty.spec.ts'],
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
@@ -28,6 +28,7 @@ export default defineConfig({
       GOOGLE_CLIENT_ID: 'qa-client.apps.googleusercontent.com',
       GOOGLE_CLIENT_SECRET: 'qa-only-placeholder',
       CURATOR_EMAIL: '',
+      DROP_FIRST_RELEASE_AT: '2025-01-04T18:30:00Z',
     },
   },
 });

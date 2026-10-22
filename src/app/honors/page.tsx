@@ -10,7 +10,7 @@ import { db } from '@/lib/db';
 import { results, periods, projects } from '@/lib/schema';
 import { currentWeek, allPeriods } from '@/lib/data';
 import { rankingFor } from '@/lib/rankings';
-import { categories } from '@/lib/constants';
+import { firstDropDescription, categories } from '@/lib/constants';
 import { RankingRow, Empty } from '@/components/cards';
 export const metadata = { title: 'Honors' };
 type HonorsQuery = { kind?: string; category?: string; period?: string; view?: string };
@@ -84,7 +84,7 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
         ) : (
           <Empty
             title="The first legends are in the making."
-            description="Completed exhibitions will leave their champions here."
+            description={firstDropDescription()}
             href="/weekly"
           />
         )
@@ -173,7 +173,7 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
               ) : (
                 <Empty
                   title="An open field."
-                  description="No eligible builds in this period and category yet. Recognition starts with shipping."
+                  description={firstDropDescription()}
                   href="/discover"
                 />
               )}

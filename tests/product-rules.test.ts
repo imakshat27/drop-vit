@@ -22,6 +22,7 @@ import { lockPeriod, normalizedWeeklyScore, rankingFor } from '../src/lib/rankin
 import { hashPassword, verifyPassword, hashToken } from '../src/lib/password';
 import { submissionSchema } from '../src/lib/validation';
 process.env.LOCAL_DB_PATH = 'memory://';
+process.env.DROP_FIRST_RELEASE_AT = '2025-01-04T18:30:00Z';
 after(async () => {
   await database().close();
 });

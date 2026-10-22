@@ -54,9 +54,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="container footer-bottom">
             <span>VIT, India · Independent student community</span>
             <span>Curated projects. Real builders.</span>
-            {!process.env.DATABASE_URL && (
-              <span className="demo-label">Fictional sample exhibition</span>
-            )}
           </div>
         </footer>
       </body>

@@ -2,7 +2,7 @@ import { and, or, eq, gte, lt, lte, sql, asc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from './db';
 import { awards, entries, periods, projects, results, type Period, type Project } from './schema';
-import { categories, weekBounds } from './constants';
+import { categories, weekBounds, firstDropAt } from './constants';
 import { releasedProject } from './project-release';
 export type RankedProject = { project: Project; count: number; score: number; rank: number };
 export function normalizedWeeklyScore(shares: number[]) {
@@ -229,7 +229,7 @@ export async function lockPeriod(id: string) {
 }
 export async function prepareWeeks() {
   const now = new Date();
-  const { start, end } = weekBounds(now);
+  const { start, end } = weekBounds(now < firstDropAt() ? firstDropAt() : now);
   const [, weeks] = await Promise.all([
     prepareCalendarPeriods(),
     db()

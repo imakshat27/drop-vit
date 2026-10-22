@@ -1,3 +1,4 @@
+import { firstDropDescription } from '@/lib/constants';
 import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -114,10 +115,7 @@ export default async function Builder({
               ))}
             </div>
           ) : (
-            <Empty
-              title="The next milestone is ahead."
-              description="Recognition here comes from the projects this builder helps ship."
-            />
+            <Empty title="The next milestone is ahead." description={firstDropDescription()} />
           )
         ) : list.length ? (
           <div className="project-grid">
@@ -128,11 +126,7 @@ export default async function Builder({
         ) : (
           <Empty
             title="Something is in the making."
-            description={
-              tab === 'contributions'
-                ? 'Collaborations will appear here once the projects are approved.'
-                : 'Released builds will find a home here.'
-            }
+            description={firstDropDescription()}
             href="/discover"
           />
         )}
