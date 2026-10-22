@@ -15,7 +15,7 @@ export async function resetLaunchData(connection: ReturnType<typeof db>) {
     // Explicit table list avoids deleting auth data through a CASCADE. TRUNCATE is
     // intentional here: this launch reset removes even immutable test snapshots.
     await tx.execute(
-      sql`TRUNCATE projects, periods, entries, supports, results, awards, members, recruitments, audit, rate_limits, verification_tokens`,
+      sql`TRUNCATE notification_outbox, projects, periods, entries, supports, results, awards, members, recruitments, audit, rate_limits, verification_tokens`,
     );
     const removed = await tx.execute(
       sql`DELETE FROM users WHERE email LIKE '%@demo.drop.test' AND password_hash='!demo-only!' AND role='user' RETURNING id`,

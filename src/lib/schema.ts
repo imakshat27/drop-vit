@@ -202,3 +202,35 @@ export type Project = typeof projects.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Period = typeof periods.$inferSelect;
 export type Result = typeof results.$inferSelect;
+
+export type NotificationPayload = {
+  name: string;
+  title: string;
+  slug: string;
+  decision?: 'approved' | 'changes' | 'rejected';
+  note?: string;
+  releaseAt?: string;
+  periodLabel?: string;
+};
+export const notificationOutbox = pgTable('notification_outbox', {
+  id: text().primaryKey(),
+  eventKey: text().notNull().unique(),
+  kind: text().$type<'submission' | 'review' | 'live'>().notNull(),
+  projectId: text()
+    .notNull()
+    .references(() => projects.id, { onDelete: 'cascade' }),
+  userId: text()
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  periodId: text().references(() => periods.id, { onDelete: 'cascade' }),
+  recipient: text().notNull(),
+  payload: jsonb().$type<NotificationPayload>().notNull(),
+  availableAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  sentAt: timestamp({ withTimezone: true }),
+  cancelledAt: timestamp({ withTimezone: true }),
+  attempts: integer().notNull().default(0),
+  leaseToken: text(),
+  leasedUntil: timestamp({ withTimezone: true }),
+  lastError: text(),
+});

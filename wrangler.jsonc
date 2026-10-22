@@ -18,5 +18,6 @@
     "SMTP_PORT": "587",
     "SMTP_FROM": "Drop <hello@droppp.tech>",
   },
+  "triggers": { "crons": ["0 * * * *", "30,31 18 * * SUN"] },
   "observability": { "enabled": true },
 }

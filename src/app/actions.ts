@@ -1,4 +1,6 @@
 'use server';
+import { queueNotification } from '@/lib/notifications';
+import { kickNotification } from '@/lib/notification-kick';
 import { parseProjectMedia } from '@/lib/project-media';
 import { verifyUploadedImage } from '@/lib/image-storage';
 import { randomUUID } from 'node:crypto';
@@ -108,6 +110,7 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
     return { error: 'A few details need your attention.', errors };
   }
   let slug = '';
+  let submissionMail: string | undefined;
   try {
     await rateLimit(`submit:${user.id}`, 8);
     const v = parsed.data;
@@ -215,7 +218,16 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
           location: v.location || 'VIT Vellore / Remote',
           applicationUrl: v.applicationUrl,
         });
+      submissionMail = await queueNotification(tx, {
+        eventKey: `submission:${id}:${randomUUID()}`,
+        kind: 'submission',
+        projectId: id,
+        userId: user.id,
+        recipient: user.email,
+        payload: { name: user.name, title: v.title, slug },
+      });
     });
+    kickNotification(submissionMail);
     refresh();
   } catch (e) {
     if (e instanceof ImageSubmissionError)
@@ -242,6 +254,7 @@ export async function reviewAction(_: ActionState, form: FormData): Promise<Acti
   )
     return { error: 'Choose a valid decision and category.' };
   if (decision !== 'approved' && !note) return { error: 'Add a useful note for the builder.' };
+  let reviewMail: string | undefined;
   try {
     await prepareWeeks();
     await db().transaction(async (tx) => {
@@ -261,6 +274,8 @@ export async function reviewAction(_: ActionState, form: FormData): Promise<Acti
           launched: p.launched || category === 'Launches',
         })
         .where(eq(projects.id, id));
+      const [owner] = await tx.select().from(users).where(eq(users.id, p.ownerId));
+      let releaseAt: Date | undefined;
       if (decision === 'approved') {
         const [next] = await tx
           .select()
@@ -268,6 +283,18 @@ export async function reviewAction(_: ActionState, form: FormData): Promise<Acti
           .where(and(eq(periods.kind, 'weekly'), gt(periods.startsAt, new Date())))
           .orderBy(asc(periods.startsAt))
           .limit(1);
+        if (!next) throw new Error('Next Drop is unavailable');
+        releaseAt = next.startsAt;
+        await queueNotification(tx, {
+          eventKey: `live:${id}`,
+          kind: 'live',
+          projectId: id,
+          userId: owner.id,
+          recipient: owner.email,
+          periodId: next.id,
+          availableAt: next.startsAt,
+          payload: { name: owner.name, title: p.title, slug: p.slug, periodLabel: next.label },
+        });
         if (next)
           await tx
             .insert(entries)
@@ -290,10 +317,27 @@ export async function reviewAction(_: ActionState, form: FormData): Promise<Acti
             })
             .onConflictDoNothing();
       }
+      const reviewId = randomUUID();
       await tx
         .insert(audit)
-        .values({ id: randomUUID(), actorId: admin.id, action: decision, targetId: id, note });
+        .values({ id: reviewId, actorId: admin.id, action: decision, targetId: id, note });
+      reviewMail = await queueNotification(tx, {
+        eventKey: `review:${reviewId}`,
+        kind: 'review',
+        projectId: id,
+        userId: owner.id,
+        recipient: owner.email,
+        payload: {
+          name: owner.name,
+          title: p.title,
+          slug: p.slug,
+          decision: decision as 'approved' | 'changes' | 'rejected',
+          note,
+          releaseAt: releaseAt?.toISOString(),
+        },
+      });
     });
+    kickNotification(reviewMail);
     refresh();
     return {
       success:

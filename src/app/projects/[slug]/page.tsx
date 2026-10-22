@@ -113,7 +113,7 @@ export default async function ProjectPage({
           </b>
           <p>
             {submitted
-              ? 'You dropped it! A curator will review your build. After approval, it will appear when its scheduled Drop releases.'
+              ? 'You dropped it! A curator will review your build, and we’ll email you with an update. After approval, it will appear when its scheduled Drop releases.'
               : 'This build is only visible to you, your curator, and its owner until its scheduled Drop releases.'}
           </p>
           {p.feedback && <p>Curator note: {p.feedback}</p>}

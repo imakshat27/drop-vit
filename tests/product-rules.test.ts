@@ -30,6 +30,7 @@ test('curation, verified unique support, immutable snapshots and awards', async 
   await database().executeScript(await readFile('migrations/0001_core.sql', 'utf8'));
   await database().executeScript(await readFile('migrations/0002_period_integrity.sql', 'utf8'));
   await database().executeScript(await readFile('migrations/0003_google_identity.sql', 'utf8'));
+  await database().executeScript(await readFile('migrations/0004_notifications.sql', 'utf8'));
   await db()
     .insert(users)
     .values([
