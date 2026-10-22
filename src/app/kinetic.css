@@ -1427,6 +1427,11 @@ body > .page-loading {
     width: 100%;
   }
 }
+/* Pausing decorative motion must not freeze an interactive menu at opacity zero.
+   Homepage cleanup also leaves this flag paused during client navigation. */
+html[data-motion='paused'] .drop-select-menu {
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .drop-select-menu {
     animation: none;

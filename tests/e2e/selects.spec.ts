@@ -69,3 +69,34 @@ test('custom menus fit mobile, expose selection and do not introduce accessibili
     .evaluate((field) => (field.closest('form') as HTMLFormElement).reset());
   await expect(decision).toContainText(initialLabel);
 });
+
+for (const width of [375, 1440])
+  test(`dropdowns paint after leaving the animated homepage at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
+    if (width === 375) await page.getByRole('button', { name: 'Open navigation' }).click();
+    await page
+      .getByRole('navigation', { name: 'Main navigation' })
+      .getByRole('link', { name: 'Discover', exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/discover$/);
+    await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
+    const format = page.getByRole('combobox', { name: 'Build format', exact: true });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await format.click();
+      const menu = page.getByRole('listbox');
+      await expect(menu).toBeVisible();
+      await expect(menu).toHaveCSS('opacity', '1');
+      await expect(menu).toHaveCSS('animation-name', 'none');
+      await expect(page.getByRole('option', { name: 'CLI tool', exact: true })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(format).toBeFocused();
+    }
+    await format.click();
+    await page.getByRole('option', { name: 'CLI tool', exact: true }).click();
+    await expect(format).toContainText('CLI tool');
+    await format.click();
+    await expect(page.getByRole('listbox')).toHaveCSS('opacity', '1');
+    await page.screenshot({ path: `.data/dropdown-paused-${width}.png` });
+  });
