@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 export function createEmailTransport(
   settings: {
@@ -12,6 +13,7 @@ export function createEmailTransport(
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   },
+  socketOptions: Pick<SMTPTransport.Options, 'getSocket'> = {},
 ) {
   const host = settings.SMTP_HOST;
   if (!host) throw new Error('SMTP_HOST is required');
@@ -32,5 +34,6 @@ export function createEmailTransport(
     greetingTimeout: 15000,
     socketTimeout: 30000,
     dnsTimeout: 15000,
+    ...socketOptions,
   });
 }

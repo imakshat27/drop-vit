@@ -15,7 +15,7 @@
     "APP_URL": "https://droppp.tech",
     "DROP_FIRST_RELEASE_AT": "2026-10-25T18:30:00Z",
     "SMTP_HOST": "smtp-relay.brevo.com",
-    "SMTP_PORT": "587",
+    "SMTP_PORT": "465",
     "SMTP_FROM": "Drop <hello@droppp.tech>",
   },
   "triggers": { "crons": ["0 * * * *", "30,31 18 * * SUN"] },

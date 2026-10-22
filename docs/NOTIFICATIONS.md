@@ -22,6 +22,8 @@ Delivery errors do not undo the submitted project or saved review. The workshop 
 
 ## Operations
 
+The Worker uses Brevo on port **465** with TLS from the start through Cloudflare’s native socket API. Nodemailer still handles message formatting and SMTP authentication; a stream adapter avoids the premature connection closure seen with its default Node socket in Workers. Local scripts can continue to use port 587.
+
 Keep `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `APP_URL` and `NOTIFICATION_JOB_SECRET` configured on the Worker. Do not run the mailer against QA databases with real SMTP settings. QA tests inject a fake sender; browser fixtures keep SMTP disabled.
 
 `CURATOR_EMAIL` now contains only the owner's configured VIT address. Other former curators were demoted in the database as well as removed from that login allowlist.

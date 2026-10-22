@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { createPostgresPool } from '../src/lib/postgres-pool';
-import { createEmailTransport } from '../src/lib/email';
+import { createWorkerEmailTransport } from './email-transport';
 import { deliverNotification, dueNotifications } from '../src/lib/notifications';
 export type MailEnvironment = {
   APP_URL: string;
@@ -26,7 +26,7 @@ export async function runNotification(env: MailEnvironment, id: string) {
     return await deliverNotification(client.connection, id, {
       origin: env.APP_URL,
       send: async (message) => {
-        const transport = createEmailTransport(env);
+        const transport = createWorkerEmailTransport(env);
         let timer: ReturnType<typeof setTimeout> | undefined;
         try {
           const result = await Promise.race([
@@ -82,7 +82,7 @@ export async function sweepNotifications(env: MailEnvironment) {
 }
 
 export async function verifyNotificationTransport(env: MailEnvironment) {
-  const transport = createEmailTransport(env);
+  const transport = createWorkerEmailTransport(env);
   try {
     await transport.verify();
   } finally {
