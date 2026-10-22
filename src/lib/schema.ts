@@ -36,6 +36,7 @@ export const verificationTokens = pgTable('verification_tokens', {
   expiresAt: timestamp({ withTimezone: true }).notNull(),
 });
 export type ProjectDetails = {
+  buildFormat?: import('./build-formats').BuildFormat;
   problem?: string;
   solution?: string;
   stage?: string;

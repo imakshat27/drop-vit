@@ -1,4 +1,6 @@
 'use client';
+import { buildFormats, buildLinkHint, formatLabel, type BuildFormat } from '@/lib/build-formats';
+import { DropSelect } from './drop-select';
 import { MediaGallery } from './media-gallery';
 import { parseProjectMedia } from '@/lib/project-media';
 import { ImageUploader } from './image-uploader';
@@ -16,6 +18,7 @@ const defaults: SubmissionInput = {
   tagline: '',
   description: '',
   category: 'Projects',
+  buildFormat: 'other',
   website: '',
   github: '',
   demo: '',
@@ -46,7 +49,7 @@ const defaults: SubmissionInput = {
   applicationUrl: '',
 };
 const stepFields = [
-  ['title', 'tagline', 'category'],
+  ['title', 'tagline', 'category', 'buildFormat'],
   ['description', 'problem', 'solution', 'tech', 'website', 'demo', 'media', 'team'],
   [
     'github',
@@ -293,6 +296,9 @@ export function SubmissionForm({
       )}
       {step === 0 && (
         <>
+          <p className="understated" style={{ marginBottom: 20 }}>
+            Choose where it belongs. A CLI, package, app, or physical build can fit any category.
+          </p>
           <div className="category-options">
             {categories.map((c) => (
               <label className="category-option" key={c}>
@@ -308,6 +314,20 @@ export function SubmissionForm({
                 </span>
               </label>
             ))}
+          </div>
+          <div className="field">
+            <label htmlFor="build-format">What kind of build is it?</label>
+            <DropSelect
+              id="build-format"
+              name="build-format-choice"
+              value={values.buildFormat}
+              onValueChange={(value) => set('buildFormat', value as BuildFormat)}
+              options={buildFormats.map(([value, label]) => ({ value, label }))}
+            />
+            <small>
+              Websites, CLI tools, packages, hardware, and everything in between. Choose the closest
+              fit.
+            </small>
           </div>
           {field('title', 'Name of your build', 'Short, memorable, and yours.', false, 80)}
           {field(
@@ -346,8 +366,12 @@ export function SubmissionForm({
             300,
           )}
           <div className="field-row">
-            {field('website', 'Website (optional)', 'A full https:// link.')}
-            {field('demo', 'Live demo (optional)', 'Let people try what you made.')}
+            {field('website', 'Project link (optional)', buildLinkHint(values.buildFormat))}
+            {field(
+              'demo',
+              'Demo or walkthrough (optional)',
+              'A live demo, video, or recording. Useful for builds people cannot try in a browser.',
+            )}
           </div>
           {errors.media && (
             <p className="message error" role="alert">
@@ -370,6 +394,18 @@ export function SubmissionForm({
       )}
       {step === 2 && (
         <>
+          {field(
+            'github',
+            'Repository URL',
+            'Optional unless the build is open source. GitHub, GitLab, Codeberg, and other hosts are welcome.',
+          )}
+          {field(
+            'setup',
+            'How to try it (optional)',
+            'Installation commands, prerequisites, usage examples, or steps for exploring your build.',
+            true,
+            3000,
+          )}
           <label className="checkbox">
             <input
               type="checkbox"
@@ -382,11 +418,6 @@ export function SubmissionForm({
           {(values.openSource || values.category === 'Open Source') && (
             <div className="form-panel">
               <h3 style={{ marginBottom: 22 }}>An open door for contributors.</h3>
-              {field(
-                'github',
-                'Repository URL',
-                'Required for open-source builds. Use a public https:// URL.',
-              )}
               <div className="field-row">
                 {field('language', 'Primary language (optional)', undefined, false, 80)}
                 {field(
@@ -404,13 +435,6 @@ export function SubmissionForm({
                 'Accessibility, documentation, features…',
                 false,
                 500,
-              )}
-              {field(
-                'setup',
-                'Setup instructions (optional)',
-                'Give someone a comfortable first step.',
-                true,
-                3000,
               )}
             </div>
           )}
@@ -521,6 +545,8 @@ export function SubmissionForm({
               {values.description}
             </p>
             <dl>
+              <dt>Build format</dt>
+              <dd>{formatLabel(values.buildFormat)}</dd>
               <dt>Tech stack</dt>
               <dd>{values.tech || 'Not specified'}</dd>
               <dt>Links</dt>

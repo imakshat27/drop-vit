@@ -1,3 +1,4 @@
+import { formatLabel, buildLinkLabel } from '@/lib/build-formats';
 import { BrandSpark } from '@/components/brand-spark';
 import { MediaGallery } from '@/components/media-gallery';
 import Link from 'next/link';
@@ -37,6 +38,12 @@ export default async function ProjectPage({
     .select({ releaseAt: projectReleaseAt() })
     .from(projects)
     .where(eq(projects.id, p.id));
+  const projectLink = p.website || p.demo || p.github;
+  const projectLinkText = p.website
+    ? buildLinkLabel(p.details.buildFormat)
+    : p.demo
+      ? 'Watch or try the demo'
+      : 'Explore the repository';
   const released = isReleased(p.status, releaseAt);
   const week = await currentWeek();
   const [team, awards, roles, history, supported, enrolled] = await Promise.all([
@@ -121,6 +128,9 @@ export default async function ProjectPage({
             {p.featured && <Tag color="lime">Curator pick</Tag>}
             {roles.length > 0 && <Tag>Team is growing</Tag>}
           </div>
+          {formatLabel(p.details.buildFormat) && (
+            <p className="micro">{formatLabel(p.details.buildFormat)}</p>
+          )}
           <h1>{p.title}</h1>
           <p>{p.tagline}</p>
         </div>
@@ -133,15 +143,16 @@ export default async function ProjectPage({
             count={row.count}
             supported={supported.includes(p.id)}
           />
-        ) : (
-          <Link href="/weekly" className="button secondary">
-            Explore this week <ArrowUpRight size={16} aria-hidden />
-          </Link>
-        )}
+        ) : null}
       </div>
-      {shareCards.length > 0 && (
+      {(shareCards.length > 0 || projectLink) && (
         <div className="project-share-row">
-          <ShareButton cards={shareCards} label="Share this build" />
+          {projectLink && (
+            <a href={projectLink} className="button" target="_blank" rel="noopener noreferrer">
+              {projectLinkText} <ArrowUpRight size={16} aria-hidden />
+            </a>
+          )}
+          {shareCards.length > 0 && <ShareButton cards={shareCards} label="Share this build" />}
         </div>
       )}
       {p.details.media?.length ? (
@@ -150,7 +161,7 @@ export default async function ProjectPage({
         <div className="project-hero-art project-compact-fallback">
           <BrandSpark className="brand-mark" />
           <div>
-            <strong>No screenshots yet.</strong>
+            <strong>No images yet.</strong>
             <p>Get to know the build below.</p>
           </div>
         </div>
@@ -185,6 +196,24 @@ export default async function ProjectPage({
               )}
             </div>
           </section>
+          {(p.details.setup || projectLink) && (
+            <section className="story-section" id="getting-started">
+              <span className="eyebrow">GIVE IT A GO</span>
+              <h2>Start here.</h2>
+              {p.details.setup && <div className="setup">{p.details.setup}</div>}
+              {projectLink && (
+                <a
+                  href={projectLink}
+                  className="button secondary"
+                  style={{ marginTop: 20 }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {projectLinkText} <ArrowUpRight size={17} aria-hidden />
+                </a>
+              )}
+            </section>
+          )}
           {p.openSource && (
             <section className="story-section">
               <span className="eyebrow">
@@ -208,12 +237,6 @@ export default async function ProjectPage({
                   </div>
                 ))}
               </div>
-              {p.details.setup && (
-                <>
-                  <h3>A little help getting started</h3>
-                  <div className="setup">{p.details.setup}</div>
-                </>
-              )}
               {p.github && (
                 <a
                   href={p.github}
@@ -354,8 +377,8 @@ export default async function ProjectPage({
           <section className="aside-section">
             <h2>Find it in the wild</h2>
             {[
-              ['Website', p.website],
-              ['Live demo', p.demo],
+              [buildLinkLabel(p.details.buildFormat), p.website],
+              ['Demo / walkthrough', p.demo],
               ['Repository', p.github],
             ]
               .filter(([, url]) => url)

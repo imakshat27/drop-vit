@@ -3,8 +3,9 @@ import { db } from './db';
 import { projects, users, members, awards, recruitments, periods, supports } from './schema';
 import { prepareWeeks, rankingFor } from './rankings';
 import { cache } from 'react';
+import { formatLabel } from './build-formats';
 import { releasedProject } from './project-release';
-export async function approvedProjects(category?: string, q?: string) {
+export async function approvedProjects(category?: string, q?: string, format?: string) {
   const all = await db()
     .select()
     .from(projects)
@@ -18,7 +19,11 @@ export async function approvedProjects(category?: string, q?: string) {
         (category === 'Open Source' && p.openSource) ||
         (category === 'Startups' && p.startup) ||
         (category === 'Launches' && p.launched)) &&
-      (!q || `${p.title} ${p.tagline} ${p.tech.join(' ')}`.toLowerCase().includes(q.toLowerCase())),
+      (!format || p.details.buildFormat === format) &&
+      (!q ||
+        `${p.title} ${p.tagline} ${p.tech.join(' ')} ${formatLabel(p.details.buildFormat) || ''}`
+          .toLowerCase()
+          .includes(q.toLowerCase())),
   );
 }
 export const currentWeek = cache(async () => {

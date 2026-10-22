@@ -3,7 +3,7 @@
 const routes: Record<string, string[]> = {
   '/': [],
   '/weekly': ['period'],
-  '/discover': ['category', 'q'],
+  '/discover': ['category', 'q', 'format'],
   '/honors': ['kind', 'category', 'period', 'view'],
   '/recruit': [],
 };

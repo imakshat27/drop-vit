@@ -1,3 +1,4 @@
+import { formatLabel } from '@/lib/build-formats';
 import { ProjectCover } from './project-cover';
 import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
@@ -21,6 +22,9 @@ export function ProjectCard({ project }: { project: Project }) {
       </Link>
       <div className="card-meta">
         <Tag>{project.category}</Tag>
+        {formatLabel(project.details.buildFormat) && (
+          <span className="micro">{formatLabel(project.details.buildFormat)}</span>
+        )}
         {project.featured && (
           <span className="micro">
             <Star size={14} aria-hidden /> Curator pick

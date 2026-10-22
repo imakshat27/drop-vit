@@ -27,7 +27,7 @@ export function DiscoverIntro({ valid }: { valid: string }) {
         <h1>{valid === 'All' ? 'Follow your curiosity.' : valid}</h1>
         <p>
           {valid === 'All'
-            ? 'Side projects, fresh launches, and ideas with legs. Every build here has been reviewed by our curators.'
+            ? 'Apps, CLI tools, packages, games, hardware, and ideas with legs. Reviewed by curators, made by students.'
             : categoryCopy[valid as Category]}{' '}
           {valid === 'Open Source' &&
             'Find an approachable issue, a useful tool, or your next contribution.'}

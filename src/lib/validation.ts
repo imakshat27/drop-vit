@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { parseProjectMedia } from './project-media';
+import { buildFormatIds } from './build-formats';
 import { categories } from './constants';
 export const webUrl = z
   .string()
@@ -27,6 +28,7 @@ export const submissionSchema = z
       .min(50, 'Tell us a little more — at least 50 characters.')
       .max(10000, 'Keep the story under 10,000 characters.'),
     category: z.enum(categories),
+    buildFormat: z.enum(buildFormatIds).default('other'),
     website: webUrl,
     github: webUrl,
     demo: webUrl,

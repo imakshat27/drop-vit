@@ -353,6 +353,33 @@ async function main() {
         details: { media: ['/api/media/YW5hbnlh.00000000-0000-4000-8000-000000000001'] },
       });
     await db().insert(entries).values({ projectId: 'qa-scheduled', periodId: 'week-19' });
+    for (const [id, format] of [
+      ['qa-cli', 'cli'],
+      ['qa-package', 'package'],
+    ] as const) {
+      await db()
+        .insert(projects)
+        .values({
+          id,
+          slug: id,
+          title: format === 'cli' ? 'Terminal Compass' : 'Tiny Vector Library',
+          tagline: 'A useful developer build without a hosted website.',
+          description:
+            'A non-web project fixture with installation instructions and a registry or release link.',
+          category: 'Projects',
+          ownerId: 'ananya',
+          status: 'approved',
+          website: 'https://example.com/' + format,
+          details: {
+            buildFormat: format,
+            setup:
+              format === 'cli'
+                ? 'Install from the releases page.\ncompass --help'
+                : 'npm install tiny-vector-example',
+          },
+        });
+      await db().insert(entries).values({ projectId: id, periodId: 'week-18' });
+    }
     const tokens: Record<string, string[]> = {};
     for (const id of ['ananya', 'arjun', 'diya', 'ishaan', 'admin']) {
       const [user] = await db()

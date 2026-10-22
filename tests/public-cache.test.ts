@@ -145,3 +145,19 @@ test('only guest success responses are retained, hits skip rendering, and cache 
   await Promise.all(tasks);
   assert.equal(fallback.status, 200);
 });
+
+test('build format filters use separate public cache entries without losing category or search', async () => {
+  const cli = (await publicCacheRequest(
+    guest('/discover?category=Projects&q=tool&format=cli'),
+    'build',
+  ))!;
+  const pkg = (await publicCacheRequest(
+    guest('/discover?category=Projects&q=tool&format=package'),
+    'build',
+  ))!;
+  assert.ok(cli);
+  assert.notEqual(cli.key.url, pkg.key.url);
+  assert.equal(new URL(cli.canonical.url).searchParams.get('format'), 'cli');
+  assert.equal(new URL(cli.canonical.url).searchParams.get('q'), 'tool');
+  assert.equal(new URL(cli.canonical.url).searchParams.get('category'), 'Projects');
+});

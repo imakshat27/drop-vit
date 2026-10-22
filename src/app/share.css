@@ -1,4 +1,8 @@
 .project-share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   margin: 0 0 24px;
 }
 .profile-share-row {

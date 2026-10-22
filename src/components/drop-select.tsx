@@ -10,12 +10,16 @@ export function DropSelect({
   name,
   options,
   defaultValue,
+  value: controlledValue,
+  onValueChange,
   disabled = false,
 }: {
   id: string;
   name: string;
   options: Option[];
   defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
   const initial = defaultValue ?? options[0]?.value;
@@ -34,13 +38,16 @@ export function DropSelect({
   return (
     <Select.Root
       name={name}
-      value={value}
-      onValueChange={setValue}
+      value={controlledValue ?? value}
+      onValueChange={(next) => {
+        setValue(next);
+        onValueChange?.(next);
+      }}
       disabled={disabled || !options.length}
     >
       <Select.Trigger ref={trigger} id={id} className="drop-select-trigger">
         <Select.Value placeholder="No options available">
-          {options.find((option) => option.value === value)?.label}
+          {options.find((option) => option.value === (controlledValue ?? value))?.label}
         </Select.Value>
         <Select.Icon className="drop-select-chevron">
           <ChevronDown size={18} aria-hidden />

@@ -77,7 +77,8 @@ export function ImageUploader({
         <span>{images.length} / 4</span>
       </div>
       <p id="project-images-help">
-        Add up to four screenshots. First image = cover. We resize and compress them on your device.
+        Add up to four screenshots, terminal captures, photos, or diagrams. First image = cover. We
+        resize and compress them on your device.
       </p>
       <input
         ref={input}

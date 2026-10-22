@@ -164,6 +164,7 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
         status: 'pending',
         feedback: '',
         details: {
+          buildFormat: v.buildFormat,
           problem: v.problem,
           solution: v.solution,
           language: v.language,
