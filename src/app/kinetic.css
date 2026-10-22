@@ -370,10 +370,11 @@
   animation: arrow-nudge 650ms cubic-bezier(0.2, 1.8, 0.4, 1);
 }
 .section-title h2 {
-  transition: letter-spacing 450ms cubic-bezier(0.2, 1.8, 0.4, 1);
+  transform-origin: left bottom;
+  transition: transform 450ms cubic-bezier(0.2, 1.8, 0.4, 1);
 }
 .section-title:hover h2 {
-  letter-spacing: -0.025em;
+  transform: translateY(-2px) skewX(-2deg);
 }
 .champion {
   border: 2px solid var(--ink);
