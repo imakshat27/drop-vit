@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 const links = [
-  ['Discover', '/'],
+  ['Discover', '/discover'],
   ['Weekly Drop', '/weekly'],
   ['Honors', '/honors'],
   ['Recruit', '/recruit'],
@@ -96,18 +96,8 @@ export function Nav({
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className={
-                (
-                  href === '/'
-                    ? path === '/' || path.startsWith('/discover')
-                    : path.startsWith(href)
-                )
-                  ? 'active'
-                  : ''
-              }
-              aria-current={
-                (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined
-              }
+              className={path.startsWith(href) ? 'active' : ''}
+              aria-current={path.startsWith(href) ? 'page' : undefined}
             >
               {name}
               {name === 'Weekly Drop' && <span className="live-dot" aria-hidden="true" />}
