@@ -17,3 +17,9 @@ This is an intentionally destructive launch-only operator command. It is not par
 When resetting a running site, deploy the Monday calendar first, reset the content, then rotate the worker cache namespace and redeploy so no cached test listings or image responses remain reachable. Verify zero project/result rows, zero stored objects, preserved curators, and only Monday weekly periods before announcing launch readiness.
 
 QA uses an earlier launch date to exercise established exhibitions. `playwright.launch.config.ts` uses an empty isolated database and a future Monday to check the actual pre-launch experience at mobile and desktop widths.
+
+## Reset completed · 23 October 2026 IST
+
+Removed 14 projects, 304 supports, 11 editions, 36 fictional demo accounts and 6 stored image/staging objects. Related results, awards, teams, roles and moderation data were cleared in the same database reset. All 3 curator accounts and real-user authentication were preserved.
+
+Post-reset checks confirmed zero projects, supports, results, awards, recruitment listings, demo accounts and stored images. Fresh weekly periods begin on Monday at 00:00 IST, with no pre-launch weeks. The active cache namespace was replaced after deletion. Live mobile checks passed for Home, Discover, Weekly Drop, Honors, Hall of Fame and Recruit; an old demo project URL returned the unavailable page.
