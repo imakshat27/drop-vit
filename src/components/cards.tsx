@@ -1,7 +1,7 @@
+import { ProjectCover } from './project-cover';
 import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowRight, Star, MapPin } from 'lucide-react';
-import { ProjectArt } from './art';
 import { Support } from './support';
 import type { Project } from '@/lib/schema';
 import type { RankedProject } from '@/lib/rankings';
@@ -12,7 +12,12 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <article className="project-card">
       <Link href={`/projects/${project.slug}`} className="art-link">
-        <ProjectArt symbol={project.symbol} color={project.color} title={project.title} />
+        <ProjectCover
+          url={project.details.media?.[0]}
+          symbol={project.symbol}
+          color={project.color}
+          title={project.title}
+        />
       </Link>
       <div className="card-meta">
         <Tag>{project.category}</Tag>

@@ -34,7 +34,7 @@ export default async function Submit({
       startup: p.startup,
       launched: p.launched,
       ...p.details,
-      media: p.details.media?.[0] || '',
+      media: JSON.stringify(p.details.media || []),
       recruiting: !!role,
       role: role?.role || '',
       roleDescription: role?.description || '',

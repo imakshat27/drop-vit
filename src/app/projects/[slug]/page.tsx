@@ -9,7 +9,6 @@ import { currentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { recruitments, results, periods, entries } from '@/lib/schema';
 import { rankingFor } from '@/lib/rankings';
-import { ProjectArt } from '@/components/art';
 import { Support } from '@/components/support';
 import { Tag, RoleMeta } from '@/components/cards';
 import { ShareButton } from '@/components/share-button';
@@ -130,9 +129,17 @@ export default async function ProjectPage({
           <ShareButton cards={shareCards} label="Share this build" />
         </div>
       )}
-      <div className="project-hero-art">
-        <ProjectArt symbol={p.symbol} color={p.color} title={p.title} large />
-      </div>
+      {p.details.media?.length ? (
+        <MediaGallery urls={p.details.media.slice(0, 4)} title={p.title} />
+      ) : (
+        <div className="project-hero-art project-compact-fallback">
+          <BrandSpark className="brand-mark" />
+          <div>
+            <strong>No screenshots yet.</strong>
+            <p>Get to know the build below.</p>
+          </div>
+        </div>
+      )}
       <div className="project-body">
         <div>
           <section className="story-section">
@@ -152,13 +159,7 @@ export default async function ProjectPage({
               </>
             )}
           </section>
-          {p.details.media?.length ? (
-            <section className="story-section">
-              <h2>From the workshop</h2>
-              <MediaGallery urls={p.details.media} title={p.title} />
-              <p className="understated">Media opens at the creator’s source.</p>
-            </section>
-          ) : null}
+
           <section className="story-section">
             <h2>The building blocks.</h2>
             <div className="stack-tags">

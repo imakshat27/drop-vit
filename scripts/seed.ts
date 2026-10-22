@@ -318,6 +318,26 @@ async function main() {
       !/^\.data\/e2e-\d+$/.test(path)
     )
       throw new Error('E2E sessions require an isolated local QA database');
+    await db()
+      .insert(projects)
+      .values({
+        id: 'qa-gallery',
+        slug: 'qa-gallery',
+        title: 'Gallery QA',
+        tagline: 'A screenshot gallery fixture for browser checks.',
+        description:
+          'Isolated QA data for verifying project media, thumbnail selection, and accessible full screen navigation.',
+        category: 'Projects',
+        ownerId: 'ananya',
+        status: 'approved',
+        details: {
+          media: [
+            'https://images.example.test/one.webp',
+            'https://images.example.test/two.webp',
+            'https://images.example.test/three.webp',
+          ],
+        },
+      });
     const tokens: Record<string, string[]> = {};
     for (const id of ['ananya', 'arjun', 'diya', 'ishaan', 'admin']) {
       const [user] = await db()

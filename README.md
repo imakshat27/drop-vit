@@ -23,7 +23,7 @@ Seed data is fictional and cannot sign in. The automated browser suite creates r
 
 - **Discover:** editorial homepage, last week’s champion, live weekly preview, visual category directory, project search, recruitment, and an honors teaser.
 - **Weekly Drop:** IST-aligned Monday-to-Monday editions, closing countdown, 30-second refresh, verified support, current lineup, upcoming exhibition, and permanently locked archives.
-- **Projects:** rich stories, project-specific illustrations, screenshot gallery with failure fallback, team, tech stack, open-source setup and contribution areas, startup stage, launch details, awards, ranking history, and attached roles. A single project can appear in multiple relevant categories.
+- **Projects:** rich stories, project-specific illustrations, up to four uploaded screenshots, cover images, a full-screen gallery with failure fallback, team, tech stack, open-source setup and contribution areas, startup stage, launch details, awards, ranking history, and attached roles. A single project can appear in multiple relevant categories.
 - **Honors:** weekly, monthly, yearly, and all-time leaderboards; category filtering; immutable completed editions; Hall of Fame. Only projects compete. Recruitment does not enter ranking tables.
 - **Builders:** work, contributions, skills, and permanent project achievements. No follower counts or user leaderboards. Private workshop includes submission status, curator feedback, profile editing, and share cards.
 - **Submit:** four deliberate steps grouping category, story/media/team, relevant details, and preview. Draft values stay in memory between steps. Submitted builds remain private until reviewed; requested changes can be edited and resubmitted.
@@ -87,9 +87,9 @@ Production dependencies pass `npm audit --omit=dev`. The full audit currently re
 
 The UI UX Pro Max skill informed the composition and interaction system; decisions are persisted in `design-system/drop/MASTER.md`. Warm paper, confident solid colors, oversized type, illustrated project identities, editorial spacing, readable labels, mobile recomposition, keyboard focus, and reduced-motion support keep it closer to a builder exhibition than a dashboard.
 
-Production uses Cloudflare Workers at `https://droppp.tech`, Neon PostgreSQL, and Brevo SMTP from `hello@droppp.tech`. Signup sends a branded verification email; resends have delivery feedback and database-backed limits. All sign-in methods and existing sessions require @vitstudent.ac.in. Google OAuth validates the ID token and verified VIT Workspace domain; VIT password signup uses mailbox verification.
+Production uses Cloudflare Workers at `https://droppp.tech`, Neon PostgreSQL, and Brevo SMTP from `hello@droppp.tech`. Google-only sign-in requires a verified @vitstudent.ac.in Google Workspace identity. Password signup and verification emails are disabled. Project images use private Neon Object Storage, browser-side compression and moderation-aware delivery; see [project images](docs/PROJECT_IMAGES.md).
 
-Sensible follow-ups: add password recovery; add hosted media uploads and GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.
+Sensible follow-ups: add GitHub issue synchronization; add a scheduled finalizer and operational email/DB monitoring. Profile-only build logs are intentionally deferred until the core experience has real usage. They must never enter global discovery.
 
 ### Google sign-in
 

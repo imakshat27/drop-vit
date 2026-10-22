@@ -1,4 +1,6 @@
 'use server';
+import { parseProjectMedia } from '@/lib/project-media';
+import { verifyUploadedImage } from '@/lib/image-storage';
 import { randomUUID } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -23,6 +25,7 @@ import { hashToken } from '@/lib/password';
 import { submissionSchema, type ActionState } from '@/lib/validation';
 import { categories } from '@/lib/constants';
 import { lockPeriod, prepareWeeks } from '@/lib/rankings';
+class ImageSubmissionError extends Error {}
 function refresh() {
   revalidatePath('/', 'layout');
 }
@@ -108,6 +111,7 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
   try {
     await rateLimit(`submit:${user.id}`, 8);
     const v = parsed.data;
+    const media = parseProjectMedia(v.media);
     const editing = String(form.get('editId') || '');
     const id = editing || randomUUID();
     slug = `${v.title
@@ -124,6 +128,22 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
         if (!old || !['changes', 'rejected', 'pending'].includes(old.status))
           throw new Error('Project cannot be edited');
         slug = old.slug;
+      }
+      // Serialize image finalization for this owner so concurrent submissions cannot
+      // overwrite an already finalized image through a still-valid staging ticket.
+      if (media.some((url) => url.startsWith('/api/media/'))) {
+        await tx.execute(
+          sql`SELECT pg_advisory_xact_lock(hashtext(${`project-media:${user.id}`}))`,
+        );
+        try {
+          await Promise.all(
+            media
+              .filter((url) => url.startsWith('/api/media/'))
+              .map((url) => verifyUploadedImage(url, user.id)),
+          );
+        } catch {
+          throw new ImageSubmissionError();
+        }
       }
       const project = {
         title: v.title,
@@ -155,7 +175,7 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
           traction: v.traction,
           launchDate: v.launchDate,
           whatsNew: v.whatsNew,
-          media: v.media ? [v.media] : [],
+          media,
         },
       };
       if (editing) {
@@ -197,6 +217,11 @@ export async function submitAction(_: ActionState, form: FormData): Promise<Acti
     });
     refresh();
   } catch (e) {
+    if (e instanceof ImageSubmissionError)
+      return {
+        error: 'A screenshot could not be verified. Go back to your images and upload it again.',
+        errors: { media: 'Remove the affected image and upload it again.' },
+      };
     if (e instanceof Error && e.message.includes('team emails')) return { error: e.message };
     return { error: message(e) };
   }

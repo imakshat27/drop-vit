@@ -1,4 +1,7 @@
 'use client';
+import { MediaGallery } from './media-gallery';
+import { parseProjectMedia } from '@/lib/project-media';
+import { ImageUploader } from './image-uploader';
 import { useActionState, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ArrowLeft, ArrowUpRight, Check } from 'lucide-react';
@@ -134,6 +137,7 @@ export function SubmissionForm({
 }) {
   const [values, setValues] = useState<SubmissionInput>({ ...defaults, ...initial });
   const [step, setStep] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
   const [state, action, pending] = useActionState(guardedSubmit, {});
   const summary = useRef<HTMLDivElement>(null);
@@ -199,6 +203,10 @@ export function SubmissionForm({
     move(step + 1);
   }
   function checkAll(event: React.FormEvent) {
+    if (uploading) {
+      event.preventDefault();
+      return;
+    }
     if (step !== 3) {
       event.preventDefault();
       advance();
@@ -341,11 +349,16 @@ export function SubmissionForm({
             {field('website', 'Website (optional)', 'A full https:// link.')}
             {field('demo', 'Live demo (optional)', 'Let people try what you made.')}
           </div>
-          {field(
-            'media',
-            'Screenshot link (optional)',
-            'A public https:// image URL. Opens at your source; uploads can be added later.',
+          {errors.media && (
+            <p className="message error" role="alert">
+              {errors.media}
+            </p>
           )}
+          <ImageUploader
+            value={values.media}
+            onChange={(value) => set('media', value)}
+            onBusy={setUploading}
+          />
           {field(
             'team',
             'Team members (optional)',
@@ -501,6 +514,9 @@ export function SubmissionForm({
             <Tag color="lime">{values.category}</Tag>
             <h2>{values.title}</h2>
             <p>{values.tagline}</p>
+            {parseProjectMedia(values.media).length > 0 && (
+              <MediaGallery urls={parseProjectMedia(values.media)} title={values.title} />
+            )}
             <p style={{ marginTop: 20, whiteSpace: 'pre-line', fontSize: 15 }}>
               {values.description}
             </p>
@@ -550,7 +566,7 @@ export function SubmissionForm({
             className="button secondary"
             type="button"
             onClick={() => move(step - 1)}
-            disabled={pending}
+            disabled={pending || uploading}
           >
             <ArrowLeft size={16} aria-hidden />
             Back
@@ -563,6 +579,7 @@ export function SubmissionForm({
         {step < 3 ? (
           <button
             key="next-step"
+            disabled={uploading || pending}
             type="button"
             className="button"
             onClick={(event) => {
@@ -573,7 +590,12 @@ export function SubmissionForm({
             Next <ArrowRight size={16} aria-hidden />
           </button>
         ) : (
-          <button key="submit-review" className="button" type="submit" disabled={pending}>
+          <button
+            key="submit-review"
+            className="button"
+            type="submit"
+            disabled={pending || uploading}
+          >
             {pending
               ? 'Sending to the curators…'
               : editId

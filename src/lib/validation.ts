@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseProjectMedia } from './project-media';
 import { categories } from './constants';
 export const webUrl = z
   .string()
@@ -44,7 +45,17 @@ export const submissionSchema = z
     traction: z.string().max(500),
     launchDate: z.iso.date('Use a valid launch date.').or(z.literal('')),
     whatsNew: z.string().max(2000),
-    media: webUrl,
+    media: z
+      .string()
+      .max(5000)
+      .refine((value) => {
+        try {
+          parseProjectMedia(value);
+          return true;
+        } catch {
+          return false;
+        }
+      }, 'Choose up to four valid project images.'),
     team: z.string().max(500),
     recruiting: z.boolean(),
     role: z.string().max(120),
