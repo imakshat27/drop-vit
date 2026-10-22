@@ -4,7 +4,7 @@ export function WeeklyIntro() {
   return (
     <div className="page-head split">
       <div>
-        <span className="eyebrow">A NEW EXHIBITION. EVERY SUNDAY.</span>
+        <span className="eyebrow">A NEW EXHIBITION. EVERY MONDAY.</span>
         <h1>
           The Weekly <em>Drop.</em>
         </h1>

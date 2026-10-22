@@ -17,15 +17,15 @@ export function dateRange(start: Date, end: Date) {
 export function weekBounds(now = new Date()) {
   const india = new Date(now.getTime() + 330 * 60000);
   const day = india.getUTCDay();
-  india.setUTCDate(india.getUTCDate() - day);
+  india.setUTCDate(india.getUTCDate() - ((day + 6) % 7));
   india.setUTCHours(0, 0, 0, 0);
   const start = new Date(india.getTime() - 330 * 60000);
   return { start, end: new Date(start.getTime() + 7 * 86400000) };
 }
 
-// First public exhibition: Sunday 25 October 2026, 00:00 IST.
+// First public exhibition: Monday 26 October 2026, 00:00 IST.
 export function firstDropAt() {
-  const value = new Date(process.env.DROP_FIRST_RELEASE_AT || '2026-10-24T18:30:00Z');
+  const value = new Date(process.env.DROP_FIRST_RELEASE_AT || '2026-10-25T18:30:00Z');
   if (!Number.isFinite(value.getTime())) throw new Error('Invalid first Drop date');
   return value;
 }

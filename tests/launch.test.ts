@@ -13,16 +13,16 @@ after(async () => {
   await database().close();
 });
 
-test('Sunday boundary switches exactly at midnight IST', () => {
-  const before = weekBounds(new Date('2026-10-24T18:29:59.999Z'));
-  const after = weekBounds(new Date('2026-10-24T18:30:00Z'));
-  assert.equal(before.end.toISOString(), '2026-10-24T18:30:00.000Z');
-  assert.equal(after.start.toISOString(), '2026-10-24T18:30:00.000Z');
+test('Monday boundary switches exactly at midnight IST', () => {
+  const before = weekBounds(new Date('2026-10-25T18:29:59.999Z'));
+  const after = weekBounds(new Date('2026-10-25T18:30:00Z'));
+  assert.equal(before.end.toISOString(), '2026-10-25T18:30:00.000Z');
+  assert.equal(after.start.toISOString(), '2026-10-25T18:30:00.000Z');
   assert.equal(firstDropAt().toISOString(), after.start.toISOString());
-  assert.match(firstDropLabel(), /Sunday.*25.*October.*2026/);
+  assert.match(firstDropLabel(), /Monday.*26.*October.*2026/);
 });
 
-test('launch starts with the first Sunday, the hero switches to closed results, reset removes history but preserves real accounts', async () => {
+test('launch starts with the first Monday, the hero switches to closed results, reset removes history but preserves real accounts', async () => {
   for (const file of (await readdir('migrations')).filter((f) => f.endsWith('.sql')).sort())
     await database().executeScript(await readFile(`migrations/${file}`, 'utf8'));
   const first = await prepareWeeks();

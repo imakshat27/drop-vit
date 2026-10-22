@@ -28,7 +28,7 @@ export default defineConfig({
       GOOGLE_CLIENT_ID: 'qa-client.apps.googleusercontent.com',
       GOOGLE_CLIENT_SECRET: 'qa-only-placeholder',
       CURATOR_EMAIL: '',
-      DROP_FIRST_RELEASE_AT: '2025-01-04T18:30:00Z',
+      DROP_FIRST_RELEASE_AT: '2025-01-05T18:30:00Z',
     },
   },
 });

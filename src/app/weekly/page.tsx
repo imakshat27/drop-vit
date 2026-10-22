@@ -46,7 +46,7 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
             </span>
           </h2>
           <p>
-            {upcoming ? 'Opens Sunday at 00:00 IST · ' : 'Week of '}
+            {upcoming ? 'Opens Monday at 00:00 IST · ' : 'Week of '}
             {dateRange(period.startsAt, period.endsAt)} · Voting closes{' '}
             {period.endsAt.toLocaleDateString('en-IN', {
               day: 'numeric',

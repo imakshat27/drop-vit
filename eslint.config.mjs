@@ -9,6 +9,8 @@ export default defineConfig([
     '.open-next/**',
     '.wrangler/**',
     '.data/**',
+    'test-results/**',
+    'playwright-report/**',
     '.agents/**',
     'next-env.d.ts',
   ]),

@@ -67,8 +67,8 @@ export async function publicCacheRequest(request: Request, version: string, now 
     : 'html';
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(variant));
   const hash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
-  // Rotate at Sunday 00:00 IST even if an old entry hasn't expired yet.
-  const week = Math.floor((now + (4 * 86400 + 19800) * 1000) / (7 * 86400000));
+  // Rotate at Monday 00:00 IST even if an old entry hasn't expired yet.
+  const week = Math.floor((now + (3 * 86400 + 19800) * 1000) / (7 * 86400000));
   url.searchParams.set('__drop_cache', `${version}:${week}:${hash}`);
   return { key: new Request(url), canonical };
 }

@@ -1,6 +1,6 @@
 # Scheduled project releases
 
-Approval does not publish a project. Review schedules the first weekly Drop; the build becomes public when that edition's `starts_at` arrives (normally Sunday, 00:00 IST).
+Approval does not publish a project. Review schedules the first weekly Drop; the build becomes public when that edition's `starts_at` arrives (normally Monday, 00:00 IST).
 
 `src/lib/project-release.ts` defines the shared rule. Public access requires approved status and a started weekly entry. Locked weekly results also establish release for imported historical projects. An approved build without a date stays private. Later weekly re-entries never hide a build that has already released.
 
