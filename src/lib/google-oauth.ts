@@ -3,7 +3,7 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
 import { eq, or, sql } from 'drizzle-orm';
 import { db } from './db';
 import { users, sessions } from './schema';
-import { isVitEmail, VIT_DOMAIN, VIT_ONLY_MESSAGE } from './email-policy';
+import { z } from 'zod';
 const keys = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 export const GOOGLE_COOKIE = 'drop_google_flow';
 export function googleConfigured() {
@@ -36,7 +36,6 @@ export function googleAuthorizationUrl(flow: ReturnType<typeof createGoogleFlow>
     nonce: flow.nonce,
     code_challenge: createHash('sha256').update(flow.verifier).digest('base64url'),
     code_challenge_method: 'S256',
-    hd: VIT_DOMAIN,
     prompt: 'select_account',
   }).toString();
   return url;
@@ -53,11 +52,10 @@ export function validatedGoogleProfile(payload: JWTPayload, nonce: string) {
     throw new Error('Invalid Google identity');
   if (
     payload.email_verified !== true ||
-    payload.hd !== VIT_DOMAIN ||
     typeof payload.email !== 'string' ||
-    !isVitEmail(payload.email)
+    !z.email().safeParse(payload.email).success
   )
-    throw new Error(VIT_ONLY_MESSAGE);
+    throw new Error('Google must provide a verified email address');
   return {
     subject: payload.sub,
     email: payload.email.toLowerCase(),
@@ -101,7 +99,6 @@ export async function verifyGoogleIdToken(
 }
 
 export async function googleAccount(profile: ReturnType<typeof validatedGoogleProfile>) {
-  if (!isVitEmail(profile.email)) throw new Error(VIT_ONLY_MESSAGE);
   // No password exists for Google-only accounts. This marker cannot pass password
   // verification, so there is no reason to run an expensive password KDF here.
   const unusablePassword = `!google-only!${randomBytes(32).toString('hex')}`;
@@ -121,7 +118,7 @@ export async function googleAccount(profile: ReturnType<typeof validatedGooglePr
       .map((email) => email.trim().toLowerCase())
       .includes(profile.email);
     if (existing) {
-      // Google owns this Workspace email. Discard an unverified account's old password
+      // Google has verified this email. Discard an unverified account's old password
       // so someone who pre-registered that address cannot retain access.
       await tx
         .update(users)

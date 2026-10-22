@@ -43,7 +43,7 @@ npm run services:check
 
 The check performs read-only database queries and SMTP connection/authentication verification. It fails until the remote database has all migrations. It never opens the local PGlite database, prints secrets, or sends a message. Successful SMTP authentication does not prove that a sender domain is approved or mail reaches an inbox.
 
-Restart the dev server after changing credentials. Sign in with your own VIT Google account to test the callback and verified session. Password and verification-email flows are disabled. To provision a curator, set an explicitly authorized `CURATOR_EMAIL` (comma-separated for multiple curators) before Google sign-in, or sign in first and run `npm run admin:create` with that account’s `ADMIN_EMAIL`.
+Restart the dev server after changing credentials. Sign in with your personal or college Google account to test the callback and verified session. Password and verification-email flows are disabled. To provision a curator, set an explicitly authorized `CURATOR_EMAIL` (comma-separated for multiple curators) before Google sign-in, or sign in first and run `npm run admin:create` with that account’s `ADMIN_EMAIL`.
 
 Changing `DATABASE_URL` switches the app to a fresh database; it does not transfer `.data/drop` or its demo accounts. The local data stays on disk. Use a separate Neon development branch for future testing against PostgreSQL rather than exercising mutations on production.
 
@@ -52,3 +52,5 @@ Changing `DATABASE_URL` switches the app to a fresh database; it does not transf
 Local Neon skills are installed in `.agents/skills/neon*` and pinned by `skills-lock.json`. These installed tools, their lockfile, and machine-specific `.codex/` settings are ignored by Git and remain on the developer’s machine. Reinstall Neon tooling for a new checkout as needed. The local `.codex/config.toml` uses OAuth and restricts access to project `restless-cherry-21622170`. The agent may request sign-in on first MCP use; new skills/server configuration may require a new Codex turn or restart. Existing global configuration remains separate.
 
 The local ignored `.neon` context pins the production branch. `neon.ts` contains an empty policy preserving existing services/settings. `neon deploy` reconciles that policy; it does not publish this Next.js frontend. For later development, use a separate Neon branch and refresh both pooled/direct URLs together.
+
+Drop remains a VIT community. Google sign-in accepts verified accounts from any email domain, without a hosted-domain hint or restriction. The current sole curator is `agarwalakshat2710@gmail.com`; `CURATOR_EMAIL` grants that verified Google account access on sign-in. Other accounts retain ordinary builder access.

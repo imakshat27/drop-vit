@@ -126,6 +126,9 @@ test('Google is the only entry and legacy password sessions cannot access the wo
   await expect(page).toHaveURL(/\/signin$/);
   await expect(page.getByRole('link', { name: 'Continue with Google' })).toBeVisible();
   await expect(page.locator('main input')).toHaveCount(0);
+  await login(page, 'qa-personal@gmail.com');
+  await expect(page).toHaveURL(/\/me$/);
+  await logout(page);
   await login(page, 'legacy@vitstudent.ac.in');
   await expect(page).toHaveURL(/\/signin$/);
   await page.goto('/verify?token=invalid');
@@ -352,17 +355,20 @@ test('kinetic reactions clean up on pause and project navigation stays direct', 
   await expect(page).toHaveURL(new RegExp(`${href}$`));
 });
 
-test('VIT-only error is actionable and Google callback requires a matching browser flow', async ({
+test('Google sign-in accepts personal accounts and callback requires a matching browser flow', async ({
   page,
   request,
 }) => {
-  await page.goto('/signin?oauth=vit-only');
-  await expect(page.locator('main').getByRole('alert')).toContainText('@vitstudent.ac.in');
+  await page.goto('/signin?oauth=failed');
+  await expect(page.locator('main').getByRole('alert')).toContainText(
+    'Google sign-in did not complete',
+  );
   const start = await request.get('/auth/google', { maxRedirects: 0 });
   expect(start.status()).toBe(307);
   const authorization = new URL(start.headers().location);
   expect(authorization.hostname).toBe('accounts.google.com');
-  expect(authorization.searchParams.get('hd')).toBe('vitstudent.ac.in');
+  expect(authorization.searchParams.has('hd')).toBe(false);
+  await expect(page.getByText('Use your personal or college Google account.')).toBeVisible();
   expect(authorization.searchParams.get('code_challenge_method')).toBe('S256');
   expect(start.headers()['set-cookie']).toContain('HttpOnly');
   const callback = await request.get('/auth/google/callback?code=unused&state=invalid', {

@@ -32,7 +32,7 @@ export function GoogleSignin() {
         Continue with Google
       </a>
       <p className="understated">
-        Use your @vitstudent.ac.in Google account.
+        Use your personal or college Google account.
         <br />
         Your email is verified automatically.
       </p>

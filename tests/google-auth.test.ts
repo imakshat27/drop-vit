@@ -4,7 +4,6 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { generateKeyPair, exportJWK, createLocalJWKSet, SignJWT } from 'jose';
 import { eq } from 'drizzle-orm';
-import { isVitEmail } from '../src/lib/email-policy';
 import {
   createGoogleFlow,
   matchingState,
@@ -25,26 +24,18 @@ before(async () => {
 after(async () => {
   await database().close();
 });
-test('VIT restriction rejects lookalike domains and OAuth protects browser state with PKCE', () => {
-  assert.equal(isVitEmail('student@VITSTUDENT.AC.IN'), true);
-  for (const e of [
-    'student@gmail.com',
-    'student@vitstudent.ac.in.evil.test',
-    'student@evilvitstudent.ac.in',
-    'x@@vitstudent.ac.in',
-  ])
-    assert.equal(isVitEmail(e), false);
+test('Google OAuth allows any email domain and protects browser state with PKCE', () => {
   const flow = createGoogleFlow(),
     second = createGoogleFlow();
   assert.equal(matchingState(flow.state, second.state), false);
   assert.equal(matchingState(flow.state, flow.state), true);
   assert.equal(matchingState('', ''), false);
   const url = googleAuthorizationUrl(flow);
-  assert.equal(url.searchParams.get('hd'), 'vitstudent.ac.in');
+  assert.equal(url.searchParams.has('hd'), false);
   assert.equal(url.searchParams.get('code_challenge_method'), 'S256');
   assert.notEqual(url.searchParams.get('code_challenge'), flow.verifier);
 });
-test('Google tokens require valid signatures, audience, issuer, expiry, nonce and verified Workspace email', async () => {
+test('Google tokens require valid signatures, audience, issuer, expiry, nonce and a verified email', async () => {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const key = await exportJWK(publicKey);
   key.kid = 'test';
@@ -75,9 +66,18 @@ test('Google tokens require valid signatures, audience, issuer, expiry, nonce an
     (await verifyGoogleIdToken(await token(), 'expected', resolver)).email,
     claims.email,
   );
+  for (const email of ['student@gmail.com', 'builder@another-college.edu']) {
+    assert.equal(
+      (await verifyGoogleIdToken(await token({ email, hd: undefined }), 'expected', resolver))
+        .email,
+      email,
+    );
+  }
   for (const overrides of [
-    { email: 'student@gmail.com' },
-    { hd: 'other.test' },
+    { email: 'invalid-email' },
+    { email: 'x@@gmail.com' },
+    { email_verified: 'true' },
+    { azp: 'other-client' },
     { email_verified: false },
     { nonce: 'wrong' },
   ])
@@ -104,7 +104,7 @@ test('Google tokens require valid signatures, audience, issuer, expiry, nonce an
   await assert.rejects(verifyGoogleIdToken(invalid, 'expected', resolver));
 });
 test('Google signup verifies ownership, preserves identity, and removes access from pre-registered unverified accounts', async () => {
-  const profile = { subject: 'google-account', email: 'owner@vitstudent.ac.in', name: 'Owner' };
+  const profile = { subject: 'google-account', email: 'owner@gmail.com', name: 'Owner' };
   const first = await googleAccount(profile);
   assert.equal(await googleAccount(profile), first);
   assert.equal((await db().select().from(users).where(eq(users.id, first)))[0].verified, true);
@@ -135,13 +135,14 @@ test('Google signup verifies ownership, preserves identity, and removes access f
     googleAccount({ subject: 'other-owner', email: 'claimed@vitstudent.ac.in', name: 'Other' }),
   );
 });
-test('multiple authorized curators are promoted without granting other students access', async () => {
+test('only the authorized personal Google account is promoted to curator', async () => {
   const previous = process.env.CURATOR_EMAIL;
   try {
-    process.env.CURATOR_EMAIL = ' first@vitstudent.ac.in, SECOND@vitstudent.ac.in ';
+    process.env.CURATOR_EMAIL = ' agarwalakshat2710@gmail.com ';
     for (const [email, role] of [
-      ['first@vitstudent.ac.in', 'admin'],
-      ['second@vitstudent.ac.in', 'admin'],
+      ['agarwalakshat2710@gmail.com', 'admin'],
+      ['akshat.amitagarwal2024@vitstudent.ac.in', 'user'],
+      ['another@gmail.com', 'user'],
       ['third@vitstudent.ac.in', 'user'],
     ]) {
       const id = await googleAccount({ subject: email, email, name: 'Student' });

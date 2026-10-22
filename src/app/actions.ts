@@ -56,7 +56,7 @@ export async function logoutAction() {
 export async function supportAction(_: ActionState, form: FormData): Promise<ActionState> {
   const user = await currentUser();
   if (!user) return { error: 'Sign in to support this project.' };
-  if (!user.verified) return { error: 'Sign in with your VIT Google account to support projects.' };
+  if (!user.verified) return { error: 'Sign in with your Google account to support projects.' };
   const projectId = String(form.get('projectId') || '');
   const periodId = String(form.get('periodId') || '');
   try {

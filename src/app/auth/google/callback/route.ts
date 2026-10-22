@@ -9,7 +9,6 @@ import {
   googleAccount,
   type createGoogleFlow,
 } from '@/lib/google-oauth';
-import { VIT_ONLY_MESSAGE } from '@/lib/email-policy';
 export async function GET(request: Request) {
   const jar = await cookies();
   const saved = jar.get(GOOGLE_COOKIE)?.value;
@@ -35,9 +34,7 @@ export async function GET(request: Request) {
     const id = await googleAccount(profile);
     await createSession(id);
     return NextResponse.redirect(new URL('/me', origin));
-  } catch (error) {
-    const reason =
-      error instanceof Error && error.message === VIT_ONLY_MESSAGE ? 'vit-only' : 'failed';
-    return NextResponse.redirect(new URL(`/signin?oauth=${reason}`, origin));
+  } catch {
+    return NextResponse.redirect(new URL('/signin?oauth=failed', origin));
   }
 }

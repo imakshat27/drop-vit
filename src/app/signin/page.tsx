@@ -34,7 +34,9 @@ export default async function Signin({
             <br />
             the workshop.
           </h1>
-          <p className="google-auth-intro">One VIT account. Everything you’re here to make.</p>
+          <p className="google-auth-intro">
+            Your Google account. Your place in VIT’s builder community.
+          </p>
           <ul className="google-auth-benefits">
             <li>
               <Code2 size={20} aria-hidden />
@@ -51,13 +53,11 @@ export default async function Signin({
           </ul>
           {oauth && (
             <p className="message error" role="alert">
-              {oauth === 'vit-only'
-                ? 'Use your VIT Google account ending in @vitstudent.ac.in.'
-                : oauth === 'cancelled'
-                  ? 'Google sign-in was cancelled. You can try again below.'
-                  : oauth === 'unavailable'
-                    ? 'Google sign-in is temporarily unavailable. Please try again later.'
-                    : 'Google sign-in did not complete. Please try again.'}
+              {oauth === 'cancelled'
+                ? 'Google sign-in was cancelled. You can try again below.'
+                : oauth === 'unavailable'
+                  ? 'Google sign-in is temporarily unavailable. Please try again later.'
+                  : 'Google sign-in did not complete. Please try again.'}
             </p>
           )}
           <GoogleSignin />

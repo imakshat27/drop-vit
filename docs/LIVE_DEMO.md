@@ -16,7 +16,7 @@ The tool creates:
 - A fictional previous-month weekly archive and monthly archive, with 156 matching historical supports, 32 ranking snapshots and 11 sample awards.
 - Three sample recruiting roles and pending / changes requested / rejected moderation examples.
 
-All public titles, profiles, awards and archive labels include `[Demo]`. Every fixture description identifies fictional test data. Emails use the reserved `.test` domain, passwords cannot authenticate, Google subjects and admin roles are absent. Existing VIT-only authentication remains intact. No verification or recruitment emails are sent; sample role links are non-deliverable and the existing UI identifies them as samples.
+All public titles, profiles, awards and archive labels include `[Demo]`. Every fixture description identifies fictional test data. Emails use the reserved `.test` domain, passwords cannot authenticate, Google subjects and admin roles are absent. Google-only authentication remains intact; personal and college Google accounts are supported. No verification or recruitment emails are sent; sample role links are non-deliverable and the existing UI identifies them as samples.
 
 Repeated seeding is a no-op. It will not reset edits, inflate votes or enter fixtures in subsequent weeks. ID collisions or partially missing fixtures cause a rollback. Demo votes influence displayed test rankings while fixtures are present; they are not real student activity. Project URLs use `/projects/demo-drop-…`; profiles use `/builders/demo-drop-…`.
 

@@ -26,7 +26,7 @@ The Worker uses Brevo on port **465** with TLS from the start through Cloudflare
 
 Keep `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `APP_URL` and `NOTIFICATION_JOB_SECRET` configured on the Worker. Do not run the mailer against QA databases with real SMTP settings. QA tests inject a fake sender; browser fixtures keep SMTP disabled.
 
-`CURATOR_EMAIL` now contains only the owner's configured VIT address. Other former curators were demoted in the database as well as removed from that login allowlist.
+`CURATOR_EMAIL` contains only `agarwalakshat2710@gmail.com`, the owner's authorized Google account. Other former curators were demoted in the database as well as removed from that login allowlist.
 
 Three clearly labelled sample emails were sent at the owner's request. Demo previews use sample content and do not create submissions, approvals or public projects.
 

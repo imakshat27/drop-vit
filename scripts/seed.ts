@@ -410,6 +410,24 @@ async function main() {
           });
       }
     }
+    // Personal Google accounts can access the same workshop as college accounts.
+    await db().insert(users).values({
+      id: 'qa-personal',
+      email: 'qa-personal@gmail.com',
+      name: 'Personal Google builder',
+      passwordHash: '!google-only!qa-personal',
+      googleSubject: 'qa-google-personal',
+      verified: true,
+    });
+    const personalToken = randomBytes(32).toString('hex');
+    tokens['qa-personal@gmail.com'] = [personalToken];
+    await db()
+      .insert(sessions)
+      .values({
+        tokenHash: hashToken(personalToken),
+        userId: 'qa-personal',
+        expiresAt: new Date(Date.now() + 86400000),
+      });
     // A legacy password-only session must no longer grant protected access.
     await db().insert(users).values({
       id: 'legacy',
