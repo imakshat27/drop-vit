@@ -7,7 +7,8 @@ import { ArrowUpRight, ArrowRight, Code2, Lock, Calendar } from 'lucide-react';
 import { projectBySlug, projectTeam, projectAwards, currentWeek, supportedIds } from '@/lib/data';
 import { currentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { recruitments, results, periods, entries } from '@/lib/schema';
+import { projectReleaseAt, isReleased, releaseMessage } from '@/lib/project-release';
+import { recruitments, results, periods, entries, projects } from '@/lib/schema';
 import { rankingFor } from '@/lib/rankings';
 import { Support } from '@/components/support';
 import { Tag, RoleMeta } from '@/components/cards';
@@ -15,9 +16,11 @@ import { ShareButton } from '@/components/share-button';
 import { projectShareCards, type ShareCard } from '@/lib/share-cards';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const user = await currentUser();
-  const p = await projectBySlug(slug, user?.id, user?.role === 'admin');
-  return { title: p?.title || 'Project not found' };
+  const p = await projectBySlug(slug);
+  return {
+    title: p?.title || 'Private build',
+    ...(!p ? { robots: { index: false, follow: false } } : {}),
+  };
 }
 export default async function ProjectPage({
   params,
@@ -30,6 +33,11 @@ export default async function ProjectPage({
   const user = await currentUser();
   const p = await projectBySlug(slug, user?.id, user?.role === 'admin');
   if (!p) notFound();
+  const [{ releaseAt }] = await db()
+    .select({ releaseAt: projectReleaseAt() })
+    .from(projects)
+    .where(eq(projects.id, p.id));
+  const released = isReleased(p.status, releaseAt);
   const week = await currentWeek();
   const [team, awards, roles, history, supported, enrolled] = await Promise.all([
     projectTeam(p.id),
@@ -53,9 +61,10 @@ export default async function ProjectPage({
   const ranked = enrolled.length ? await rankingFor(week) : [];
   const row = ranked.find((r) => r.project.id === p.id);
   const submitted = (await searchParams).submitted;
-  const shareCards: ShareCard[] =
-    p.status === 'approved' ? projectShareCards(p, team.map((t) => t.name).join(', ')) : [];
-  if (p.status === 'approved') {
+  const shareCards: ShareCard[] = released
+    ? projectShareCards(p, team.map((t) => t.name).join(', '))
+    : [];
+  if (released) {
     for (const award of awards) {
       const locked = history.find((h) => h.period.id === award.periodId && h.period.lockedAt);
       // Period awards must be backed by locked results. Special curator awards stand alone.
@@ -80,6 +89,12 @@ export default async function ProjectPage({
         <ArrowRight size={12} aria-hidden />
         <span>{p.title}</span>
       </nav>
+      {p.status === 'approved' && !released && (
+        <div className="message">
+          <b>Scheduled · private preview</b>
+          <p>{releaseMessage(releaseAt)}</p>
+        </div>
+      )}
       {p.status !== 'approved' && (
         <div className="message">
           <b>
@@ -91,8 +106,8 @@ export default async function ProjectPage({
           </b>
           <p>
             {submitted
-              ? 'You dropped it! A curator will review your build. It will appear in discovery after approval.'
-              : 'This build is only visible to you, your curator, and its owner until it is approved.'}
+              ? 'You dropped it! A curator will review your build. After approval, it will appear when its scheduled Drop releases.'
+              : 'This build is only visible to you, your curator, and its owner until its scheduled Drop releases.'}
           </p>
           {p.feedback && <p>Curator note: {p.feedback}</p>}
           {user?.id === p.ownerId && <Link href={`/submit?edit=${p.id}`}>Edit and resubmit →</Link>}

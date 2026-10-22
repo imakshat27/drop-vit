@@ -3,11 +3,13 @@ import { randomUUID } from 'node:crypto';
 import { db } from './db';
 import { awards, entries, periods, projects, results, type Period, type Project } from './schema';
 import { categories, weekBounds } from './constants';
+import { releasedProject } from './project-release';
 export type RankedProject = { project: Project; count: number; score: number; rank: number };
 export function normalizedWeeklyScore(shares: number[]) {
   return shares.length ? shares.reduce((a, b) => a + b, 0) / shares.length : 0;
 }
 export async function rankingFor(period: Period, category = 'Overall'): Promise<RankedProject[]> {
+  if (period.startsAt > new Date()) return [];
   if (period.lockedAt) {
     const rows = await db()
       .select()
@@ -36,7 +38,7 @@ export async function rankingFor(period: Period, category = 'Overall'): Promise<
       })
       .from(entries)
       .innerJoin(projects, eq(entries.projectId, projects.id))
-      .where(and(eq(entries.periodId, period.id), eq(projects.status, 'approved')));
+      .where(and(eq(entries.periodId, period.id), releasedProject()));
     const filtered = list.filter((r) => category === 'Overall' || r.project.category === category);
     const total = filtered.reduce((n, r) => n + Number(r.count), 0);
     return filtered
@@ -110,7 +112,7 @@ export async function lockPeriod(id: string) {
           })
           .from(entries)
           .innerJoin(projects, eq(entries.projectId, projects.id))
-          .where(and(eq(entries.periodId, id), eq(projects.status, 'approved')));
+          .where(and(eq(entries.periodId, id), releasedProject()));
         const filtered = list
           .filter((r) => category === 'Overall' || r.project.category === category)
           .sort(

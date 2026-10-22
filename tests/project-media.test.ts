@@ -65,7 +65,7 @@ test('direct upload policy restricts object key, type, size and expiry without e
     });
   }
 });
-test('edge media caching only shares approved public images, never private or failed previews', async () => {
+test('edge media caching only shares released public images, never private or failed previews', async () => {
   for (const control of ['private, no-store', 'public, max-age=300']) {
     let puts = 0;
     const work: Promise<unknown>[] = [];
@@ -86,4 +86,23 @@ test('edge media caching only shares approved public images, never private or fa
     assert.equal(puts, control.startsWith('public') ? 1 : 0);
     assert.equal(response.status, 200);
   }
+});
+
+test('media cache namespaces prevent an earlier visibility policy from leaking cached images', async () => {
+  const keys: string[] = [];
+  for (const version of ['old-build', 'release-fix']) {
+    await fetchWithMediaCache(new Request('https://droppp.tech/api/media/' + id), {
+      version,
+      cache: {
+        match: async (key) => {
+          keys.push(key.url);
+          return undefined;
+        },
+        put: async () => {},
+      },
+      waitUntil: () => {},
+      render: async () => new Response(null, { status: 404 }),
+    });
+  }
+  assert.notEqual(keys[0], keys[1]);
 });

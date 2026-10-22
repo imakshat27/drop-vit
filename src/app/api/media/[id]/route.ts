@@ -1,3 +1,4 @@
+import { projectReleaseAt, isReleased } from '@/lib/project-release';
 import { sql } from 'drizzle-orm';
 import { currentUser } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -6,7 +7,7 @@ import { MEDIA_ID } from '@/lib/project-media';
 import { imageOwnedBy, storageRequest } from '@/lib/image-storage';
 async function projectUsing(url: string) {
   return db()
-    .select({ status: projects.status, ownerId: projects.ownerId })
+    .select({ status: projects.status, ownerId: projects.ownerId, releaseAt: projectReleaseAt() })
     .from(projects)
     .where(sql`${projects.details}->'media' ? ${url}`);
 }
@@ -14,22 +15,22 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   if (!MEDIA_ID.test(id)) return new Response(null, { status: 404 });
   const references = await projectUsing('/api/media/' + id);
-  const approved = references.some((p) => p.status === 'approved');
-  if (!approved) {
+  const released = references.some((p) => isReleased(p.status, p.releaseAt));
+  if (!released) {
     const user = await currentUser();
     if (!user || !(imageOwnedBy(id, user.id) || (user.role === 'admin' && references.length)))
       return new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
   }
   try {
     let result = await storageRequest(id);
-    if (result.status === 404 && !approved) result = await storageRequest(id, {}, '', true);
+    if (result.status === 404 && !released) result = await storageRequest(id, {}, '', true);
     if (!result.ok) return new Response(null, { status: 404 });
     return new Response(result.body, {
       headers: {
         'Content-Type': 'image/webp',
         'X-Content-Type-Options': 'nosniff',
         'Content-Disposition': 'inline',
-        'Cache-Control': approved ? 'public, max-age=300, s-maxage=86400' : 'private, no-store',
+        'Cache-Control': released ? 'public, max-age=300, s-maxage=86400' : 'private, no-store',
         Vary: 'Cookie',
       },
     });

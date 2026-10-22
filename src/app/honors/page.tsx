@@ -25,7 +25,9 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
   const all = await allPeriods();
   const options = all.filter((p) => p.kind === kind);
   const period =
-    options.find((p) => p.id === query.period) || options.find((p) => !p.lockedAt) || options[0];
+    options.find((p) => p.id === query.period) ||
+    options.find((p) => !p.lockedAt && p.endsAt > new Date()) ||
+    options[0];
   const hall = query.view === 'hall';
   const ranked = period && !hall ? await rankingFor(period, category) : [];
   const champions = hall
@@ -115,7 +117,7 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
                 defaultValue={period?.id}
                 options={options.map((p) => ({
                   value: p.id,
-                  label: `${p.label} · ${p.lockedAt ? 'Locked' : 'In progress'}`,
+                  label: `${p.label} · ${p.lockedAt ? 'Locked' : p.endsAt <= new Date() ? 'Closed' : 'In progress'}`,
                 }))}
               />
               <button className="button secondary small">View edition</button>
@@ -151,7 +153,7 @@ async function HonorsData({ query }: { query: HonorsQuery }) {
                     <Lock size={14} aria-hidden /> LOCKED FOREVER
                   </>
                 ) : (
-                  <>IN PROGRESS</>
+                  <>{period.endsAt <= new Date() ? 'CLOSED' : 'IN PROGRESS'}</>
                 )}
               </span>
             </div>

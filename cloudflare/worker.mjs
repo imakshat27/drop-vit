@@ -6,6 +6,7 @@ const worker = {
   fetch(request, env, ctx) {
     if (/^\/api\/media\/[A-Za-z0-9_-]+\.[0-9a-f-]{36}$/.test(new URL(request.url).pathname)) {
       return fetchWithMediaCache(request, {
+        version,
         cache: caches.default,
         waitUntil: (promise) => ctx.waitUntil(promise),
         render: async () => {

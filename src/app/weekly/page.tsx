@@ -20,7 +20,10 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
   const [requestedPeriod] = requested
     ? await db().select().from(periods).where(eq(periods.id, requested))
     : [];
-  const period = requestedPeriod?.kind === 'weekly' ? requestedPeriod : active;
+  const period =
+    requestedPeriod?.kind === 'weekly' && requestedPeriod.startsAt <= new Date()
+      ? requestedPeriod
+      : active;
   const [ranked, user, archive] = await Promise.all([
     rankingFor(period),
     currentUser(),
@@ -86,7 +89,7 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
           ) : (
             <Empty
               title="The next big thing is coming."
-              description="Approved submissions join the next exhibition. This lineup will grow as our curators review new builds."
+              description="Approved submissions stay private until their scheduled Drop opens. New exhibitions release every Monday at 00:00 IST."
               href="/submit"
               label="Put your build in the mix"
             />
@@ -97,12 +100,7 @@ async function WeeklyData({ searchParams }: { searchParams: Promise<{ period?: s
           <div className="aside-section" style={{ marginTop: 30 }}>
             <h2>Other exhibitions</h2>
             {archive
-              .filter(
-                (p) =>
-                  p.kind === 'weekly' &&
-                  p.id !== period.id &&
-                  (p.lockedAt || p.startsAt > new Date()),
-              )
+              .filter((p) => p.kind === 'weekly' && p.id !== period.id && p.lockedAt)
               .map((p) => (
                 <Link className="project-link" key={p.id} href={`/weekly?period=${p.id}`}>
                   {p.label}

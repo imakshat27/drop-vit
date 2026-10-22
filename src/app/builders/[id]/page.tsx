@@ -2,6 +2,7 @@ import { BrandSpark } from '@/components/brand-spark';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { and, eq } from 'drizzle-orm';
+import { releasedProject } from '@/lib/project-release';
 import { db } from '@/lib/db';
 import { users, projects, members, awards } from '@/lib/schema';
 import { ProjectCard, Tag, Empty } from '@/components/cards';
@@ -30,13 +31,13 @@ export default async function Builder({
     .select({ project: projects, role: members.role })
     .from(members)
     .innerJoin(projects, eq(members.projectId, projects.id))
-    .where(and(eq(members.userId, id), eq(projects.status, 'approved')));
+    .where(and(eq(members.userId, id), releasedProject()));
   const badges = await db()
     .select({ award: awards, project: projects })
     .from(awards)
     .innerJoin(projects, eq(awards.projectId, projects.id))
     .innerJoin(members, eq(members.projectId, projects.id))
-    .where(and(eq(members.userId, id), eq(projects.status, 'approved')));
+    .where(and(eq(members.userId, id), releasedProject()));
   const list = tab === 'contributions' ? work.filter((p) => p.role !== 'Creator') : work;
   return (
     <main id="main" className="container">
@@ -130,7 +131,7 @@ export default async function Builder({
             description={
               tab === 'contributions'
                 ? 'Collaborations will appear here once the projects are approved.'
-                : 'Approved builds will find a home here.'
+                : 'Released builds will find a home here.'
             }
             href="/discover"
           />

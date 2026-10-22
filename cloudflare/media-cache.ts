@@ -1,9 +1,10 @@
 import type { EdgeCache } from './public-cache';
-/** Cache only media the app has explicitly marked public after moderation. */
+/** Cache only media the app has explicitly marked public after release. */
 export async function fetchWithMediaCache(
   request: Request,
   options: {
     cache: EdgeCache;
+    version?: string;
     waitUntil: (promise: Promise<unknown>) => void;
     render: () => Promise<Response>;
   },
@@ -16,6 +17,7 @@ export async function fetchWithMediaCache(
     return options.render();
   const url = new URL(request.url);
   url.search = '';
+  url.searchParams.set('release-policy', options.version || 'scheduled-v1');
   const key = new Request(url, { method: 'GET' });
   const found = await options.cache.match(key);
   if (found) return found;

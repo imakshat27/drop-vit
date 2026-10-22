@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { eq, desc } from 'drizzle-orm';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { projectReleaseAt, isReleased, releaseMessage } from '@/lib/project-release';
 import { projects } from '@/lib/schema';
 import { logoutAction, updateProfileAction } from '../actions';
 import { ActionForm } from '@/components/action-form';
@@ -17,7 +18,7 @@ export default async function Me({
   const u = await requireUser();
   const q = await searchParams;
   const work = await db()
-    .select()
+    .select({ project: projects, releaseAt: projectReleaseAt() })
     .from(projects)
     .where(eq(projects.ownerId, u.id))
     .orderBy(desc(projects.createdAt));
@@ -81,7 +82,7 @@ export default async function Me({
       <section className="admin-section">
         <h2>From your workshop.</h2>
         {work.length ? (
-          work.map((p) => (
+          work.map(({ project: p, releaseAt }) => (
             <article className="admin-card" key={p.id}>
               <div className="card-meta">
                 <Tag color={p.status === 'approved' ? 'lime' : ''}>
@@ -90,7 +91,9 @@ export default async function Me({
                     : p.status === 'changes'
                       ? 'Changes requested'
                       : p.status === 'approved'
-                        ? 'Approved'
+                        ? isReleased(p.status, releaseAt)
+                          ? 'Published'
+                          : 'Scheduled'
                         : 'Not approved'}
                 </Tag>
                 <span className="micro">{p.category}</span>
@@ -99,6 +102,12 @@ export default async function Me({
                 <Link href={`/projects/${p.slug}`}>{p.title} ↗</Link>
               </h3>
               <p>{p.tagline}</p>
+              {p.status === 'approved' && !isReleased(p.status, releaseAt) && (
+                <div className="message">
+                  <b>Approved · private preview</b>
+                  <p>{releaseMessage(releaseAt)}</p>
+                </div>
+              )}
               {p.feedback && (
                 <div className="message">
                   <b>Curator note</b>
@@ -110,7 +119,7 @@ export default async function Me({
                   {p.status === 'changes' ? 'Make changes & resubmit' : 'Edit submission'} →
                 </Link>
               )}
-              {p.status === 'approved' && (
+              {isReleased(p.status, releaseAt) && (
                 <ShareButton cards={projectShareCards(p, u.name)} owner label="Share my build" />
               )}
             </article>

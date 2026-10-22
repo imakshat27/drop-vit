@@ -3,11 +3,12 @@ import { db } from './db';
 import { projects, users, members, awards, recruitments, periods, supports } from './schema';
 import { prepareWeeks, rankingFor } from './rankings';
 import { cache } from 'react';
+import { releasedProject } from './project-release';
 export async function approvedProjects(category?: string, q?: string) {
   const all = await db()
     .select()
     .from(projects)
-    .where(eq(projects.status, 'approved'))
+    .where(releasedProject())
     .orderBy(desc(projects.featured), desc(projects.createdAt));
   return all.filter(
     (p) =>
@@ -43,7 +44,7 @@ export async function projectBySlug(slug: string, userId?: string, isAdmin = fal
         eq(projects.slug, slug),
         isAdmin
           ? undefined
-          : or(eq(projects.status, 'approved'), userId ? eq(projects.ownerId, userId) : undefined),
+          : or(releasedProject(), userId ? eq(projects.ownerId, userId) : undefined),
       ),
     );
   return p;
@@ -63,7 +64,7 @@ export async function openRoles() {
     .select({ role: recruitments, project: projects })
     .from(recruitments)
     .innerJoin(projects, eq(recruitments.projectId, projects.id))
-    .where(and(eq(recruitments.status, 'open'), eq(projects.status, 'approved')));
+    .where(and(eq(recruitments.status, 'open'), releasedProject()));
 }
 export async function supportedIds(userId?: string, periodId?: string) {
   if (!userId || !periodId) return [];
@@ -75,5 +76,9 @@ export async function supportedIds(userId?: string, periodId?: string) {
   ).map((r) => r.id);
 }
 export async function allPeriods() {
-  return db().select().from(periods).orderBy(desc(periods.startsAt), asc(periods.kind));
+  return db()
+    .select()
+    .from(periods)
+    .where(sql`${periods.startsAt} <= ${new Date()}`)
+    .orderBy(desc(periods.startsAt), asc(periods.kind));
 }

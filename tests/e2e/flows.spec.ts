@@ -91,13 +91,33 @@ test('submission preview, private review, requested changes, approval and next-w
   await review.getByRole('button', { name: 'Save review' }).click();
   await expect(review).toHaveCount(0);
   await page.goto('/weekly?period=week-19');
-  await expect(page.getByRole('link', { name: 'Lab Lantern', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Voting has not opened/ })).toBeDisabled();
+  await expect(page.getByRole('link', { name: 'Lab Lantern', exact: true })).toHaveCount(0);
+  await page.goto('/honors?kind=weekly&period=week-19');
+  await expect(page.getByRole('link', { name: 'Lab Lantern', exact: true })).toHaveCount(0);
   await logout(page);
-  await page.goto('/discover?q=Lab+Lantern');
-  await expect(page.locator('.project-card')).toHaveCount(1);
+  await login(page, 'ananya@vitstudent.ac.in');
+  await expect(own).toContainText('Scheduled');
+  await expect(own).toContainText('at 00:00 IST');
+  await expect(own.getByRole('button', { name: 'Share my build' })).toHaveCount(0);
   await page.goto(detail);
-  await expect(page.getByText('First Project', { exact: true })).toBeVisible();
+  await expect(page.getByText('Scheduled · private preview', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Share this build' })).toHaveCount(0);
+  await logout(page);
+  for (const path of [
+    '/discover?q=Lab+Lantern',
+    '/builders/ananya',
+    '/builders/ananya?tab=contributions',
+    '/recruit',
+    '/honors?kind=monthly',
+    '/honors?kind=all-time',
+    '/',
+  ]) {
+    await page.goto(path);
+    await expect(page.getByRole('link', { name: 'Lab Lantern', exact: true })).toHaveCount(0);
+  }
+  await page.goto(detail);
+  await expect(page.getByRole('heading', { name: 'This build is off the grid.' })).toBeVisible();
+  await expect(page).not.toHaveTitle(/Lab Lantern/);
 });
 test('Google is the only entry and legacy password sessions cannot access the workshop', async ({
   page,

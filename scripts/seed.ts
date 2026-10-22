@@ -338,6 +338,21 @@ async function main() {
           ],
         },
       });
+    await db().insert(entries).values({ projectId: 'qa-gallery', periodId: 'week-18' });
+    await db()
+      .insert(projects)
+      .values({
+        id: 'qa-scheduled',
+        slug: 'qa-scheduled',
+        title: 'Unreleased QA build',
+        tagline: 'This must stay private until next week.',
+        description: 'Isolated release privacy fixture.',
+        category: 'Projects',
+        ownerId: 'ananya',
+        status: 'approved',
+        details: { media: ['/api/media/YW5hbnlh.00000000-0000-4000-8000-000000000001'] },
+      });
+    await db().insert(entries).values({ projectId: 'qa-scheduled', periodId: 'week-19' });
     const tokens: Record<string, string[]> = {};
     for (const id of ['ananya', 'arjun', 'diya', 'ishaan', 'admin']) {
       const [user] = await db()
